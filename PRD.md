@@ -437,7 +437,7 @@ Time budget assumes start Fri Sep 25 evening (UTC+1 local).
 ### Phase 1: One job end to end (Fri night, ~5h)
 Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 1.1 Types + data: `src/data/jobs.ts`, `src/data/bodies.ts` (Section 15)
-- [ ] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
+- [x] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
 - [ ] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
 - [ ] 1.4 ORDER screen
 - [ ] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
@@ -605,10 +605,11 @@ export interface JobResult {
 - Phase 0 scaffold: `f7dec39` · editor + save preview: `44ab7c4` · stencil + body placeholder PNGs: `fe8a512` · PRD/NOTES/README/CLAUDE.md: `4f6f4bc`
 - Repo: https://github.com/Bholdguy/inked-in-leonida (public) · Live: https://inked-in-leonida.vercel.app (deployed via `vercel --prod` CLI; Git auto-deploy not connected)
 - 1.1 types + data (`src/types.ts`, `src/data/jobs.ts`, `src/data/bodies.ts`): commit "feat: add game types, job data and body config". Added a `JobId` alias to 15.1 types (additive).
+- 1.1: `9c46fe9` · 1.2 zustand store (`src/store/game.ts`): commit "feat: add zustand game store"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.2 zustand store
+- 1.3 pure ink functions + tests
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -632,6 +633,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 16. **Compositing on the full 1024 stencil** (11.2 step 2): approved.
 17. **JPEG output test (2026-09-25).** Regenerated `blank.png` as white at alpha 250 and saved from the editor: output was still `image/jpeg` 1024x1024, with the background flattened to `[250,250,250,255]`. Any not-fully-transparent input still exports as JPEG. Decision applied: keep the opaque alpha-255 stencil (reverted), and make `whiteToAlpha`, `classifyColor` and `concealment` JPEG-tolerant with a ±12 noise test (task 1.3).
 18. **Vercel Git integration:** the owner is connecting it. Until confirmed, keep deploying with the `vercel --prod` CLI.
+19. **Dependencies added in 1.2** (all in the Section 7 allow-list): `zustand` 5.0.15, `vitest` 5.0.2 (dev). Vitest set up in 1.2 instead of 1.3 so the store has a test. `vitest` 5 needs `@types/node` >= 22, so `@types/node` was bumped from ^20 to ^24 (matches local Node 24; a type package, allowed).
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -648,6 +650,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · Manual (Chromium, dev): editor renders on white stencil, 8 tools in rail, draw + Save shows preview; transparency test per NOTES.md c)
 - 2026-09-25 · Manual (Chromium, https://inked-in-leonida.vercel.app): editor renders, 8 tools in rail, no AI panel, draw + Save shows 1024x1024 preview, no error banner. GATE 0 pass.
 - 2026-09-25 · 1.1 · typecheck pass · lint pass
+- 2026-09-25 · 1.2 · typecheck pass · `npm run test` 3/3 pass · lint pass
 
 ---
 
