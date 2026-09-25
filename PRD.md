@@ -614,10 +614,11 @@ export interface JobResult {
 - 1.6: `7d7e6de` · 1.7 compositing outputs + lock-in pipeline (`compositeOutputs` in `src/lib/ink/composite.ts`, `src/lib/game/evaluate.ts`, lock-in in `GameShell.tsx` with a retry message on failure; dev-only `window.__game` store handle): commit "feat: composite outputs and lock-in evaluation"
 - 1.7: `1022212` · 1.8 VERDICT (`src/components/screens/VerdictScreen.tsx`): reaction, mood badge, stars, tip, score, breakdown bars. Phase 1 button is "Restart shift" (INKGRAM is Phase 4; the fallback tag is task 2.5): commit "feat: add VERDICT screen with score breakdown"
 - 1.8: `c781ca1` · 1.9 routing (`src/components/GameShell.tsx`: ORDER -> STUDIO -> PLACEMENT -> VERDICT for tino-1, progress indicator, scroll-to-top, diegetic fallback for later-phase screens, "Restart shift" resets the store): commit "feat: route tino-1 end to end"
+- 1.9: `bf28e80`
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 1: full check + deploy
+- GATE 1: waiting for owner review. Phase 2 not started.
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -670,6 +671,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.7 · typecheck pass · test 65/65 · lint pass · browser (dev): outline heart via Save -> Lock it in -> JobResult: composite image/png 1000x1250 (toDataURL no taint), stencil image/jpeg, breakdown palette 12.5 / coverage 0 (outline < 4%) / placement 10 / motif 15 / lettering 15 = 53, 2 stars, angry, tip $70, source fallback. 512 JPEG built by the same call (used from Phase 2).
 - 2026-09-25 · 1.8 · typecheck pass · test 65/65 · lint pass · browser (dev): filled red heart -> VERDICT shows composite, MEH badge, 3 stars, tip $110, Score 68/100, bars Palette 12.5/25, Size 15/15, Placement 10/10, Motif 15/25, Lettering 15/25; Restart shift -> ORDER with results cleared
 - 2026-09-25 · 1.9 · typecheck pass · test 65/65 · lint pass · browser (dev): progress Order -> Stencil -> Placement -> Verdict via our Transfer button; scroll resets to top; unreachable screen shows diegetic fallback with a way back
+- 2026-09-25 · GATE 1 · `npm run typecheck` pass · `npm run lint` pass · `npm run test` 65/65 (3 files) · `npm run build` pass (dev-only store handle absent from prod chunks) · deployed `vercel --prod` -> https://inked-in-leonida.vercel.app · live run: ORDER -> STUDIO (rail Filter/Crop/Draw/Text/Shapes/Stickers, no AI panel, empty Transfer toast) -> filled red heart + editor Save -> PLACEMENT (zone "Inside left forearm") -> Lock it in -> VERDICT 68/100, 3 stars, 5 breakdown bars; 0 console errors. Drawing was driven by synthetic pointer events (the browser pane's screenshots crop at DPR 1.5); owner to confirm with a real mouse.
 
 ---
 
