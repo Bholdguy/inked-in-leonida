@@ -1,19 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0714;
-  --foreground: #f4ede4;
+  --night: #0b0714;
+  --panel: #160e24;
+  --pink: #ff3e9a;
+  --teal: #19e3d1;
+  --sunset: #ff8a3d;
+  --ink: #f4ede4;
+  --muted: #9c8fb0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-night: var(--night);
+  --color-panel: var(--panel);
+  --color-pink: var(--pink);
+  --color-teal: var(--teal);
+  --color-sunset: var(--sunset);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--night);
+  color: var(--ink);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+.shake {
+  animation: shake 0.4s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake {
+    animation: none;
+  }
 }

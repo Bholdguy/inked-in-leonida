@@ -440,7 +440,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 1.1 Types + data: `src/data/jobs.ts`, `src/data/bodies.ts` (Section 15)
 - [x] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
 - [x] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
-- [ ] 1.4 ORDER screen
+- [x] 1.4 ORDER screen
 - [ ] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
 - [ ] 1.6 PLACEMENT with placeholder body PNG (`public/bodies/`), drag/size/rotate, target zone
 - [ ] 1.7 Compositing (11.2)
@@ -608,10 +608,11 @@ export interface JobResult {
 - 1.1 types + data (`src/types.ts`, `src/data/jobs.ts`, `src/data/bodies.ts`): commit "feat: add game types, job data and body config". Added a `JobId` alias to 15.1 types (additive).
 - 1.1: `9c46fe9` · 1.2 zustand store (`src/store/game.ts`): commit "feat: add zustand game store"
 - 1.2: `fa37f25` · 1.3 pure ink functions + Vitest (`src/lib/ink/*.ts`, `src/lib/ink/__tests__/`): commit "feat: add pure ink pipeline and scoring with tests"
+- 1.3: `fcd7cd0` · 1.4 ORDER (`OrderScreen.tsx`, `ClientBadge.tsx`, `OrderChecklist.tsx`; minimal `GameShell.tsx` started early so screens can be seen; 8.3 color tokens added to `globals.css` as Tailwind colors, fonts/neon stay in 4.1): commit "feat: add ORDER screen"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.4 ORDER screen
+- 1.5 STUDIO
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -655,6 +656,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.1 · typecheck pass · lint pass
 - 2026-09-25 · 1.2 · typecheck pass · `npm run test` 3/3 pass · lint pass
 - 2026-09-25 · 1.3 · typecheck pass · `npm run test` 65/65 pass (3 files, incl. +/-12 JPEG noise suite) · lint pass
+- 2026-09-25 · 1.4 · typecheck pass · test 65/65 · lint pass · browser: ORDER shows badge, bio, request, 5-row checklist for tino-1
 
 ---
 
