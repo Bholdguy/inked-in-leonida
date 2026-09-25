@@ -38,7 +38,7 @@ options: {
 - Tool flag type: `ImageEditorToolConfig = boolean | { enabled?: boolean; icon?: string }`.
 - `features.imageEditor` can also be a plain `boolean`.
 - Two more tool keys exist in translations but NOT in `Features.tools`: `image_editor.tools.merge`, `image_editor.tools.corners`. The rail shows only the 8 tools above.
-- **Runtime-verified:** passing all 8 tool keys + `image_editor.toolbar.save` through `updateOptions({ translations: { en: {...} } })` relabels the rail and the Save button live. "Flash Sheet" is truncated in the rail ("Flash Sh...") — keep rail labels short.
+- **Runtime-verified:** passing all 8 tool keys + `image_editor.toolbar.save` through `updateOptions({ translations: { en: {...} } })` relabels the rail and the Save button live. "Flash Sheet" is truncated in the rail ("Flash Sh...") — rail labels are capped at 8 characters (PRD 10.3). "Transfer Stencil" fits the Save button.
 
 ## c) Transparent PNG background on save
 
@@ -47,7 +47,9 @@ options: {
 - `onSave` → `dataUrl` is `image/png`, `blob.type` is `image/png`, 256x256, transparent corner pixel = `[0,0,0,0]`, red pixel = `[255,0,0,255]`.
 - `editor.getImage()` → same result (PNG, alpha preserved).
 
-**Caveat, important for the pipeline:** an opaque input (our white `stencils/blank.png`) is saved as **`image/jpeg`**, 1024x1024. The output format follows the input's transparency. So player stencils arrive as JPEG, with compression noise around strokes. `whiteToAlpha` and `classifyColor` must tolerate JPEG ringing.
+**Caveat, important for the pipeline:** an opaque input (our white `stencils/blank.png`) is saved as **`image/jpeg`**, 1024x1024. So player stencils arrive as JPEG, with compression noise around strokes. `whiteToAlpha`, `classifyColor` and `concealment` must tolerate JPEG ringing.
+
+**Follow-up test (alpha 250):** a white stencil at alpha 250 (not 255) still saves as `image/jpeg`, with the background flattened to `[250,250,250,255]`. So "nearly opaque" does not switch the output to PNG. Decision: keep the opaque alpha-255 stencil and make the pipeline JPEG-tolerant.
 
 ## Other API facts (for Phase 1)
 

@@ -279,20 +279,21 @@ Why: resize and frame make no sense for skin. Crop MUST be off in the cover-up b
 
 ### 10.3 Themed labels
 
-Use `options.translations` with the keys discovered in `NOTES.md`:
+Use `options.translations` (`{ en: { key: label } }`) with the keys verified in `NOTES.md`. Every rail label MUST be 8 characters or less (longer labels truncate in the rail).
 
-| Default | Shop label |
-|---|---|
-| Draw | Needle |
-| Text | Lettering |
-| Stickers | Flash Sheet |
-| Shapes | Stencils |
-| Filter | Ink Age |
-| Crop | Trim |
-| Frame | Border |
-| Save | Transfer Stencil |
+| Default | Key | Shop label |
+|---|---|---|
+| Draw | `image_editor.tools.draw` | Needle |
+| Text | `image_editor.tools.text` | Script |
+| Stickers | `image_editor.tools.stickers` | Flash |
+| Shapes | `image_editor.tools.shapes` | Stencil |
+| Filter | `image_editor.tools.filter` | Ink Age |
+| Crop | `image_editor.tools.crop` | Trim |
+| Frame | `image_editor.tools.frame` | Border |
+| Resize | `image_editor.tools.resize` | (default "Resize") |
+| Save | `image_editor.toolbar.save` | Transfer Stencil (it fits the toolbar button; fall back to "Transfer" if it ever truncates) |
 
-**Fallback if keys are NOT FOUND:** keep default labels and render a slim legend bar above the editor: "Needle = Draw · Lettering = Text · Flash Sheet = Stickers · Stencils = Shapes · Ink Age = Filter". Do not hack the editor DOM.
+The keys were found and runtime-verified, so the legend-bar fallback is not needed. Do not hack the editor DOM.
 
 ### 10.4 Start images
 
@@ -413,6 +414,7 @@ Note: the final mood shown to the player comes from the score (9.2), not the mod
 - MUST respect `prefers-reduced-motion` (skip flicker and sweep, show result instantly).
 - MUST NOT enable Unlayer AI Assistant or set projectId.
 - MUST NOT use Rockstar/GTA logos, the Pricedown font, real character names (for example Lucia, Jason), or real in-game business names. All names in this PRD are original.
+- Leonida may be used as the setting name. No other in-game place names.
 - MUST NOT add dependencies outside Section 7 without logging why in Section 16.
 - MUST NOT hide errors from the player with blank screens. Every failure has a diegetic message and a retry.
 - MUST NOT start the next phase before the current gate passes.
@@ -605,7 +607,7 @@ export interface JobResult {
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 0: waiting for owner review. Phase 1 not started.
+- 1.1 Types + data
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -624,7 +626,11 @@ Plan-review flags (2026-09-25) and owner decisions:
 11. **Coverage basis unspecified.** Decision (approved): measured on the 512 normalized stencil mask. PRD 9.1 updated.
 12. **`typecheck` and `test` scripts missing.** `typecheck` added in Phase 0; `test` arrives with Vitest in task 1.3.
 13. **classifyColor rules are redundant but consistent** (`s < 0.18 → black` subsumes the second clause of the first rule). All 13.1 colors hand-checked. No change.
-14. **Open (not yet decided):** the Phase 0 page subtitle "Night shift. Vice strip." came from the Step 1 brief. "Vice" echoes a real in-game city name; Rule 12 bans real in-game business names. Owner to confirm or replace before Phase 4 (8.2 tagline already uses "the strip").
+14. **"Vice strip" subtitle.** Decision: changed to "Night shift on the strip." Rule added to Section 12: "Leonida may be used as the setting name. No other in-game place names."
+15. **Rail labels truncate** ("Flash Sheet" → "Flash Sh..."). Decision: every rail label is 8 characters or less: Needle, Script, Flash, Stencil, Ink Age, Trim, Border. Save stays "Transfer Stencil" (it fit in the Phase 0 runtime test). PRD 10.3 updated.
+16. **Compositing on the full 1024 stencil** (11.2 step 2): approved.
+17. **JPEG output test (2026-09-25).** Regenerated `blank.png` as white at alpha 250 and saved from the editor: output was still `image/jpeg` 1024x1024, with the background flattened to `[250,250,250,255]`. Any not-fully-transparent input still exports as JPEG. Decision applied: keep the opaque alpha-255 stencil (reverted), and make `whiteToAlpha`, `classifyColor` and `concealment` JPEG-tolerant with a ±12 noise test (task 1.3).
+18. **Vercel Git integration:** the owner is connecting it. Until confirmed, keep deploying with the `vercel --prod` CLI.
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->

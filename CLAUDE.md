@@ -13,6 +13,7 @@ Next.js 15 (App Router, `src/`), TypeScript, Tailwind v4, zustand, Vitest, deplo
 - MUST respect `prefers-reduced-motion` (skip flicker and sweep, show result instantly).
 - MUST NOT enable Unlayer AI Assistant or set projectId.
 - MUST NOT use Rockstar/GTA logos, the Pricedown font, real character names (for example Lucia, Jason), or real in-game business names. All names in this PRD are original.
+- Leonida may be used as the setting name. No other in-game place names.
 - MUST NOT add dependencies outside Section 7 without logging why in Section 16.
 - MUST NOT hide errors from the player with blank screens. Every failure has a diegetic message and a retry.
 - MUST NOT start the next phase before the current gate passes.
