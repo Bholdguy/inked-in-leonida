@@ -54,6 +54,13 @@ export default function VerdictScreen({ onDone }: { onDone: () => void }) {
 
         <p className="text-2xl font-bold leading-snug">“{result.reaction}”</p>
 
+        {result.source === "fallback" && (
+          // The judge didn't answer (no key, timeout, bad reply). Diegetic, never error jargon.
+          <p className="-mt-3 self-start rounded-full border border-white/15 px-3 py-0.5 text-xs italic text-muted">
+            Client squinted at it.
+          </p>
+        )}
+
         <div className="flex flex-wrap items-end gap-6">
           <p aria-label={`${result.stars} out of 5 stars`} className="text-3xl tracking-widest text-sunset">
             {"★".repeat(result.stars)}

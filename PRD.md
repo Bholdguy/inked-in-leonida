@@ -460,7 +460,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.2 Client call from INKING; merge into score per 9.2
 - [x] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [x] 2.4 Offensive path -> "Start over"
-- [ ] 2.5 "Client squinted at it" tag on fallback
+- [x] 2.5 "Client squinted at it" tag on fallback
 
 **GATE 2:** With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
 
@@ -627,10 +627,11 @@ export interface JobResult {
 - 2.1: `41ce673` · privacy footer: `6ea5641` · 2.2 INKING + client call (`src/components/screens/InkingScreen.tsx`, `src/lib/game/judgeClient.ts`, `evaluate.ts` split into `prepareJob` / pure `finishJob`, store `inking` + `startInking`/`finishInking`, `validateVerdict` shared by server and client, "Inking" step in progress bar, 1.2 s minimum on screen): commit "feat: add INKING screen and merge judge verdict into score"
 - 2.2: `7b86969` · 2.3 canned lines + mood consistency (`src/lib/ink/reaction.ts` `pickReaction`; `finishJob` takes the full `JudgeResponse`; canned lines were already in `jobs.ts` from 1.1): commit "feat: pick model or canned reaction by mood distance"
 - 2.3: `3805d50` · 2.4 offensive path (`JobResult.offensive`, store `startOver`, VERDICT "Start over" + refusal notice): commit "feat: offensive verdict offers Start over and remounts the studio"
+- 2.4: `be1ab61` · 2.5 fallback tag on VERDICT (`VerdictScreen.tsx`): commit "feat: show fallback tag on the verdict"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.5 Fallback tag
+- GATE 2: full check, Preview (no key) + production (key)
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -702,6 +703,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 2.2 · typecheck pass · lint pass · test 142/142 (6 files; finishJob: vision 100/5★/thrilled/$180, fallback 80/4★, wrong lettering 10, offensive 0/refusal/$0, cover-up 100; client: validated vision, fallback on server fallback / malformed / non-JSON / 500 / network error, 9 s cap with fake timers; store inking transitions) · dev with key: canvas stencil (red heart + black CRYSTAL) -> PLACEMENT -> INKING -> VERDICT in ~4.0 s, source vision, 100/100, 5 stars, $180 · dev with key, real editor: Text tool "CRYSTAL" + drawn heart -> lettering 25/25, motif 25/25; palette 12.5 because the Text tool's default fill was red (no black), which is correct scoring
 - 2026-09-25 · 2.3 · typecheck pass · lint pass · test 165/165 (7 files; pickReaction all 16 score/model mood combos, empty/whitespace/no model line, trim; finishJob: model line within one step, canned line when two steps away, offensive never uses the model line) · dev with key: tino-1 100/5★ thrilled, VERDICT shows the model line "Crystal is gonna love this, looks smooth like a fresh fiberglass hull!"
 - 2026-09-25 · 2.4 · typecheck pass · lint pass · test 166/166 (store startOver; finishJob offensive flag) · dev with JUDGE_FORCE=offensive (port 3001): real editor stroke -> Save -> Lock it in -> VERDICT 0/100, 1 star, ANGRY, refusal line, $0, alert "Tino won't wear that...", button "Start over" -> STUDIO for tino-1, fresh blank editor, result + draft cleared · dev with JUDGE_FORCE=slow (port 3002, server holds 12 s): INKING gave up at 9.1 s -> VERDICT fallback 80, canned line
+- 2026-09-25 · 2.5 · typecheck pass · lint pass · test 166/166 · dev with key: vision verdict 100/100 shows no tag; same result with source fallback shows "Client squinted at it."
 
 ---
 
