@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PlacementScreen from "@/components/placement/PlacementScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
+import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
 import { evaluateJob } from "@/lib/game/evaluate";
 import { currentJob, useGame } from "@/store/game";
@@ -49,6 +50,9 @@ export default function GameShell() {
           <PlacementScreen onLock={lockIn} />
         </div>
       );
+    case "VERDICT":
+      // Phase 1 ends at Tino's verdict; INKGRAM and the next client arrive in later phases.
+      return <VerdictScreen onDone={() => useGame.getState().reset()} />;
     default:
       return <p className="text-muted">Screen {screen} is not built yet.</p>;
   }
