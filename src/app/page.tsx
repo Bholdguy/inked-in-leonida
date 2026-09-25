@@ -8,6 +8,9 @@ export default function Home() {
         <p className="mt-2 text-muted">Night shift on the strip.</p>
       </header>
       <GameShell />
+      <footer className="mt-auto border-t border-white/10 pt-4 text-xs text-muted">
+        Your drawings are sent to an AI to judge them. Nothing is stored.
+      </footer>
     </main>
   );
 }
