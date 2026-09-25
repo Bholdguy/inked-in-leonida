@@ -450,6 +450,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 **GATE 1:** On the deployed URL, a person can go ORDER -> STUDIO -> PLACEMENT -> VERDICT for Tino and see a score breakdown. Tests pass.
 
 ### Phase 2: The judge (Sat morning, ~3h)
+- [x] 2.0 Live Gemini probe: model, JSON mode, thinking level, latency (owner-approved, max 8 calls)
 - [ ] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
 - [ ] 2.2 Client call from INKING; merge into score per 9.2
 - [ ] 2.3 Canned lines (Section 15.2) + mood consistency rule
@@ -615,10 +616,11 @@ export interface JobResult {
 - 1.7: `1022212` · 1.8 VERDICT (`src/components/screens/VerdictScreen.tsx`): reaction, mood badge, stars, tip, score, breakdown bars. Phase 1 button is "Restart shift" (INKGRAM is Phase 4; the fallback tag is task 2.5): commit "feat: add VERDICT screen with score breakdown"
 - 1.8: `c781ca1` · 1.9 routing (`src/components/GameShell.tsx`: ORDER -> STUDIO -> PLACEMENT -> VERDICT for tino-1, progress indicator, scroll-to-top, diegetic fallback for later-phase screens, "Restart shift" resets the store): commit "feat: route tino-1 end to end"
 - 1.9: `bf28e80`
+- GATE 1 approved by owner. Phase 2 on branch `phase-2` · 2.0 Gemini probe: no code, results under Discoveries
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 1: waiting for owner review. Phase 2 not started.
+- 2.1 `/api/judge` route
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -650,6 +652,13 @@ Plan-review flags (2026-09-25) and owner decisions:
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
+**Gemini API, verified 2026-09-25 (task 2.0) against ai.google.dev and 6 live calls:**
+- Docs: models page (updated 2026-09-24) lists stable Flash models `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite` (all take images); 2.5 is closed to new projects. Pricing page: all four candidates are free of charge on the free tier. Newer guides use the Interactions API (`/v1beta/interactions`); `models.generateContent` is still documented with no deprecation notice.
+- Endpoint used: `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`, key in the `x-goog-api-key` header (works; keeps the key out of URLs). Body: `systemInstruction.parts[].text`, `contents[].parts[]` with `inline_data {mime_type, data}`, `generationConfig.responseMimeType: "application/json"` + `responseSchema` (OpenAPI subset, `nullable: true`, `enum` accepted), `generationConfig.thinkingConfig.thinkingLevel`.
+- Response: JSON text at `candidates[0].content.parts[].text`; parts also carry a `thoughtSignature` key, so read only `text` fields. `finishReason: STOP`. ~2.4k prompt tokens for two 512px images.
+- Timings (stencil + composite of a red heart with black CRYSTAL on forearm-deep): `gemini-3.5-flash-lite`, thinkingLevel `minimal` (accepted): 3065 / 2165 / 1987 ms, all 200, lettering "CRYSTAL", letteringMatch true, motifMatch true, mood thrilled. `gemini-3.8-flash`, thinkingLevel `low` (docs: minimal not supported): 503 UNAVAILABLE "high demand" x3 (3227 / 2683 / 3797 ms). 2 of 8 approved calls unused.
+- **Decision (owner rule: fastest model that reads CRYSTAL from the stencil in < 4 s): default `GEMINI_MODEL` = `gemini-3.5-flash-lite`, `thinkingLevel: "minimal"`.** Override with the `GEMINI_MODEL` env var.
+- The deep-skin composite makes black lettering low-contrast (seen in the probe image), which confirms flag 3: judge lettering from the stencil.
 Full details in `NOTES.md`. Highlights:
 - `@unlayer/react-image-editor` 1.0.2, `@unlayer/types` 1.448.0; runtime bundle is CDN `image-editor/2.12.0/editor.js`.
 - **Save format follows input transparency:** opaque white stencil → `image/jpeg` 1024x1024; transparent PNG input → `image/png` with alpha preserved (both `onSave` and `getImage()`). Pipeline thresholds must tolerate JPEG ringing.
@@ -672,6 +681,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.8 · typecheck pass · test 65/65 · lint pass · browser (dev): filled red heart -> VERDICT shows composite, MEH badge, 3 stars, tip $110, Score 68/100, bars Palette 12.5/25, Size 15/15, Placement 10/10, Motif 15/25, Lettering 15/25; Restart shift -> ORDER with results cleared
 - 2026-09-25 · 1.9 · typecheck pass · test 65/65 · lint pass · browser (dev): progress Order -> Stencil -> Placement -> Verdict via our Transfer button; scroll resets to top; unreachable screen shows diegetic fallback with a way back
 - 2026-09-25 · GATE 1 · `npm run typecheck` pass · `npm run lint` pass · `npm run test` 65/65 (3 files) · `npm run build` pass (dev-only store handle absent from prod chunks) · deployed `vercel --prod` -> https://inked-in-leonida.vercel.app · live run: ORDER -> STUDIO (rail Filter/Crop/Draw/Text/Shapes/Stickers, no AI panel, empty Transfer toast) -> filled red heart + editor Save -> PLACEMENT (zone "Inside left forearm") -> Lock it in -> VERDICT 68/100, 3 stars, 5 breakdown bars; 0 console errors. Drawing was driven by synthetic pointer events (the browser pane's screenshots crop at DPR 1.5); owner to confirm with a real mouse.
+- 2026-09-25 · 2.0 · 6 live generateContent calls (3x gemini-3.5-flash-lite minimal: 200, 3065/2165/1987 ms, CRYSTAL read 3/3; 3x gemini-3.8-flash low: 503 x3). No repo code; probe script and images stayed in the session scratchpad.
 
 ---
 
