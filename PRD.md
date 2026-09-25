@@ -425,10 +425,10 @@ Note: the final mood shown to the player comes from the score (9.2), not the mod
 Time budget assumes start Fri Sep 25 evening (UTC+1 local).
 
 ### Phase 0: Scaffold (done in Step 1, verify only)
-- [ ] Next.js 15 + TS + Tailwind v4 in `src/`
-- [ ] Editor renders on white stencil, Save shows preview
-- [ ] `NOTES.md` has translation keys, tool keys, transparency finding
-- [ ] Public GitHub repo, live on Vercel
+- [x] Next.js 15 + TS + Tailwind v4 in `src/`
+- [x] Editor renders on white stencil, Save shows preview
+- [x] `NOTES.md` has translation keys, tool keys, transparency finding
+- [x] Public GitHub repo, live on Vercel
 
 **GATE 0:** live URL renders the editor.
 
@@ -600,7 +600,8 @@ export interface JobResult {
 
 ### Completed
 <!-- Agent: task IDs with commit hash -->
-- Phase 0 (scaffold, editor, placeholder assets, NOTES.md, README, repo, deploy): see git log
+- Phase 0 scaffold: `f7dec39` · editor + save preview: `44ab7c4` · stencil + body placeholder PNGs: `fe8a512` · PRD/NOTES/README/CLAUDE.md: `4f6f4bc`
+- Repo: https://github.com/Bholdguy/inked-in-leonida (public) · Live: https://inked-in-leonida.vercel.app (deployed via `vercel --prod` CLI; Git auto-deploy not connected)
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -638,6 +639,7 @@ Full details in `NOTES.md`. Highlights:
 <!-- Agent: date, command, pass/fail count -->
 - 2026-09-25 · `npm run typecheck` pass · `npm run lint` pass (0 problems) · `npm run build` pass · no Vitest suite yet (Phase 1.3)
 - 2026-09-25 · Manual (Chromium, dev): editor renders on white stencil, 8 tools in rail, draw + Save shows preview; transparency test per NOTES.md c)
+- 2026-09-25 · Manual (Chromium, https://inked-in-leonida.vercel.app): editor renders, 8 tools in rail, no AI panel, draw + Save shows 1024x1024 preview, no error banner. GATE 0 pass.
 
 ---
 
