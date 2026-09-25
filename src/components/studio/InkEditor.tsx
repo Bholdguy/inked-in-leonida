@@ -1,67 +1,146 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ImageEditor,
-  type ImageEditorOptions,
+  type ImageEditorInstance,
   type ImageEditorRef,
 } from "@unlayer/react-image-editor";
+import { editorOptions } from "@/lib/editorConfig";
+import { stencilHasInk } from "@/lib/ink/analyze";
+import type { Job } from "@/types";
 
-// AI Assistant stays off: no projectId, features.ai false, panel closed.
-const EDITOR_OPTIONS: ImageEditorOptions = {
-  theme: "dark",
-  features: { ai: false },
-  aiAssistantOpenState: "closed",
-};
+interface Props {
+  job: Job;
+  startImage: string; // data URL
+  onTransfer: (dataUrl: string) => void;
+}
 
-export default function InkEditor() {
+const EMPTY_STENCIL = "Empty stencil. The client is staring at you.";
+
+export default function InkEditor({ job, startImage, onTransfer }: Props) {
   const editorRef = useRef<ImageEditorRef>(null);
-  const [image, setImage] = useState<string | null>(null);
-  const [saved, setSaved] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const instanceRef = useRef<ImageEditorInstance | null>(null);
+  const [attempt, setAttempt] = useState(0); // bumped by "Retry" after a fatal error to remount
+  const [fatal, setFatal] = useState(false);
+  const [jammed, setJammed] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [shaking, setShaking] = useState(false);
+  const options = useMemo(() => editorOptions(job.id), [job.id]);
 
-  // The editor runs from Unlayer's CDN, so hand it an absolute URL.
   useEffect(() => {
-    setImage(`${window.location.origin}/stencils/blank.png`);
-  }, []);
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const editor = () => editorRef.current?.editor ?? instanceRef.current;
+
+  const refuseEmpty = () => {
+    setShaking(true);
+    setToast(EMPTY_STENCIL);
+  };
+
+  // Both paths end here. Paper with no ink on it (e.g. only a filter applied) is still empty.
+  const handOver = async (dataUrl: string) => {
+    let inked = true;
+    try {
+      inked = await stencilHasInk(dataUrl);
+    } catch (err) {
+      console.error("[InkEditor] could not read the stencil, letting it through", err);
+    }
+    if (inked) onTransfer(dataUrl);
+    else refuseEmpty();
+  };
+
+  // Our button: PRD hasChanges() guard, then getImage(). getImage() does not commit an
+  // unapplied crop, so the hint asks players to close tool panels first.
+  const transfer = () => {
+    const ed = editor();
+    if (!ed || !ed.hasChanges()) return refuseEmpty();
+    const dataUrl = ed.getImage();
+    if (!dataUrl) return refuseEmpty();
+    void handOver(dataUrl);
+  };
+
+  const retryLoad = async () => {
+    setJammed(false);
+    try {
+      await editor()?.reset(startImage);
+    } catch (err) {
+      console.error("[InkEditor] reset failed", err);
+      setJammed(true);
+    }
+  };
+
+  if (fatal) {
+    return (
+      <div role="alert" className="flex min-h-[640px] flex-col items-center justify-center gap-4 rounded-xl border border-sunset/40 bg-panel p-8 text-center">
+        <p className="text-3xl font-bold tracking-widest text-sunset">POWER&apos;S OUT AT THE SHOP</p>
+        <p className="max-w-sm text-muted">The stencil machine won&apos;t start. Check your connection, then flip the breaker.</p>
+        <button
+          type="button"
+          onClick={() => {
+            setFatal(false);
+            setAttempt((a) => a + 1);
+          }}
+          className="rounded-lg bg-sunset px-5 py-2 font-bold text-night hover:brightness-110"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      {error && (
-        <p role="alert" className="rounded border border-red-500 bg-red-950 px-4 py-3 text-red-200">
-          {error}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={transfer}
+          onAnimationEnd={() => setShaking(false)}
+          className={`rounded-lg bg-pink px-5 py-2 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${shaking ? "shake" : ""}`}
+        >
+          Transfer stencil
+        </button>
+        <p className="text-xs text-muted">Close the tool panel, then Transfer. The editor&apos;s Save works too.</p>
+      </div>
+
+      {toast && (
+        <p role="status" className="rounded-lg border border-pink/40 bg-pink/10 px-4 py-2 text-sm text-pink">
+          {toast}
         </p>
       )}
 
-      {image && (
-        <ImageEditor
-          ref={editorRef}
-          image={image}
-          options={EDITOR_OPTIONS}
-          minHeight={700}
-          onSave={({ dataUrl }) => setSaved(dataUrl)}
-          onLoadError={() => {
-            console.error("[InkEditor] onLoadError: stencil image failed to load", image);
-            setError("The stencil image failed to load into the editor.");
-          }}
-          onError={(err) => {
-            console.error("[InkEditor] onError:", err);
-            setError(`The editor failed to start: ${err.message}`);
-          }}
-        />
+      {jammed && (
+        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
+          <span>Stencil paper jammed.</span>
+          <button type="button" onClick={retryLoad} className="rounded bg-sunset px-3 py-1 font-bold text-night">
+            Retry
+          </button>
+        </div>
       )}
 
-      {saved && (
-        <section className="flex flex-col gap-2">
-          <h2 className="text-sm uppercase tracking-widest text-neutral-400">Saved stencil</h2>
-          {/* eslint-disable-next-line @next/next/no-img-element -- data URL preview */}
-          <img
-            src={saved}
-            alt="Saved stencil preview"
-            className="max-w-md border border-neutral-700 bg-[repeating-conic-gradient(#333_0_25%,#222_0_50%)] bg-[length:20px_20px]"
-          />
-        </section>
-      )}
+      <ImageEditor
+        key={attempt}
+        ref={editorRef}
+        image={startImage}
+        options={options}
+        minHeight={640}
+        onLoad={(instance) => {
+          instanceRef.current = instance;
+        }}
+        // hasChanges() reads false inside onSave (CDN 2.12.0), so Save is guarded by the ink check only.
+        onSave={({ dataUrl }) => void handOver(dataUrl)}
+        onLoadError={() => {
+          console.error("[InkEditor] onLoadError: the stencil image failed to load into the editor");
+          setJammed(true);
+        }}
+        onError={(err) => {
+          console.error("[InkEditor] onError:", err);
+          setFatal(true);
+        }}
+      />
     </div>
   );
 }

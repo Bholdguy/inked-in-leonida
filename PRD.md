@@ -441,7 +441,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
 - [x] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
 - [x] 1.4 ORDER screen
-- [ ] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
+- [x] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
 - [ ] 1.6 PLACEMENT with placeholder body PNG (`public/bodies/`), drag/size/rotate, target zone
 - [ ] 1.7 Compositing (11.2)
 - [ ] 1.8 VERDICT with deterministic parts; motif/lettering use fallback values
@@ -609,10 +609,11 @@ export interface JobResult {
 - 1.1: `9c46fe9` · 1.2 zustand store (`src/store/game.ts`): commit "feat: add zustand game store"
 - 1.2: `fa37f25` · 1.3 pure ink functions + Vitest (`src/lib/ink/*.ts`, `src/lib/ink/__tests__/`): commit "feat: add pure ink pipeline and scoring with tests"
 - 1.3: `fcd7cd0` · 1.4 ORDER (`OrderScreen.tsx`, `ClientBadge.tsx`, `OrderChecklist.tsx`; minimal `GameShell.tsx` started early so screens can be seen; 8.3 color tokens added to `globals.css` as Tailwind colors, fonts/neon stay in 4.1): commit "feat: add ORDER screen"
+- 1.4: `a1e3e89` · 1.5 STUDIO (`StudioScreen.tsx`, `InkEditor.tsx` rewritten to 10.1 props, `src/lib/editorConfig.ts`, `src/lib/ink/analyze.ts`; onLoadError toast + reset retry and onError "POWER'S OUT" remount retry per 10.5): commit "feat: add STUDIO with per-job tools and transfer guard"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.5 STUDIO
+- 1.6 PLACEMENT
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -638,6 +639,9 @@ Plan-review flags (2026-09-25) and owner decisions:
 18. **Vercel Git integration:** the owner is connecting it. Until confirmed, keep deploying with the `vercel --prod` CLI.
 19. **Dependencies added in 1.2** (all in the Section 7 allow-list): `zustand` 5.0.15, `vitest` 5.0.2 (dev). Vitest set up in 1.2 instead of 1.3 so the store has a test. `vitest` 5 needs `@types/node` >= 22, so `@types/node` was bumped from ^20 to ^24 (matches local Node 24; a type package, allowed).
 20. **JPEG tolerance (1.3).** Two rule additions in 9.1 (updated): `whiteToAlpha` saturated-color exception also needs chroma > 32; `classifyColor` treats chroma <= 24 as `black`. `concealment` keeps the < 40 distance unchanged; it tolerates independent +/-12 noise on old and new stencils (tested). Tests: `src/lib/ink/__tests__/ink.test.ts` "JPEG tolerance" block (every paper pixel stripped, every stroke pixel kept, red stays red, gray stays black, concealment ~0 / 1 / 0.5). Breakdown parts are rounded to 2 decimals (float noise).
+21. **Empty-stencil guard on the Save path (1.5).** `hasChanges()` reads `false` inside `onSave` even after drawing (CDN 2.12.0), so it cannot guard Save. Both Transfer paths now also run an ink check (`coverage > 0` via `src/lib/ink/analyze.ts`); our button still calls `hasChanges()` first as 10.5 asks. Same toast for both.
+22. **Gotcha 14.2 verified (1.5).** Filter edits in an open panel ARE included by `getImage()` and Save. An unapplied crop is NOT included by `getImage()` but IS committed by Save. Decision per 14.2: the editor Save is the primary path; our button shows "Close the tool panel, then Transfer." Details in NOTES.md.
+23. **Stencil format varies (1.5).** Save gives JPEG, `getImage()` gives PNG for the same opaque stencil; a crop can make it non-square. `JobResult.stencil` stores whichever came in; analysis letterboxes via `normalize()`, compositing draws it at its own aspect.
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -657,6 +661,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.2 · typecheck pass · `npm run test` 3/3 pass · lint pass
 - 2026-09-25 · 1.3 · typecheck pass · `npm run test` 65/65 pass (3 files, incl. +/-12 JPEG noise suite) · lint pass
 - 2026-09-25 · 1.4 · typecheck pass · test 65/65 · lint pass · browser: ORDER shows badge, bio, request, 5-row checklist for tino-1
+- 2026-09-25 · 1.5 · typecheck pass · test 65/65 · lint pass · browser (dev): tino-1 rail = Filter, Crop, Draw, Text, Shapes, Stickers (Resize/Frame hidden); empty Transfer and empty Save both shake/toast; stroke + Save -> PLACEMENT; stroke + Transfer button -> PLACEMENT; 14.2 probes per NOTES.md
 
 ---
 

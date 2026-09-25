@@ -58,5 +58,18 @@ options: {
 - `onSave({ dataUrl, blob })`, `onLoadError()` (image decode/CORS/404), `onError(err)` (embed script load, createEditor, or reset rejection). Without `onError` it falls back to `console.error`.
 - Changing the `image` prop runs `reset(image)`.
 - `features.ai` exists (`boolean | { enabled, assistant, ... }`), and `aiAssistantOpenState` defaults to `'open'`. We set `features: { ai: false }` and `aiAssistantOpenState: 'closed'`. No AI panel appears.
-- Saving with the Draw panel still open includes the stroke in the output (gotcha 14.2 still to be checked for filter and crop in Phase 1).
+- Saving with the Draw panel still open includes the stroke in the output.
+
+## Task 1.5 findings (CDN 2.12.0, runtime)
+
+| Check | Result |
+|---|---|
+| `hasChanges()` on a fresh editor | `false` |
+| `hasChanges()` after a stroke | `true` |
+| `hasChanges()` **inside `onSave`** | **`false`** even after a stroke (it reads `true` again afterwards). Not usable as a Save-path guard. |
+| `getImage()` format, opaque stencil | **`image/png`** (Save gives `image/jpeg` for the same image) |
+| Filter preset (Invert) with the Filter panel still open | Included by both `getImage()` and Save. The filter half of gotcha 14.2 does not reproduce. |
+| Crop aspect changed (16:9) but not applied, panel open | `getImage()` returns the **uncropped** 1024x1024. Save **commits** the crop (output 1024x576). The crop half of gotcha 14.2 is real for `getImage()`. |
+
+Consequences in code: the editor's Save is the reliable path. Our "Transfer stencil" button keeps the PRD `hasChanges()` guard and tells players "Close the tool panel, then Transfer." Both paths also run an ink check (`coverage > 0` on the normalized stencil) before accepting the stencil. Stencils can be JPEG (Save) or PNG (button), square or not (crop): everything downstream decodes by data URL and letterboxes, so both work.
 - The image URL is passed to the CDN editor; we use an absolute URL (`window.location.origin + "/stencils/blank.png"`). It loads without CORS issues on same origin.
