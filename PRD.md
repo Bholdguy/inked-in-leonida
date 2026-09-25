@@ -347,12 +347,11 @@ Request:
 ```json
 {
   "jobId": "tino-1",
-  "mode": "standard",
-  "order": { "motif": "heart", "lettering": "CRYSTAL", "requiredColors": ["red", "black"] },
-  "compositeJpegB64": "<512px jpeg, no data: prefix>",
-  "oldLettering": null
+  "compositeJpegB64": "<512px jpeg of the tattoo on skin, no data: prefix>",
+  "stencilJpegB64": "<optional: 512px jpeg of the stencil on white, no data: prefix>"
 }
 ```
+The server derives everything else from `jobId` via `src/data/jobs.ts`: client name, bio, motif, lettering, mode, and for the cover-up the old lettering (tino-1's `lettering`). Any client-sent `order`, `mode` or `oldLettering` is ignored entirely (prompt-injection guard). Unknown or free-mode job IDs, non-JPEG or oversized images (> 700k base64 chars) return the fallback.
 
 Response (always 200 with this shape, even on failure):
 ```json
@@ -369,15 +368,21 @@ Response (always 200 with this shape, even on failure):
 ```
 On any failure (no key, timeout 8s, bad JSON, 4xx/5xx): `{ "source": "fallback" }` and the client uses the fallback rules and canned lines.
 
-- Env: `GEMINI_API_KEY` (server only), `GEMINI_MODEL` (default to a current Flash model; verify the name against Google's docs at build time).
-- Use the REST `generateContent` endpoint with JSON response mode. Validate the returned JSON by hand (type checks per field); on mismatch return fallback.
+- Env: `GEMINI_API_KEY` (server only, Vercel Production only), `GEMINI_MODEL` (default `gemini-3.5-flash-lite`, chosen in task 2.0), optional `GEMINI_THINKING_LEVEL` (default `minimal`). Key sent in the `x-goog-api-key` header, never in the URL.
+- Use the REST `generateContent` endpoint with JSON response mode (`responseMimeType: "application/json"` plus `responseSchema`). Validate the returned JSON by hand anyway (type checks per field); on mismatch return fallback.
+- With a stencil, send two labelled images: part "Image 1: STENCIL" + stencil, part "Image 2: TATTOO ON SKIN" + composite. Motif and lettering are judged from the stencil, the reaction from the skin.
+- Dev-only test switch `JUDGE_FORCE=offensive|fallback|slow` (server-side; ignored when `NODE_ENV` is `production`, unit-tested).
 - Truncate `reaction` to 140 chars. Strip anything that is not plain text.
-- Cache by SHA-256 of the image in a module-level Map (best effort, per instance).
+- Cache by SHA-256 of jobId + images in a module-level Map (best effort, per instance, 100 entries, vision verdicts only).
 - MUST NOT log image data. MUST NOT expose the key to the client.
 
 **Vision system prompt (use verbatim, fill the brackets):**
 ```
 You are judging a tattoo in a comedy tattoo-parlor game. You see a tattoo on skin.
+  (WITH STENCIL, replaces the sentence above:
+   You get two images.
+   Image 1 is the STENCIL: the design exactly as the artist drew it, on white paper. Judge the motif and the lettering from the STENCIL.
+   Image 2 is the TATTOO ON SKIN: the same design inked on the client. React to the TATTOO ON SKIN.)
 Client: [name]. Personality: [bio]. They ordered: motif "[motif]", lettering "[lettering or none]".
 [COVER-UP ONLY: This is a cover-up. The old tattoo said "[oldLettering]". Report whether that old word is still readable.]
 Return ONLY JSON with keys:
@@ -451,7 +456,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 
 ### Phase 2: The judge (Sat morning, ~3h)
 - [x] 2.0 Live Gemini probe: model, JSON mode, thinking level, latency (owner-approved, max 8 calls)
-- [ ] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
+- [x] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
 - [ ] 2.2 Client call from INKING; merge into score per 9.2
 - [ ] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [ ] 2.4 Offensive path -> "Start over"
@@ -617,10 +622,11 @@ export interface JobResult {
 - 1.8: `c781ca1` · 1.9 routing (`src/components/GameShell.tsx`: ORDER -> STUDIO -> PLACEMENT -> VERDICT for tino-1, progress indicator, scroll-to-top, diegetic fallback for later-phase screens, "Restart shift" resets the store): commit "feat: route tino-1 end to end"
 - 1.9: `bf28e80`
 - GATE 1 approved by owner. Phase 2 on branch `phase-2` · 2.0 Gemini probe: no code, results under Discoveries
+- 2.0: `3db4e13` · 2.1 judge route (`src/app/api/judge/route.ts`, `src/lib/judge/{types,prompt,validate,gemini,force}.ts`, tests in `src/lib/judge/__tests__/`): commit "feat: add /api/judge route with validation, timeout and cache"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.1 `/api/judge` route
+- 2.2 INKING + client call
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -649,6 +655,9 @@ Plan-review flags (2026-09-25) and owner decisions:
 21. **Empty-stencil guard on the Save path (1.5).** `hasChanges()` reads `false` inside `onSave` even after drawing (CDN 2.12.0), so it cannot guard Save. Both Transfer paths now also run an ink check (`coverage > 0` via `src/lib/ink/analyze.ts`); our button still calls `hasChanges()` first as 10.5 asks. Same toast for both.
 22. **Gotcha 14.2 verified (1.5).** Filter edits in an open panel ARE included by `getImage()` and Save. An unapplied crop is NOT included by `getImage()` but IS committed by Save. Decision per 14.2: the editor Save is the primary path; our button shows "Close the tool panel, then Transfer." Details in NOTES.md.
 23. **Stencil format varies (1.5).** Save gives JPEG, `getImage()` gives PNG for the same opaque stencil; a crop can make it non-square. `JobResult.stencil` stores whichever came in; analysis letterboxes via `normalize()`, compositing draws it at its own aspect.
+24. **Phase 2 plan decisions (owner, 2026-09-25):** flag 2 server derives order/mode/oldLettering from jobId, client values ignored (11.3 updated); flag 3 optional `stencilJpegB64`, motif + lettering judged from the stencil, reaction from the composite (11.3 + prompt updated); flag 5 `JUDGE_FORCE` dev switch, ignored in production (unit-tested); flag 1 a plain INKING screen now, animation stays in 4.2; flag 4 `responseSchema` + hand validation; flag 6 route `maxDuration` 10 s (Gemini timeout 8 s, client cap 9 s); flag 9 cache key includes jobId; flag 10 Phase 2 on branch `phase-2`, merge to `main` at GATE 2.
+25. **Privacy line (flag 8, owner):** footer on the page: "Your drawings are sent to an AI to judge them. Nothing is stored." **README draft note for Phase 5:** add a Privacy line: player drawings (the stencil and the composite, 512px JPEGs) are sent to Google's Gemini API for judging; the game stores nothing server-side (only an in-memory cache per server instance); the free tier may let Google use inputs to improve its products.
+26. **`/api/judge` only answers POST.** GET returns Next's default 405. The 200-always rule applies to the POST contract.
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -682,6 +691,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.9 · typecheck pass · test 65/65 · lint pass · browser (dev): progress Order -> Stencil -> Placement -> Verdict via our Transfer button; scroll resets to top; unreachable screen shows diegetic fallback with a way back
 - 2026-09-25 · GATE 1 · `npm run typecheck` pass · `npm run lint` pass · `npm run test` 65/65 (3 files) · `npm run build` pass (dev-only store handle absent from prod chunks) · deployed `vercel --prod` -> https://inked-in-leonida.vercel.app · live run: ORDER -> STUDIO (rail Filter/Crop/Draw/Text/Shapes/Stickers, no AI panel, empty Transfer toast) -> filled red heart + editor Save -> PLACEMENT (zone "Inside left forearm") -> Lock it in -> VERDICT 68/100, 3 stars, 5 breakdown bars; 0 console errors. Drawing was driven by synthetic pointer events (the browser pane's screenshots crop at DPR 1.5); owner to confirm with a real mouse.
 - 2026-09-25 · 2.0 · 6 live generateContent calls (3x gemini-3.5-flash-lite minimal: 200, 3065/2165/1987 ms, CRYSTAL read 3/3; 3x gemini-3.8-flash low: 503 x3). No repo code; probe script and images stayed in the session scratchpad.
+- 2026-09-25 · 2.1 · typecheck pass · lint pass · `npm run test` 129/129 (5 files; judge: request/verdict validation, sanitizer, prompt, JUDGE_FORCE ignored in production, route: success, header auth, schema, labelled images, server-side order, cache, no key, HTTP 400/403/429/500/503, bad JSON/fields/mood, network error, 8 s timeout with fake timers, bad requests; afterEach asserts no image data or key in any log line) · local dev route with the real key: 200 vision (CRYSTAL, letteringMatch true) ~3.8 s incl. first compile, cached repeat 32 ms, bad body 200 fallback; server log shows only "[judge] fallback: bad-request"
 
 ---
 
