@@ -458,7 +458,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.0 Live Gemini probe: model, JSON mode, thinking level, latency (owner-approved, max 8 calls)
 - [x] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
 - [x] 2.2 Client call from INKING; merge into score per 9.2
-- [ ] 2.3 Canned lines (Section 15.2) + mood consistency rule
+- [x] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [ ] 2.4 Offensive path -> "Start over"
 - [ ] 2.5 "Client squinted at it" tag on fallback
 
@@ -624,10 +624,11 @@ export interface JobResult {
 - GATE 1 approved by owner. Phase 2 on branch `phase-2` · 2.0 Gemini probe: no code, results under Discoveries
 - 2.0: `3db4e13` · 2.1 judge route (`src/app/api/judge/route.ts`, `src/lib/judge/{types,prompt,validate,gemini,force}.ts`, tests in `src/lib/judge/__tests__/`): commit "feat: add /api/judge route with validation, timeout and cache"
 - 2.1: `41ce673` · privacy footer: `6ea5641` · 2.2 INKING + client call (`src/components/screens/InkingScreen.tsx`, `src/lib/game/judgeClient.ts`, `evaluate.ts` split into `prepareJob` / pure `finishJob`, store `inking` + `startInking`/`finishInking`, `validateVerdict` shared by server and client, "Inking" step in progress bar, 1.2 s minimum on screen): commit "feat: add INKING screen and merge judge verdict into score"
+- 2.2: `7b86969` · 2.3 canned lines + mood consistency (`src/lib/ink/reaction.ts` `pickReaction`; `finishJob` takes the full `JudgeResponse`; canned lines were already in `jobs.ts` from 1.1): commit "feat: pick model or canned reaction by mood distance"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.3 Canned lines + mood consistency
+- 2.4 Offensive path
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -695,6 +696,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 2.0 · 6 live generateContent calls (3x gemini-3.5-flash-lite minimal: 200, 3065/2165/1987 ms, CRYSTAL read 3/3; 3x gemini-3.8-flash low: 503 x3). No repo code; probe script and images stayed in the session scratchpad.
 - 2026-09-25 · 2.1 · typecheck pass · lint pass · `npm run test` 129/129 (5 files; judge: request/verdict validation, sanitizer, prompt, JUDGE_FORCE ignored in production, route: success, header auth, schema, labelled images, server-side order, cache, no key, HTTP 400/403/429/500/503, bad JSON/fields/mood, network error, 8 s timeout with fake timers, bad requests; afterEach asserts no image data or key in any log line) · local dev route with the real key: 200 vision (CRYSTAL, letteringMatch true) ~3.8 s incl. first compile, cached repeat 32 ms, bad body 200 fallback; server log shows only "[judge] fallback: bad-request"
 - 2026-09-25 · 2.2 · typecheck pass · lint pass · test 142/142 (6 files; finishJob: vision 100/5★/thrilled/$180, fallback 80/4★, wrong lettering 10, offensive 0/refusal/$0, cover-up 100; client: validated vision, fallback on server fallback / malformed / non-JSON / 500 / network error, 9 s cap with fake timers; store inking transitions) · dev with key: canvas stencil (red heart + black CRYSTAL) -> PLACEMENT -> INKING -> VERDICT in ~4.0 s, source vision, 100/100, 5 stars, $180 · dev with key, real editor: Text tool "CRYSTAL" + drawn heart -> lettering 25/25, motif 25/25; palette 12.5 because the Text tool's default fill was red (no black), which is correct scoring
+- 2026-09-25 · 2.3 · typecheck pass · lint pass · test 165/165 (7 files; pickReaction all 16 score/model mood combos, empty/whitespace/no model line, trim; finishJob: model line within one step, canned line when two steps away, offensive never uses the model line) · dev with key: tino-1 100/5★ thrilled, VERDICT shows the model line "Crystal is gonna love this, looks smooth like a fresh fiberglass hull!"
 
 ---
 

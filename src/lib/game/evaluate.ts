@@ -7,7 +7,9 @@ import { concealment } from "@/lib/ink/concealment";
 import { decodeImage, loadImage, normalize, rgbaToCanvas } from "@/lib/ink/dom";
 import type { ColorName, Job, JobResult, Placement } from "@/types";
 import { placementHit } from "@/lib/ink/placement";
-import { moodFor, scoreCoverup, scoreStandard, starsFor, tipFor, type VisionVerdict } from "@/lib/ink/score";
+import { pickReaction } from "@/lib/ink/reaction";
+import { moodFor, scoreCoverup, scoreStandard, starsFor, tipFor } from "@/lib/ink/score";
+import { FALLBACK, type JudgeResponse } from "@/lib/judge/types";
 
 export interface PreparedJob {
   job: Job;
@@ -58,8 +60,8 @@ export async function prepareJob({ job, stencil, placement, previousStencil }: P
   };
 }
 
-/** Pure: merges the judge verdict (or the fallback) into the 9.2 score. */
-export function finishJob(p: PreparedJob, vision: VisionVerdict = { source: "fallback" }): JobResult {
+/** Pure: merges the judge verdict (or the fallback) into the 9.2 score and picks the line (11.3). */
+export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): JobResult {
   const { job, placement } = p;
   const scored =
     job.mode === "coverup"
@@ -84,7 +86,9 @@ export function finishJob(p: PreparedJob, vision: VisionVerdict = { source: "fal
     breakdown: scored.breakdown,
     stars,
     mood,
-    reaction: scored.offensive ? job.refusal : job.lines[mood],
+    reaction: scored.offensive
+      ? job.refusal
+      : pickReaction({ scoreMood: mood, canned: job.lines, model: vision.source === "vision" ? vision : null }),
     tip: scored.offensive ? 0 : tipFor(job.basePay, stars),
     source: vision.source,
   };

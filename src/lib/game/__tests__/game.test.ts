@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getJob } from "@/data/jobs";
 import { COLOR_NAMES } from "@/lib/ink/color";
-import type { VisionVerdict } from "@/lib/ink/score";
+import type { VisionJudgement } from "@/lib/judge/types";
 import type { ColorName } from "@/types";
 import { finishJob, type PreparedJob } from "../evaluate";
 import { CLIENT_CAP_MS, requestJudgement } from "../judgeClient";
@@ -23,13 +23,15 @@ const prepared = (over: Partial<PreparedJob> = {}): PreparedJob => ({
   ...over,
 });
 
-const vision = (v: Partial<Extract<VisionVerdict, { source: "vision" }>>): VisionVerdict => ({
+const vision = (v: Partial<VisionJudgement>): VisionJudgement => ({
   source: "vision",
   motifMatch: true,
   letteringFound: "CRYSTAL",
   letteringMatch: true,
   oldTextReadable: null,
   offensive: false,
+  reaction: "Model says hi.",
+  mood: "thrilled",
   ...v,
 });
 
@@ -53,14 +55,24 @@ describe("finishJob (vision merged into 9.2)", () => {
     expect(r.reaction).toBe(tino.lines.happy);
   });
 
+  it("uses the model line when its mood is within one step of the score mood", () => {
+    expect(finishJob(prepared(), vision({ mood: "happy" })).reaction).toBe("Model says hi."); // score mood thrilled
+  });
+
+  it("uses the canned line when the model mood is two or more steps away", () => {
+    const r = finishJob(prepared(), vision({ mood: "meh" })); // score thrilled, model meh
+    expect(r.mood).toBe("thrilled");
+    expect(r.reaction).toBe(tino.lines.thrilled);
+  });
+
   it("wrong lettering found -> 10 lettering points", () => {
     const r = finishJob(prepared(), vision({ letteringMatch: false, letteringFound: "CRISPY" }));
     expect(r.breakdown.lettering.got).toBe(10);
     expect(r.score).toBe(85);
   });
 
-  it("offensive -> 0, angry, refusal, no tip", () => {
-    const r = finishJob(prepared(), vision({ offensive: true }));
+  it("offensive -> 0, angry, refusal, no tip (never the model line)", () => {
+    const r = finishJob(prepared(), vision({ offensive: true, mood: "angry", reaction: "model line" }));
     expect(r.score).toBe(0);
     expect(r.mood).toBe("angry");
     expect(r.stars).toBe(1);
