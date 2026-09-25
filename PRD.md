@@ -205,16 +205,17 @@ TITLE
 All functions operate on a plain `{ data: Uint8ClampedArray; width: number; height: number }` type called `RGBAImage`. No DOM in these functions, so they are unit-testable in Node.
 
 1. `normalize(stencilDataUrl) -> RGBAImage` (DOM helper in `src/lib/ink/dom.ts`): draw into a 512x512 canvas, letterboxed on white if aspect differs. Input is the raw 1024x1024 editor output (`JobResult.stencil`; JPEG for opaque stencils, see NOTES.md). The 512 image is for analysis only and is never stored or fed back into the editor. The old stencil (tino-1) and the new stencil (tino-2) MUST pass through this exact same function before `concealment()`.
-2. `whiteToAlpha(img, lo = 225, hi = 245) -> RGBAImage`: luminance L = 0.2126R + 0.7152G + 0.0722B. If L >= hi, alpha = 0. If L <= lo, alpha unchanged. Between: alpha scales linearly to 0. Saturated light colors (HSL s > 0.35) are NEVER stripped, so pastel pink survives.
+2. `whiteToAlpha(img, lo = 225, hi = 245) -> RGBAImage`: luminance L = 0.2126R + 0.7152G + 0.0722B. If L >= hi, alpha = 0. If L <= lo, alpha unchanged. Between: alpha scales linearly to 0. Saturated light colors (HSL s > 0.35 AND chroma max-min > 32) are NEVER stripped, so pastel pink survives. The chroma floor is JPEG tolerance: near-white JPEG noise has HSL s near 1 but chroma <= 24.
 3. `inkMask(img) -> Uint8Array`: 1 where alpha > 32 after whiteToAlpha.
 4. `coverage(mask) -> number`: ink pixels / total pixels, measured on the 512x512 normalized stencil mask (not the composite).
 5. `classifyColor(r, g, b) -> ColorName`: convert to HSL.
    - l < 0.18, or (s < 0.18 and l < 0.6): `black`
    - s < 0.18: `black` (grays count as black ink)
+   - chroma (max-min) <= 24: `black` (JPEG tolerance: +/-12 noise on a neutral stroke)
    - hue 345-15: `red` (but if l > 0.68: `pink`)
    - 15-40: `orange` · 40-65: `yellow` · 65-170: `green` · 170-260: `blue` · 260-300: `purple` · 300-345: `pink`
 6. `colorShare(img, mask) -> Record<ColorName, number>`: fraction of ink pixels per color.
-7. `concealment(oldImg, newImg) -> number` (cover-up only): for each old ink pixel, it is "still visible" if the new pixel's RGB euclidean distance to the old pixel is < 40. Return 1 - visible / oldInkCount.
+7. `concealment(oldImg, newImg) -> number` (cover-up only): old ink = `inkMask(whiteToAlpha(oldImg))`; for each old ink pixel, it is "still visible" if the new pixel's RGB euclidean distance to the old pixel is < 40. Return 1 - visible / oldInkCount.
 8. `placementHit(center, zone) -> boolean`: normalized center point (0..1) inside the zone rect.
 
 ### 9.2 Scoring
@@ -438,7 +439,7 @@ Time budget assumes start Fri Sep 25 evening (UTC+1 local).
 Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 1.1 Types + data: `src/data/jobs.ts`, `src/data/bodies.ts` (Section 15)
 - [x] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
-- [ ] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
+- [x] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
 - [ ] 1.4 ORDER screen
 - [ ] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
 - [ ] 1.6 PLACEMENT with placeholder body PNG (`public/bodies/`), drag/size/rotate, target zone
@@ -606,10 +607,11 @@ export interface JobResult {
 - Repo: https://github.com/Bholdguy/inked-in-leonida (public) · Live: https://inked-in-leonida.vercel.app (deployed via `vercel --prod` CLI; Git auto-deploy not connected)
 - 1.1 types + data (`src/types.ts`, `src/data/jobs.ts`, `src/data/bodies.ts`): commit "feat: add game types, job data and body config". Added a `JobId` alias to 15.1 types (additive).
 - 1.1: `9c46fe9` · 1.2 zustand store (`src/store/game.ts`): commit "feat: add zustand game store"
+- 1.2: `fa37f25` · 1.3 pure ink functions + Vitest (`src/lib/ink/*.ts`, `src/lib/ink/__tests__/`): commit "feat: add pure ink pipeline and scoring with tests"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.3 pure ink functions + tests
+- 1.4 ORDER screen
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -634,6 +636,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 17. **JPEG output test (2026-09-25).** Regenerated `blank.png` as white at alpha 250 and saved from the editor: output was still `image/jpeg` 1024x1024, with the background flattened to `[250,250,250,255]`. Any not-fully-transparent input still exports as JPEG. Decision applied: keep the opaque alpha-255 stencil (reverted), and make `whiteToAlpha`, `classifyColor` and `concealment` JPEG-tolerant with a ±12 noise test (task 1.3).
 18. **Vercel Git integration:** the owner is connecting it. Until confirmed, keep deploying with the `vercel --prod` CLI.
 19. **Dependencies added in 1.2** (all in the Section 7 allow-list): `zustand` 5.0.15, `vitest` 5.0.2 (dev). Vitest set up in 1.2 instead of 1.3 so the store has a test. `vitest` 5 needs `@types/node` >= 22, so `@types/node` was bumped from ^20 to ^24 (matches local Node 24; a type package, allowed).
+20. **JPEG tolerance (1.3).** Two rule additions in 9.1 (updated): `whiteToAlpha` saturated-color exception also needs chroma > 32; `classifyColor` treats chroma <= 24 as `black`. `concealment` keeps the < 40 distance unchanged; it tolerates independent +/-12 noise on old and new stencils (tested). Tests: `src/lib/ink/__tests__/ink.test.ts` "JPEG tolerance" block (every paper pixel stripped, every stroke pixel kept, red stays red, gray stays black, concealment ~0 / 1 / 0.5). Breakdown parts are rounded to 2 decimals (float noise).
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -651,6 +654,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · Manual (Chromium, https://inked-in-leonida.vercel.app): editor renders, 8 tools in rail, no AI panel, draw + Save shows 1024x1024 preview, no error banner. GATE 0 pass.
 - 2026-09-25 · 1.1 · typecheck pass · lint pass
 - 2026-09-25 · 1.2 · typecheck pass · `npm run test` 3/3 pass · lint pass
+- 2026-09-25 · 1.3 · typecheck pass · `npm run test` 65/65 pass (3 files, incl. +/-12 JPEG noise suite) · lint pass
 
 ---
 
