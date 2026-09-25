@@ -436,7 +436,7 @@ Time budget assumes start Fri Sep 25 evening (UTC+1 local).
 
 ### Phase 1: One job end to end (Fri night, ~5h)
 Goal: tino-1 fully playable with placeholders and deterministic scoring only.
-- [ ] 1.1 Types + data: `src/data/jobs.ts`, `src/data/bodies.ts` (Section 15)
+- [x] 1.1 Types + data: `src/data/jobs.ts`, `src/data/bodies.ts` (Section 15)
 - [ ] 1.2 zustand store: screen, jobIndex, per-job results, sound flag
 - [ ] 1.3 Pure ink functions (9.1) + Vitest tests (Section 13.1)
 - [ ] 1.4 ORDER screen
@@ -604,10 +604,11 @@ export interface JobResult {
 <!-- Agent: task IDs with commit hash -->
 - Phase 0 scaffold: `f7dec39` · editor + save preview: `44ab7c4` · stencil + body placeholder PNGs: `fe8a512` · PRD/NOTES/README/CLAUDE.md: `4f6f4bc`
 - Repo: https://github.com/Bholdguy/inked-in-leonida (public) · Live: https://inked-in-leonida.vercel.app (deployed via `vercel --prod` CLI; Git auto-deploy not connected)
+- 1.1 types + data (`src/types.ts`, `src/data/jobs.ts`, `src/data/bodies.ts`): commit "feat: add game types, job data and body config". Added a `JobId` alias to 15.1 types (additive).
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.1 Types + data
+- 1.2 zustand store
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -646,6 +647,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · `npm run typecheck` pass · `npm run lint` pass (0 problems) · `npm run build` pass · no Vitest suite yet (Phase 1.3)
 - 2026-09-25 · Manual (Chromium, dev): editor renders on white stencil, 8 tools in rail, draw + Save shows preview; transparency test per NOTES.md c)
 - 2026-09-25 · Manual (Chromium, https://inked-in-leonida.vercel.app): editor renders, 8 tools in rail, no AI panel, draw + Save shows 1024x1024 preview, no error banner. GATE 0 pass.
+- 2026-09-25 · 1.1 · typecheck pass · lint pass
 
 ---
 
