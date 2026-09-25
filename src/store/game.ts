@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { JobId, JobResult, Placement } from "@/types";
 import { JOBS } from "@/data/jobs";
+import type { PreparedJob } from "@/lib/game/evaluate";
 
 export type Screen =
   | "TITLE"
@@ -27,11 +28,14 @@ interface GameState {
   jobIndex: number;
   results: Partial<Record<JobId, JobResult>>;
   draft: Draft;
+  inking: PreparedJob | null; // locked in, waiting for the judge
   sound: boolean;
   goTo: (screen: Screen) => void;
   setStencil: (dataUrl: string) => void;
   setPlacement: (placement: Placement) => void;
   saveResult: (jobId: JobId, result: JobResult) => void;
+  startInking: (prepared: PreparedJob) => void;
+  finishInking: (jobId: JobId, result: JobResult) => void;
   nextJob: () => void;
   toggleSound: () => void;
   reset: () => void;
@@ -45,6 +49,7 @@ const initial = {
   jobIndex: 0,
   results: {},
   draft: EMPTY_DRAFT,
+  inking: null as PreparedJob | null,
   sound: false,
 };
 
@@ -54,8 +59,11 @@ export const useGame = create<GameState>()((set) => ({
   setStencil: (stencil) => set((s) => ({ draft: { ...s.draft, stencil } })),
   setPlacement: (placement) => set((s) => ({ draft: { ...s.draft, placement } })),
   saveResult: (jobId, result) => set((s) => ({ results: { ...s.results, [jobId]: result } })),
+  startInking: (prepared) => set({ inking: prepared, screen: "INKING" }),
+  finishInking: (jobId, result) =>
+    set((s) => ({ results: { ...s.results, [jobId]: result }, inking: null, screen: "VERDICT" })),
   nextJob: () =>
-    set((s) => ({ jobIndex: Math.min(s.jobIndex + 1, JOBS.length - 1), draft: EMPTY_DRAFT, screen: "ORDER" })),
+    set((s) => ({ jobIndex: Math.min(s.jobIndex + 1, JOBS.length - 1), draft: EMPTY_DRAFT, inking: null, screen: "ORDER" })),
   toggleSound: () => set((s) => ({ sound: !s.sound })),
   reset: () => set({ ...initial }),
 }));

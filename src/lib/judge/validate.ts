@@ -49,6 +49,11 @@ export function parseVerdict(text: string): VisionJudgement | null {
   } catch {
     return null;
   }
+  return validateVerdict(data);
+}
+
+/** Same checks on an already-parsed object (the client re-checks what /api/judge returns). */
+export function validateVerdict(data: unknown): VisionJudgement | null {
   if (!isRecord(data)) return null;
   const { motifMatch, letteringFound, letteringMatch, oldTextReadable, offensive, reaction, mood } = data;
   if (typeof motifMatch !== "boolean") return null;

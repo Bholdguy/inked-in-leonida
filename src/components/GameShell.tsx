@@ -2,18 +2,20 @@
 
 import { useEffect, useState } from "react";
 import PlacementScreen from "@/components/placement/PlacementScreen";
+import InkingScreen from "@/components/screens/InkingScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
-import { evaluateJob } from "@/lib/game/evaluate";
+import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
 import type { Placement } from "@/types";
 
-// Phase 1 route for tino-1: ORDER -> STUDIO -> PLACEMENT -> VERDICT (INKING arrives in Phase 4).
+// Route for tino-1: ORDER -> STUDIO -> PLACEMENT -> INKING (judge) -> VERDICT.
 const STEPS: { screen: Screen; label: string }[] = [
   { screen: "ORDER", label: "Order" },
   { screen: "STUDIO", label: "Stencil" },
   { screen: "PLACEMENT", label: "Placement" },
+  { screen: "INKING", label: "Inking" },
   { screen: "VERDICT", label: "Verdict" },
 ];
 
@@ -27,19 +29,18 @@ export default function GameShell() {
   }, [screen]);
 
   const lockIn = async (placement: Placement) => {
-    const { draft, results, setPlacement, saveResult, goTo } = useGame.getState();
+    const { draft, results, setPlacement, startInking, goTo } = useGame.getState();
     if (!draft.stencil) return goTo("STUDIO");
     setPlacement(placement);
     setLockError(false);
     try {
-      const { result } = await evaluateJob({
+      const prepared = await prepareJob({
         job,
         stencil: draft.stencil,
         placement,
         previousStencil: results["tino-1"]?.stencil,
       });
-      saveResult(job.id, result);
-      goTo("VERDICT");
+      startInking(prepared);
     } catch (err) {
       console.error("[GameShell] could not finish the tattoo", err);
       setLockError(true);
@@ -68,6 +69,9 @@ export default function GameShell() {
           <PlacementScreen onLock={lockIn} />
         </div>
       );
+      break;
+    case "INKING":
+      body = <InkingScreen />;
       break;
     case "VERDICT":
       body = <VerdictScreen onDone={restart} />;

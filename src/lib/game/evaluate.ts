@@ -1,27 +1,36 @@
-// Browser-side: turns a stencil + placement into a JobResult. All math lives in src/lib/ink.
+// Turns a stencil + placement into a JobResult in two steps around the judge call:
+// prepareJob (browser: composite, analysis, judge images) -> judge -> finishJob (pure scoring merge).
 import { bodySrc } from "@/data/bodies";
 import { analyzeStencil } from "@/lib/ink/analyze";
 import { compositeOutputs, makeTattooLayer } from "@/lib/ink/composite";
 import { concealment } from "@/lib/ink/concealment";
-import { decodeImage, loadImage, normalize } from "@/lib/ink/dom";
+import { decodeImage, loadImage, normalize, rgbaToCanvas } from "@/lib/ink/dom";
+import type { ColorName, Job, JobResult, Placement } from "@/types";
 import { placementHit } from "@/lib/ink/placement";
 import { moodFor, scoreCoverup, scoreStandard, starsFor, tipFor, type VisionVerdict } from "@/lib/ink/score";
-import type { Job, JobResult, Placement } from "@/types";
 
-export interface EvaluateInput {
+export interface PreparedJob {
   job: Job;
   stencil: string; // raw editor output
   placement: Placement;
+  composite: string; // 1000x1250 PNG data URL
+  compositeJpegB64: string; // 512px JPEG for the judge, no data: prefix
+  stencilJpegB64: string; // 512x512 normalized stencil JPEG for the judge, no data: prefix
+  coverage: number;
+  shares: Record<ColorName, number>;
+  concealment: number | null; // cover-up only
+}
+
+export interface PrepareInput {
+  job: Job;
+  stencil: string;
+  placement: Placement;
   previousStencil?: string; // cover-up: the raw tino-1 stencil
-  vision?: VisionVerdict; // Phase 1: always the fallback
 }
 
-export interface Evaluation {
-  result: JobResult;
-  jpeg512: string; // for the judge (Phase 2)
-}
+const b64 = (dataUrl: string) => dataUrl.slice(dataUrl.indexOf(",") + 1);
 
-export async function evaluateJob({ job, stencil, placement, previousStencil, vision = { source: "fallback" } }: EvaluateInput): Promise<Evaluation> {
+export async function prepareJob({ job, stencil, placement, previousStencil }: PrepareInput): Promise<PreparedJob> {
   const [body, raw, analysis] = await Promise.all([
     loadImage(bodySrc(job.body.zone, job.body.tone)),
     decodeImage(stencil),
@@ -29,39 +38,54 @@ export async function evaluateJob({ job, stencil, placement, previousStencil, vi
   ]);
   const { png, jpeg512 } = compositeOutputs(body, makeTattooLayer(raw), placement);
 
-  let scored;
+  let hidden: number | null = null;
   if (job.mode === "coverup") {
     if (!previousStencil) throw new Error("Cover-up needs the tino-1 stencil");
     // Old and new stencils go through the exact same normalize().
-    const oldImg = await normalize(previousStencil);
-    scored = scoreCoverup({ concealment: concealment(oldImg, analysis.normalized), blackShare: analysis.shares.black, vision });
-  } else {
-    scored = scoreStandard({
-      requiredColors: job.requiredColors,
-      forbiddenColors: job.forbiddenColors,
-      shares: analysis.shares,
-      coverage: analysis.coverage,
-      range: job.coverage ?? { min: 0, max: 1 },
-      placementHit: job.targetZone ? placementHit({ x: placement.cx, y: placement.cy }, job.targetZone) : true,
-      vision,
-    });
+    hidden = concealment(await normalize(previousStencil), analysis.normalized);
   }
+
+  return {
+    job,
+    stencil,
+    placement,
+    composite: png,
+    compositeJpegB64: b64(jpeg512),
+    stencilJpegB64: b64(rgbaToCanvas(analysis.normalized).toDataURL("image/jpeg", 0.85)),
+    coverage: analysis.coverage,
+    shares: analysis.shares,
+    concealment: hidden,
+  };
+}
+
+/** Pure: merges the judge verdict (or the fallback) into the 9.2 score. */
+export function finishJob(p: PreparedJob, vision: VisionVerdict = { source: "fallback" }): JobResult {
+  const { job, placement } = p;
+  const scored =
+    job.mode === "coverup"
+      ? scoreCoverup({ concealment: p.concealment ?? 0, blackShare: p.shares.black, vision })
+      : scoreStandard({
+          requiredColors: job.requiredColors,
+          forbiddenColors: job.forbiddenColors,
+          shares: p.shares,
+          coverage: p.coverage,
+          range: job.coverage ?? { min: 0, max: 1 },
+          placementHit: job.targetZone ? placementHit({ x: placement.cx, y: placement.cy }, job.targetZone) : true,
+          vision,
+        });
 
   const stars = scored.offensive ? 1 : starsFor(scored.total);
   const mood = scored.offensive ? "angry" : moodFor(stars);
   return {
-    jpeg512,
-    result: {
-      stencil,
-      composite: png,
-      placement,
-      score: scored.total,
-      breakdown: scored.breakdown,
-      stars,
-      mood,
-      reaction: scored.offensive ? job.refusal : job.lines[mood],
-      tip: scored.offensive ? 0 : tipFor(job.basePay, stars),
-      source: vision.source,
-    },
+    stencil: p.stencil,
+    composite: p.composite,
+    placement,
+    score: scored.total,
+    breakdown: scored.breakdown,
+    stars,
+    mood,
+    reaction: scored.offensive ? job.refusal : job.lines[mood],
+    tip: scored.offensive ? 0 : tipFor(job.basePay, stars),
+    source: vision.source,
   };
 }

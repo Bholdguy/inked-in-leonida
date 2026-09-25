@@ -457,7 +457,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 ### Phase 2: The judge (Sat morning, ~3h)
 - [x] 2.0 Live Gemini probe: model, JSON mode, thinking level, latency (owner-approved, max 8 calls)
 - [x] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
-- [ ] 2.2 Client call from INKING; merge into score per 9.2
+- [x] 2.2 Client call from INKING; merge into score per 9.2
 - [ ] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [ ] 2.4 Offensive path -> "Start over"
 - [ ] 2.5 "Client squinted at it" tag on fallback
@@ -623,10 +623,11 @@ export interface JobResult {
 - 1.9: `bf28e80`
 - GATE 1 approved by owner. Phase 2 on branch `phase-2` · 2.0 Gemini probe: no code, results under Discoveries
 - 2.0: `3db4e13` · 2.1 judge route (`src/app/api/judge/route.ts`, `src/lib/judge/{types,prompt,validate,gemini,force}.ts`, tests in `src/lib/judge/__tests__/`): commit "feat: add /api/judge route with validation, timeout and cache"
+- 2.1: `41ce673` · privacy footer: `6ea5641` · 2.2 INKING + client call (`src/components/screens/InkingScreen.tsx`, `src/lib/game/judgeClient.ts`, `evaluate.ts` split into `prepareJob` / pure `finishJob`, store `inking` + `startInking`/`finishInking`, `validateVerdict` shared by server and client, "Inking" step in progress bar, 1.2 s minimum on screen): commit "feat: add INKING screen and merge judge verdict into score"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.2 INKING + client call
+- 2.3 Canned lines + mood consistency
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -658,6 +659,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 24. **Phase 2 plan decisions (owner, 2026-09-25):** flag 2 server derives order/mode/oldLettering from jobId, client values ignored (11.3 updated); flag 3 optional `stencilJpegB64`, motif + lettering judged from the stencil, reaction from the composite (11.3 + prompt updated); flag 5 `JUDGE_FORCE` dev switch, ignored in production (unit-tested); flag 1 a plain INKING screen now, animation stays in 4.2; flag 4 `responseSchema` + hand validation; flag 6 route `maxDuration` 10 s (Gemini timeout 8 s, client cap 9 s); flag 9 cache key includes jobId; flag 10 Phase 2 on branch `phase-2`, merge to `main` at GATE 2.
 25. **Privacy line (flag 8, owner):** footer on the page: "Your drawings are sent to an AI to judge them. Nothing is stored." **README draft note for Phase 5:** add a Privacy line: player drawings (the stencil and the composite, 512px JPEGs) are sent to Google's Gemini API for judging; the game stores nothing server-side (only an in-memory cache per server instance); the free tier may let Google use inputs to improve its products.
 26. **`/api/judge` only answers POST.** GET returns Next's default 405. The 200-always rule applies to the POST contract.
+27. **Editor Text tool default color (2.2).** New text objects take the current color (red after drawing with the default brush), not black. A player who types CRYSTAL without changing the text Fill color gets no black and loses half the palette points. Scoring is correct; Phase 3/4 order copy or the checklist should hint "set the lettering color".
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -692,6 +694,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · GATE 1 · `npm run typecheck` pass · `npm run lint` pass · `npm run test` 65/65 (3 files) · `npm run build` pass (dev-only store handle absent from prod chunks) · deployed `vercel --prod` -> https://inked-in-leonida.vercel.app · live run: ORDER -> STUDIO (rail Filter/Crop/Draw/Text/Shapes/Stickers, no AI panel, empty Transfer toast) -> filled red heart + editor Save -> PLACEMENT (zone "Inside left forearm") -> Lock it in -> VERDICT 68/100, 3 stars, 5 breakdown bars; 0 console errors. Drawing was driven by synthetic pointer events (the browser pane's screenshots crop at DPR 1.5); owner to confirm with a real mouse.
 - 2026-09-25 · 2.0 · 6 live generateContent calls (3x gemini-3.5-flash-lite minimal: 200, 3065/2165/1987 ms, CRYSTAL read 3/3; 3x gemini-3.8-flash low: 503 x3). No repo code; probe script and images stayed in the session scratchpad.
 - 2026-09-25 · 2.1 · typecheck pass · lint pass · `npm run test` 129/129 (5 files; judge: request/verdict validation, sanitizer, prompt, JUDGE_FORCE ignored in production, route: success, header auth, schema, labelled images, server-side order, cache, no key, HTTP 400/403/429/500/503, bad JSON/fields/mood, network error, 8 s timeout with fake timers, bad requests; afterEach asserts no image data or key in any log line) · local dev route with the real key: 200 vision (CRYSTAL, letteringMatch true) ~3.8 s incl. first compile, cached repeat 32 ms, bad body 200 fallback; server log shows only "[judge] fallback: bad-request"
+- 2026-09-25 · 2.2 · typecheck pass · lint pass · test 142/142 (6 files; finishJob: vision 100/5★/thrilled/$180, fallback 80/4★, wrong lettering 10, offensive 0/refusal/$0, cover-up 100; client: validated vision, fallback on server fallback / malformed / non-JSON / 500 / network error, 9 s cap with fake timers; store inking transitions) · dev with key: canvas stencil (red heart + black CRYSTAL) -> PLACEMENT -> INKING -> VERDICT in ~4.0 s, source vision, 100/100, 5 stars, $180 · dev with key, real editor: Text tool "CRYSTAL" + drawn heart -> lettering 25/25, motif 25/25; palette 12.5 because the Text tool's default fill was red (no black), which is correct scoring
 
 ---
 

@@ -46,6 +46,18 @@ describe("game store", () => {
     expect(s.results["tino-1"]).toBeDefined();
   });
 
+  it("inking: start holds the prepared job, finish saves the result and shows the verdict", () => {
+    const prepared = { job: currentJob(useGame.getState()) } as unknown as Parameters<ReturnType<typeof useGame.getState>["startInking"]>[0];
+    useGame.getState().startInking(prepared);
+    expect(useGame.getState().screen).toBe("INKING");
+    expect(useGame.getState().inking).toBe(prepared);
+    useGame.getState().finishInking("tino-1", result);
+    const s = useGame.getState();
+    expect(s.screen).toBe("VERDICT");
+    expect(s.inking).toBeNull();
+    expect(s.results["tino-1"]).toBe(result);
+  });
+
   it("reset clears everything", () => {
     const g = useGame.getState();
     g.saveResult("tino-1", result);
