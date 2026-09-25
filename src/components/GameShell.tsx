@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PlacementScreen from "@/components/placement/PlacementScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
 import { evaluateJob } from "@/lib/game/evaluate";
-import { currentJob, useGame } from "@/store/game";
+import { currentJob, useGame, type Screen } from "@/store/game";
 import type { Placement } from "@/types";
+
+// Phase 1 route for tino-1: ORDER -> STUDIO -> PLACEMENT -> VERDICT (INKING arrives in Phase 4).
+const STEPS: { screen: Screen; label: string }[] = [
+  { screen: "ORDER", label: "Order" },
+  { screen: "STUDIO", label: "Stencil" },
+  { screen: "PLACEMENT", label: "Placement" },
+  { screen: "VERDICT", label: "Verdict" },
+];
 
 export default function GameShell() {
   const screen = useGame((s) => s.screen);
   const job = useGame(currentJob);
   const [lockError, setLockError] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [screen]);
 
   const lockIn = async (placement: Placement) => {
     const { draft, results, setPlacement, saveResult, goTo } = useGame.getState();
@@ -34,13 +46,19 @@ export default function GameShell() {
     }
   };
 
+  const restart = () => useGame.getState().reset();
+  const stepIndex = STEPS.findIndex((s) => s.screen === screen);
+
+  let body: React.ReactNode;
   switch (screen) {
     case "ORDER":
-      return <OrderScreen />;
+      body = <OrderScreen />;
+      break;
     case "STUDIO":
-      return <StudioScreen />;
+      body = <StudioScreen />;
+      break;
     case "PLACEMENT":
-      return (
+      body = (
         <div className="flex flex-col gap-4">
           {lockError && (
             <p role="alert" className="rounded-lg border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
@@ -50,10 +68,40 @@ export default function GameShell() {
           <PlacementScreen onLock={lockIn} />
         </div>
       );
+      break;
     case "VERDICT":
-      // Phase 1 ends at Tino's verdict; INKGRAM and the next client arrive in later phases.
-      return <VerdictScreen onDone={() => useGame.getState().reset()} />;
+      body = <VerdictScreen onDone={restart} />;
+      break;
     default:
-      return <p className="text-muted">Screen {screen} is not built yet.</p>;
+      // Screens from later phases are unreachable in Phase 1; never leave the player stranded.
+      body = (
+        <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+          <p className="font-bold">This part of the shop is still under renovation.</p>
+          <button type="button" onClick={restart} className="rounded bg-pink px-4 py-2 font-bold text-night">
+            Back to the first client
+          </button>
+        </div>
+      );
   }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {stepIndex >= 0 && (
+        <nav aria-label="Job progress" className="flex items-center gap-2 text-xs uppercase tracking-[0.2em]">
+          {STEPS.map((s, i) => (
+            <span key={s.screen} className="flex items-center gap-2">
+              <span
+                aria-current={i === stepIndex ? "step" : undefined}
+                className={i === stepIndex ? "text-pink" : i < stepIndex ? "text-ink" : "text-muted/60"}
+              >
+                {s.label}
+              </span>
+              {i < STEPS.length - 1 && <span className="text-muted/40">/</span>}
+            </span>
+          ))}
+        </nav>
+      )}
+      {body}
+    </div>
+  );
 }
