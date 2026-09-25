@@ -61,3 +61,8 @@ export const useGame = create<GameState>()((set) => ({
 }));
 
 export const currentJob = (state: Pick<GameState, "jobIndex">) => JOBS[state.jobIndex];
+
+// Dev-only debugging handle (removed from production builds).
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  (window as unknown as { __game?: typeof useGame }).__game = useGame;
+}

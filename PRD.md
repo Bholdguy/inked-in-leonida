@@ -443,7 +443,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 1.4 ORDER screen
 - [x] 1.5 STUDIO with per-job tool config and Transfer + hasChanges guard
 - [x] 1.6 PLACEMENT with placeholder body PNG (`public/bodies/`), drag/size/rotate, target zone
-- [ ] 1.7 Compositing (11.2)
+- [x] 1.7 Compositing (11.2)
 - [ ] 1.8 VERDICT with deterministic parts; motif/lettering use fallback values
 - [ ] 1.9 Minimal routing between screens for tino-1
 
@@ -611,10 +611,11 @@ export interface JobResult {
 - 1.3: `fcd7cd0` · 1.4 ORDER (`OrderScreen.tsx`, `ClientBadge.tsx`, `OrderChecklist.tsx`; minimal `GameShell.tsx` started early so screens can be seen; 8.3 color tokens added to `globals.css` as Tailwind colors, fonts/neon stay in 4.1): commit "feat: add ORDER screen"
 - 1.4: `a1e3e89` · 1.5 STUDIO (`StudioScreen.tsx`, `InkEditor.tsx` rewritten to 10.1 props, `src/lib/editorConfig.ts`, `src/lib/ink/analyze.ts`; onLoadError toast + reset retry and onError "POWER'S OUT" remount retry per 10.5): commit "feat: add STUDIO with per-job tools and transfer guard"
 - 1.5: `79c58e2` · 1.6 PLACEMENT (`src/components/placement/PlacementScreen.tsx`, `PlacementStage.tsx`; live preview calls `renderComposite` from `src/lib/ink/composite.ts`, committed here because the preview needs it). No `BodyPlaceholder.tsx` (flag 9: PNG files instead). Scale 1 = stencil drawn 40% of body width; default placement = target zone center: commit "feat: add PLACEMENT with drag, size, rotate and target zone"
+- 1.6: `7d7e6de` · 1.7 compositing outputs + lock-in pipeline (`compositeOutputs` in `src/lib/ink/composite.ts`, `src/lib/game/evaluate.ts`, lock-in in `GameShell.tsx` with a retry message on failure; dev-only `window.__game` store handle): commit "feat: composite outputs and lock-in evaluation"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 1.7 Compositing
+- 1.8 VERDICT
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -664,6 +665,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 1.4 · typecheck pass · test 65/65 · lint pass · browser: ORDER shows badge, bio, request, 5-row checklist for tino-1
 - 2026-09-25 · 1.5 · typecheck pass · test 65/65 · lint pass · browser (dev): tino-1 rail = Filter, Crop, Draw, Text, Shapes, Stickers (Resize/Frame hidden); empty Transfer and empty Save both shake/toast; stroke + Save -> PLACEMENT; stroke + Transfer button -> PLACEMENT; 14.2 probes per NOTES.md
 - 2026-09-25 · 1.6 · typecheck pass · test 65/65 · lint pass · browser (dev): forearm-deep PNG body + heart stencil; drag, Left x3, Shift+Down, size 0.56x, rotate 95° all applied; dashed zone + "Inside left forearm"; ink clipped at the arm edge; outside-body pixel [0,0,0,0], skin pixel = #6B4430
+- 2026-09-25 · 1.7 · typecheck pass · test 65/65 · lint pass · browser (dev): outline heart via Save -> Lock it in -> JobResult: composite image/png 1000x1250 (toDataURL no taint), stencil image/jpeg, breakdown palette 12.5 / coverage 0 (outline < 4%) / placement 10 / motif 15 / lettering 15 = 53, 2 stars, angry, tip $70, source fallback. 512 JPEG built by the same call (used from Phase 2).
 
 ---
 

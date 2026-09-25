@@ -1,14 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import PlacementScreen from "@/components/placement/PlacementScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
-import { useGame } from "@/store/game";
+import { evaluateJob } from "@/lib/game/evaluate";
+import { currentJob, useGame } from "@/store/game";
+import type { Placement } from "@/types";
 
 export default function GameShell() {
   const screen = useGame((s) => s.screen);
-  const setPlacement = useGame((s) => s.setPlacement);
-  const goTo = useGame((s) => s.goTo);
+  const job = useGame(currentJob);
+  const [lockError, setLockError] = useState(false);
+
+  const lockIn = async (placement: Placement) => {
+    const { draft, results, setPlacement, saveResult, goTo } = useGame.getState();
+    if (!draft.stencil) return goTo("STUDIO");
+    setPlacement(placement);
+    setLockError(false);
+    try {
+      const { result } = await evaluateJob({
+        job,
+        stencil: draft.stencil,
+        placement,
+        previousStencil: results["tino-1"]?.stencil,
+      });
+      saveResult(job.id, result);
+      goTo("VERDICT");
+    } catch (err) {
+      console.error("[GameShell] could not finish the tattoo", err);
+      setLockError(true);
+    }
+  };
 
   switch (screen) {
     case "ORDER":
@@ -17,12 +40,14 @@ export default function GameShell() {
       return <StudioScreen />;
     case "PLACEMENT":
       return (
-        <PlacementScreen
-          onLock={(placement) => {
-            setPlacement(placement);
-            goTo("VERDICT");
-          }}
-        />
+        <div className="flex flex-col gap-4">
+          {lockError && (
+            <p role="alert" className="rounded-lg border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
+              The needle skipped. Hit &quot;Lock it in&quot; again.
+            </p>
+          )}
+          <PlacementScreen onLock={lockIn} />
+        </div>
       );
     default:
       return <p className="text-muted">Screen {screen} is not built yet.</p>;
