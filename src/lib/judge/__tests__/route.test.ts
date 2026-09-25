@@ -5,7 +5,7 @@ import { clearJudgeCache, TIMEOUT_MS } from "../gemini";
 // Distinctive fake image bytes so we can prove they never reach a log line.
 const IMAGE = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.from("SECRET-PIXELS-".repeat(20))]).toString("base64");
 const STENCIL = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe1]), Buffer.from("STENCIL-PIXELS-".repeat(20))]).toString("base64");
-const KEY = "AIzaTEST-not-a-real-key-000000000000000";
+const KEY = "test-key-not-real";
 
 const verdict = {
   motifMatch: true,

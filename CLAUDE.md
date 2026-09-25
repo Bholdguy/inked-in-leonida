@@ -18,6 +18,7 @@ Next.js 15 (App Router, `src/`), TypeScript, Tailwind v4, zustand, Vitest, deplo
 - MUST NOT hide errors from the player with blank screens. Every failure has a diegetic message and a retry.
 - MUST NOT start the next phase before the current gate passes.
 - MUST commit at the end of each task with a conventional commit message (`feat:`, `fix:`, `chore:`).
+- MUST NEVER write a real or realistic-looking key, token or secret into any file (code, tests, fixtures, docs, logs). Test values use obvious fakes that match no provider's key pattern, e.g. `"test-key-not-real"` (never the shape of a real Google, OpenAI or GitHub key). Real keys live only in `.env.local` (gitignored) and Vercel env vars, and are never printed.
 
 ## Commands
 
