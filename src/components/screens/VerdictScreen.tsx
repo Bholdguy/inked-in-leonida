@@ -67,6 +67,12 @@ export default function VerdictScreen({ onDone }: { onDone: () => void }) {
           </p>
         </div>
 
+        {result.offensive && (
+          <p role="alert" className="rounded-lg border border-pink/40 bg-pink/10 px-4 py-2 text-sm text-pink">
+            {job.client.name.split(" ")[0]} won&apos;t wear that. Score zeroed, no tip. Draw something else.
+          </p>
+        )}
+
         <ul className="flex flex-col gap-3" aria-label="Score breakdown">
           {Object.entries(result.breakdown).map(([key, { got, max }]) => (
             <li key={key} className="text-sm">
@@ -85,10 +91,10 @@ export default function VerdictScreen({ onDone }: { onDone: () => void }) {
 
         <button
           type="button"
-          onClick={onDone}
+          onClick={result.offensive ? () => useGame.getState().startOver(job.id) : onDone}
           className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
         >
-          Restart shift
+          {result.offensive ? "Start over" : "Restart shift"}
         </button>
       </div>
     </section>

@@ -91,5 +91,6 @@ export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): Job
       : pickReaction({ scoreMood: mood, canned: job.lines, model: vision.source === "vision" ? vision : null }),
     tip: scored.offensive ? 0 : tipFor(job.basePay, stars),
     source: vision.source,
+    offensive: scored.offensive,
   };
 }

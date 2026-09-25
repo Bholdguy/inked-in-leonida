@@ -13,6 +13,7 @@ const result: JobResult = {
   reaction: "ok",
   tip: 145,
   source: "fallback",
+  offensive: false,
 };
 
 describe("game store", () => {
@@ -56,6 +57,21 @@ describe("game store", () => {
     expect(s.screen).toBe("VERDICT");
     expect(s.inking).toBeNull();
     expect(s.results["tino-1"]).toBe(result);
+  });
+
+  it("startOver drops this attempt and reopens the studio for the same job", () => {
+    const g = useGame.getState();
+    g.saveResult("tino-1", { ...result, offensive: true, score: 0 });
+    g.setStencil("data:image/jpeg;base64,BAD");
+    g.setPlacement({ cx: 0.5, cy: 0.5, scale: 1, rotate: 0 });
+    g.goTo("VERDICT");
+    g.startOver("tino-1");
+    const s = useGame.getState();
+    expect(s.screen).toBe("STUDIO");
+    expect(currentJob(s).id).toBe("tino-1");
+    expect(s.results["tino-1"]).toBeUndefined();
+    expect(s.draft).toEqual({ stencil: null, placement: null });
+    expect(s.inking).toBeNull();
   });
 
   it("reset clears everything", () => {

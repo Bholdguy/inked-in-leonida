@@ -459,7 +459,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.1 `/api/judge` route per 11.3 with timeout, validation, cache, fallback
 - [x] 2.2 Client call from INKING; merge into score per 9.2
 - [x] 2.3 Canned lines (Section 15.2) + mood consistency rule
-- [ ] 2.4 Offensive path -> "Start over"
+- [x] 2.4 Offensive path -> "Start over"
 - [ ] 2.5 "Client squinted at it" tag on fallback
 
 **GATE 2:** With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
@@ -570,6 +570,7 @@ export interface JobResult {
   reaction: string;
   tip: number;
   source: "vision" | "fallback";
+  offensive: boolean;     // vision flagged it: score 0, refusal line, VERDICT offers "Start over"
 }
 ```
 
@@ -625,10 +626,11 @@ export interface JobResult {
 - 2.0: `3db4e13` · 2.1 judge route (`src/app/api/judge/route.ts`, `src/lib/judge/{types,prompt,validate,gemini,force}.ts`, tests in `src/lib/judge/__tests__/`): commit "feat: add /api/judge route with validation, timeout and cache"
 - 2.1: `41ce673` · privacy footer: `6ea5641` · 2.2 INKING + client call (`src/components/screens/InkingScreen.tsx`, `src/lib/game/judgeClient.ts`, `evaluate.ts` split into `prepareJob` / pure `finishJob`, store `inking` + `startInking`/`finishInking`, `validateVerdict` shared by server and client, "Inking" step in progress bar, 1.2 s minimum on screen): commit "feat: add INKING screen and merge judge verdict into score"
 - 2.2: `7b86969` · 2.3 canned lines + mood consistency (`src/lib/ink/reaction.ts` `pickReaction`; `finishJob` takes the full `JudgeResponse`; canned lines were already in `jobs.ts` from 1.1): commit "feat: pick model or canned reaction by mood distance"
+- 2.3: `3805d50` · 2.4 offensive path (`JobResult.offensive`, store `startOver`, VERDICT "Start over" + refusal notice): commit "feat: offensive verdict offers Start over and remounts the studio"
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.4 Offensive path
+- 2.5 Fallback tag
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -661,6 +663,8 @@ Plan-review flags (2026-09-25) and owner decisions:
 25. **Privacy line (flag 8, owner):** footer on the page: "Your drawings are sent to an AI to judge them. Nothing is stored." **README draft note for Phase 5:** add a Privacy line: player drawings (the stencil and the composite, 512px JPEGs) are sent to Google's Gemini API for judging; the game stores nothing server-side (only an in-memory cache per server instance); the free tier may let Google use inputs to improve its products.
 26. **`/api/judge` only answers POST.** GET returns Next's default 405. The 200-always rule applies to the POST contract.
 27. **Editor Text tool default color (2.2).** New text objects take the current color (red after drawing with the default brush), not black. A player who types CRYSTAL without changing the text Fill color gets no black and loses half the palette points. Scoring is correct; Phase 3/4 order copy or the checklist should hint "set the lettering color".
+28. **`JobResult.offensive` (2.4).** Added to 15.1 (updated) so VERDICT can switch its button to "Start over" without guessing from the text. `startOver(jobId)` deletes that job's result, clears the draft and inking state, and returns to STUDIO; STUDIO was unmounted during VERDICT, so the editor remounts fresh on the job's start image.
+29. **Narrow widths (2.4 observation).** Below ~600px the editor's Cancel/Save become X / check icons. Worth a line in the Phase 4 mobile pass.
 
 ### Discoveries
 <!-- Agent: API facts verified in node_modules or docs, gotchas confirmed -->
@@ -697,6 +701,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 2.1 · typecheck pass · lint pass · `npm run test` 129/129 (5 files; judge: request/verdict validation, sanitizer, prompt, JUDGE_FORCE ignored in production, route: success, header auth, schema, labelled images, server-side order, cache, no key, HTTP 400/403/429/500/503, bad JSON/fields/mood, network error, 8 s timeout with fake timers, bad requests; afterEach asserts no image data or key in any log line) · local dev route with the real key: 200 vision (CRYSTAL, letteringMatch true) ~3.8 s incl. first compile, cached repeat 32 ms, bad body 200 fallback; server log shows only "[judge] fallback: bad-request"
 - 2026-09-25 · 2.2 · typecheck pass · lint pass · test 142/142 (6 files; finishJob: vision 100/5★/thrilled/$180, fallback 80/4★, wrong lettering 10, offensive 0/refusal/$0, cover-up 100; client: validated vision, fallback on server fallback / malformed / non-JSON / 500 / network error, 9 s cap with fake timers; store inking transitions) · dev with key: canvas stencil (red heart + black CRYSTAL) -> PLACEMENT -> INKING -> VERDICT in ~4.0 s, source vision, 100/100, 5 stars, $180 · dev with key, real editor: Text tool "CRYSTAL" + drawn heart -> lettering 25/25, motif 25/25; palette 12.5 because the Text tool's default fill was red (no black), which is correct scoring
 - 2026-09-25 · 2.3 · typecheck pass · lint pass · test 165/165 (7 files; pickReaction all 16 score/model mood combos, empty/whitespace/no model line, trim; finishJob: model line within one step, canned line when two steps away, offensive never uses the model line) · dev with key: tino-1 100/5★ thrilled, VERDICT shows the model line "Crystal is gonna love this, looks smooth like a fresh fiberglass hull!"
+- 2026-09-25 · 2.4 · typecheck pass · lint pass · test 166/166 (store startOver; finishJob offensive flag) · dev with JUDGE_FORCE=offensive (port 3001): real editor stroke -> Save -> Lock it in -> VERDICT 0/100, 1 star, ANGRY, refusal line, $0, alert "Tino won't wear that...", button "Start over" -> STUDIO for tino-1, fresh blank editor, result + draft cleared · dev with JUDGE_FORCE=slow (port 3002, server holds 12 s): INKING gave up at 9.1 s -> VERDICT fallback 80, canned line
 
 ---
 

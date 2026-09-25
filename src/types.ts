@@ -40,4 +40,5 @@ export interface JobResult {
   reaction: string;
   tip: number;
   source: "vision" | "fallback";
+  offensive: boolean;     // vision flagged it: score 0, refusal line, VERDICT offers "Start over"
 }

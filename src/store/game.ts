@@ -36,6 +36,7 @@ interface GameState {
   saveResult: (jobId: JobId, result: JobResult) => void;
   startInking: (prepared: PreparedJob) => void;
   finishInking: (jobId: JobId, result: JobResult) => void;
+  startOver: (jobId: JobId) => void;
   nextJob: () => void;
   toggleSound: () => void;
   reset: () => void;
@@ -62,6 +63,13 @@ export const useGame = create<GameState>()((set) => ({
   startInking: (prepared) => set({ inking: prepared, screen: "INKING" }),
   finishInking: (jobId, result) =>
     set((s) => ({ results: { ...s.results, [jobId]: result }, inking: null, screen: "VERDICT" })),
+  // Offensive verdict: drop this attempt and reopen a fresh STUDIO for the same job.
+  startOver: (jobId) =>
+    set((s) => {
+      const results = { ...s.results };
+      delete results[jobId];
+      return { results, draft: EMPTY_DRAFT, inking: null, screen: "STUDIO" };
+    }),
   nextJob: () =>
     set((s) => ({ jobIndex: Math.min(s.jobIndex + 1, JOBS.length - 1), draft: EMPTY_DRAFT, inking: null, screen: "ORDER" })),
   toggleSound: () => set((s) => ({ sound: !s.sound })),

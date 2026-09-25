@@ -43,6 +43,7 @@ describe("finishJob (vision merged into 9.2)", () => {
     expect(r.mood).toBe("thrilled");
     expect(r.tip).toBe(180);
     expect(r.source).toBe("vision");
+    expect(r.offensive).toBe(false);
     expect(r.breakdown.motif.got).toBe(25);
     expect(r.breakdown.lettering.got).toBe(25);
   });
@@ -78,6 +79,7 @@ describe("finishJob (vision merged into 9.2)", () => {
     expect(r.stars).toBe(1);
     expect(r.reaction).toBe(tino.refusal);
     expect(r.tip).toBe(0);
+    expect(r.offensive).toBe(true);
   });
 
   it("cover-up uses concealment from preparation", () => {
