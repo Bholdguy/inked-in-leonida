@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ColorName } from "@/types";
 import { COLOR_NAMES } from "../color";
-import { coveragePoints, moodFor, scoreCoverup, scoreStandard, starsFor, tipFor, verdictFor, zoneHit, type VisionVerdict } from "../score";
+import { coveragePoints, moodFor, scoreCoverup, scoreStandard, shopRating, starsFor, tipFor, totalTips, verdictFor, zoneHit, type VisionVerdict } from "../score";
 
 const shares = (s: Partial<Record<ColorName, number>>) =>
   ({ ...Object.fromEntries(COLOR_NAMES.map((c) => [c, 0])), ...s }) as Record<ColorName, number>;
@@ -173,5 +173,19 @@ describe("verdictFor", () => {
   it("offensive overrides everything: 1 star, angry, no tip", () => {
     expect(verdictFor({ score: 100, offensive: true, basePay: 180 })).toEqual({ stars: 1, mood: "angry", tip: 0 });
     expect(verdictFor({ score: 0, offensive: true, basePay: 300 })).toEqual({ stars: 1, mood: "angry", tip: 0 });
+  });
+});
+
+describe("shop wall totals", () => {
+  it("sums every tip", () => {
+    expect(totalTips([{ tip: 145 }, { tip: 200 }, { tip: 300 }, { tip: 0 }])).toBe(645);
+    expect(totalTips([])).toBe(0);
+  });
+
+  it("rates the shop as the average stars, one decimal", () => {
+    expect(shopRating([4, 4, 5])).toBe(4.3);
+    expect(shopRating([5, 5, 5])).toBe(5);
+    expect(shopRating([1, 2])).toBe(1.5);
+    expect(shopRating([])).toBeNull();
   });
 });

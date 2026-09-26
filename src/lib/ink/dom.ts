@@ -72,3 +72,15 @@ export async function urlToDataUrl(url: string): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
+
+// Small JPEG copy of a composite for the saved shop wall (keeps localStorage far under quota).
+export async function thumbnail(dataUrl: string, width = 240, background = "#160e24"): Promise<string> {
+  const img = await loadImage(dataUrl);
+  const height = Math.round((width * img.naturalHeight) / img.naturalWidth);
+  const canvas = makeCanvas(width, height);
+  const ctx = ctx2d(canvas);
+  ctx.fillStyle = background; // JPEG has no alpha
+  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.8);
+}

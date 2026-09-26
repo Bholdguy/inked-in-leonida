@@ -10,6 +10,7 @@ import FinaleIntroScreen from "@/components/screens/FinaleIntroScreen";
 import NightIntroScreen from "@/components/screens/NightIntroScreen";
 import SelfRevealScreen from "@/components/screens/SelfRevealScreen";
 import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
+import ShopWallScreen from "@/components/screens/ShopWallScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
 import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
@@ -104,6 +105,9 @@ export default function GameShell() {
       break;
     case "SELF_REVEAL":
       body = <SelfRevealScreen />;
+      break;
+    case "SHOP_WALL":
+      body = <ShopWallScreen />;
       break;
     default:
       // Any screen without a view must still leave the player a way back.

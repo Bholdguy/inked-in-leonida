@@ -119,3 +119,14 @@ export function moodFor(stars: 1 | 2 | 3 | 4 | 5): Mood {
 export function tipFor(basePay: number, stars: number): number {
   return Math.round((basePay * stars) / 5 / 5) * 5;
 }
+
+// SHOP_WALL (8.2): total tips over every job, shop rating = average stars of the scored jobs,
+// one decimal. No scored jobs -> null (nothing to rate).
+export function totalTips(results: { tip: number }[]): number {
+  return results.reduce((sum, r) => sum + r.tip, 0);
+}
+
+export function shopRating(stars: number[]): number | null {
+  if (!stars.length) return null;
+  return Math.round((stars.reduce((a, b) => a + b, 0) / stars.length) * 10) / 10;
+}
