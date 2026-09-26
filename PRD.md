@@ -465,7 +465,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.5 "Client squinted at it" tag on fallback
 - [x] 2.6 Hardening (verifier fixes before GATE 2): editor load timeout, error boundaries, dead ends, /api/judge rate limit, footer wording, housekeeping
 
-**GATE 2:** With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
+**GATE 2: PASSED 2026-09-26** (production with key: agent run 100/100 via real editor; Preview without key: owner run). With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
 
 ### Phase 3: Full content loop (Sat afternoon, ~5h)
 - [ ] 3.1 kaylee-1 job with shoulder placeholder
@@ -640,10 +640,11 @@ export interface JobResult {
 - 2.6 item 5: footer now "Your drawings are sent to Google's Gemini AI for judging. We don't store them."; README note (item 25) updated to match
 - 2.6 item 6: `zoneHit` and `verdictFor` (offensive override) are pure in `src/lib/ink/score.ts` and used by `finishJob`; `loadImage` error no longer echoes the image source; no history rewrite (item 34)
 - 2.6 done (items 1-6 as separate commits, last `c010807`), pushed to `main`; `phase-2` fast-forwarded for a fresh Preview
+- **GATE 2 passed 2026-09-26** (Phase 2 tasks 2.0-2.6 complete)
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 2: waiting on owner's Preview (no-key) run, checklist steps 1-6
+- GATE 2 passed. Phase 3 not started (waiting for owner go-ahead).
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -734,6 +735,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 item 5 (footer) · typecheck pass · lint pass · test 177/177 · dev page HTML contains the new footer text
 - 2026-09-26 · 2.6 item 6 (housekeeping) · typecheck pass · lint pass · test 182/182 (zoneHit: inside, outside, null zone always hits; verdictFor: 100/80/60/10 -> stars, mood, tip; offensive overrides to 1 star, angry, $0 even at score 100)
 - 2026-09-26 · 2.6 final check · typecheck pass · lint pass · test 182/182 (8 files) · build pass · client bundle: 0 files with GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, or the actual key value · tracked files: no Google key prefix · dev regression with key: tino-1 100/100, 5 stars, thrilled, $180, new footer shown
+- 2026-09-26 · GATE 2 PASSED · Preview (no key, https://inked-in-leonida-a0smniq4y-bholdguys-projects.vercel.app), owner run: loading line + greyed Transfer shown, new footer shown, VERDICT "Client squinted at it." with a canned Tino line, Motif 15/25, Lettering 15/25, 78/100, 4 stars, HAPPY, $145 · Production (key): agent run 2026-09-25 via real editor 100/100, 5 stars, drawing-specific reaction; 2.6 re-check 2026-09-26 /api/judge 200 vision
 
 ---
 
