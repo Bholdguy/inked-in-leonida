@@ -469,7 +469,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 
 ### Phase 3: Full content loop (Sat afternoon, ~5h)
 - [x] 3.1 kaylee-1 job with shoulder placeholder
-- [ ] 3.2 NIGHT_INTRO screens + Kaylee callback (9.3)
+- [x] 3.2 NIGHT_INTRO screens + Kaylee callback (9.3)
 - [ ] 3.3 tino-2 cover-up: start image = tino-1 stencil, crop/resize off, concealment scoring
 - [ ] 3.4 FINALE_INTRO, SELF_SETUP, SELF_REVEAL
 - [ ] 3.5 SHOP_WALL with localStorage persistence
@@ -643,6 +643,7 @@ export interface JobResult {
 - **GATE 2 passed 2026-09-26** (Phase 2 tasks 2.0-2.6 complete)
 - Phase 3 on branch `phase-3` · 3.0 shift flow (`src/lib/game/flow.ts` `nextAfterJob` + `kayleeCallback`, store `advance`/`selfBody`/`setSelfBody`/`setSound`, starts on TITLE, restart keeps the sound preference; plain `TitleScreen.tsx`; VERDICT "Next client"): commit "feat: add shift flow from title through the wall"
 - 3.0: `97ecfec` · 3.1 kaylee-1: no code needed beyond 3.0 (job data from 1.1, `advance()` routes tino-1 -> kaylee-1 ORDER, shoulder placeholder + "Left shoulder" zone from `bodies.ts`): commit "chore: verify kaylee-1 end to end"
+- 3.1: `86823fb` · 3.2 NIGHT_INTRO (`src/components/screens/NightIntroScreen.tsx`: whole card is one button, 2.5 s auto-advance or click, guarded so it advances once; night 2 shows `kayleeCallback(stars)`): commit "feat: add night intro cards with the Kaylee callback"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -748,6 +749,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 2 PASSED · Preview (no key, https://inked-in-leonida-a0smniq4y-bholdguys-projects.vercel.app), owner run: loading line + greyed Transfer shown, new footer shown, VERDICT "Client squinted at it." with a canned Tino line, Motif 15/25, Lettering 15/25, 78/100, 4 stars, HAPPY, $145 · Production (key): agent run 2026-09-25 via real editor 100/100, 5 stars, drawing-specific reaction; 2.6 re-check 2026-09-26 /api/judge 200 vision
 - 2026-09-26 · 3.0 · typecheck pass · lint pass · test 188/188 (9 files; flow: 8.1 order, 9.3 callback lines; store: full shift walk, stable finale job, finale -> SELF_REVEAL, reset keeps sound)
 - 2026-09-26 · 3.1 · browser (dev, key set): TITLE -> tino-1 (canvas-injected stencil via dev handle) 100/100 vision -> "Next client" -> kaylee-1 ORDER (Night 1, pink + orange, STAY LOUD) -> PLACEMENT on shoulder-light -> INKING -> VERDICT 75/100 vision (palette 25, size 15, placement 10, lettering 25, motif 0 for a crude palm), "Next client" shown
+- 2026-09-26 · 3.2 · typecheck pass · lint pass · browser (dev): kaylee-1 4 stars -> Next client -> "NIGHT 2 · 12:10 AM / Somebody's back. / Kaylee's post hit 40K likes. Your DMs are on fire." -> auto-advanced to tino-2 ORDER after 2.5 s
 
 ---
 

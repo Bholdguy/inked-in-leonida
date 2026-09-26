@@ -6,6 +6,7 @@ import InkingScreen from "@/components/screens/InkingScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
+import NightIntroScreen from "@/components/screens/NightIntroScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
 import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
@@ -56,6 +57,9 @@ export default function GameShell() {
   switch (screen) {
     case "TITLE":
       body = <TitleScreen />;
+      break;
+    case "NIGHT_INTRO":
+      body = <NightIntroScreen />;
       break;
     case "ORDER":
       body = <OrderScreen />;
