@@ -79,7 +79,8 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
   // unapplied crop, so the hint asks players to close tool panels first.
   const transfer = () => {
     const ed = editor();
-    if (!ed || !ed.hasChanges()) return refuseEmpty();
+    // An untouched cover-up still has the old ink on it: say so instead of "empty".
+    if (!ed || !ed.hasChanges()) return job.startFrom === "tino-1" ? refuse(UNTOUCHED_COVERUP) : refuseEmpty();
     const dataUrl = ed.getImage();
     if (!dataUrl) return refuseEmpty();
     void handOver(dataUrl);
