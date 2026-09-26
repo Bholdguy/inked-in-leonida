@@ -127,7 +127,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
         >
           Transfer stencil
         </button>
-        <p className="text-xs text-muted">Close the tool panel, then Transfer. The editor&apos;s Save works too.</p>
+        <p className="text-xs text-muted">Close the tool panel, then Transfer. The editor&apos;s own Transfer Stencil button works too.</p>
       </div>
 
       {!loaded && (
