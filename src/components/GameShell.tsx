@@ -14,6 +14,7 @@ import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
 import ShopWallScreen from "@/components/screens/ShopWallScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
 import ShopHeader from "@/components/ShopHeader";
+import DesktopBanner from "@/components/DesktopBanner";
 import { unlockAudio } from "@/lib/audio";
 import { prepareJob } from "@/lib/game/evaluate";
 import { loadSound } from "@/lib/game/prefs";
@@ -142,6 +143,7 @@ export default function GameShell() {
 
   return (
     <div className="flex flex-1 flex-col gap-6">
+      <DesktopBanner />
       {screen !== "TITLE" && <ShopHeader />}
       {stepIndex >= 0 && (
         <nav aria-label="Job progress" className="flex flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-[0.2em]">

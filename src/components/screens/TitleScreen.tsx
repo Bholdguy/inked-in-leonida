@@ -13,7 +13,7 @@ export default function TitleScreen() {
   useEffect(() => setLastWall(loadWall()), []);
 
   return (
-    <section className="relative isolate flex min-h-[78vh] flex-col items-center justify-center gap-8 overflow-hidden py-10 text-center">
+    <section className="relative isolate flex min-h-[64vh] sm:min-h-[78vh] flex-col items-center justify-center gap-8 overflow-hidden py-10 text-center">
       {/* Striped sunset sinking behind the sign. */}
       <div aria-hidden className="title-sun absolute left-1/2 top-[46%] -z-10 aspect-square w-[min(620px,92vw)] -translate-x-1/2 -translate-y-1/2" />
 
