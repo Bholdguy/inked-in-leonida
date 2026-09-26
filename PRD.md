@@ -786,6 +786,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 4.6 · typecheck pass · lint pass · browser (dev): editor embed script forced to 404 -> POWER'S OUT neon panel with Retry inside the STUDIO, order sidebar and header still usable
 - 2026-09-26 · 4.7 · typecheck pass · lint pass · browser (dev, 390x844): banner shown; TITLE, NIGHT_INTRO, ORDER, STUDIO (editor loads, rail Ink Age/Trim/Needle/Script..., ✓ save icon), PLACEMENT, VERDICT, INKGRAM, FINALE_INTRO, SELF_SETUP, SHOP_WALL: `scrollWidth == innerWidth` and no element past the right edge on every screen
 - 2026-09-26 · 4.8 · typecheck pass · lint pass · test 223/223
+- 2026-09-26 · GATE 4 run 1 · typecheck pass · lint pass · test 223/223 (13 files) · build pass (`/` 21.6 kB, 124 kB first load) · client bundle scan: 0 hits (GEMINI, Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, `__game`, `__editor`, actual key value) · **local production build, full real-editor run, key set:** TITLE -> NIGHT 1 -> tino-1 (red + black Needle strokes, editor Transfer Stencil) -> sweep INKING -> VERDICT 50/100 vision, stamped ANGRY badge -> Post to InkGram (seeded likes) -> Next client -> kaylee-1 -> Next client -> NIGHT 2 card -> tino-2 editor on the old ink, black fill -> VERDICT 75/100 (Cover-up 40/40, Old name gone 20/20), "Close up shop" -> finale Back + Deep -> SELF_REVEAL with Download card + Share on X -> SHOP_WALL $410, 2.7★; 0 console errors, 0 /api/judge calls in the finale
 
 ---
 
