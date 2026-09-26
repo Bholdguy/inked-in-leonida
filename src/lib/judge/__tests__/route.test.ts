@@ -80,6 +80,26 @@ describe("POST /api/judge", () => {
     expect(JSON.stringify(body)).not.toContain(KEY);
   });
 
+  it("cover-up: derives the old lettering server-side and passes oldTextReadable through", async () => {
+    fetchMock.mockImplementationOnce(async () =>
+      geminiOk(JSON.stringify({ ...verdict, letteringFound: null, letteringMatch: false, oldTextReadable: false })),
+    );
+    const res = await call({
+      jobId: "tino-2",
+      compositeJpegB64: IMAGE,
+      stencilJpegB64: STENCIL,
+      mode: "standard",
+      oldLettering: "HACKED",
+    });
+    const body = await res.json();
+    expect(body.source).toBe("vision");
+    expect(body.oldTextReadable).toBe(false);
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const prompt = JSON.parse(String(init.body)).systemInstruction.parts[0].text as string;
+    expect(prompt).toContain('This is a cover-up. The old tattoo said "CRYSTAL".');
+    expect(prompt).not.toContain("HACKED");
+  });
+
   it("sends the key in a header (not the URL), JSON mode, schema, minimal thinking and both labelled images", async () => {
     await call({ jobId: "tino-1", compositeJpegB64: IMAGE, stencilJpegB64: STENCIL, order: { lettering: "HACKED" } });
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];

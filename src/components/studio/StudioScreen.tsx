@@ -11,24 +11,25 @@ const BLANK_STENCIL = "/stencils/blank.png";
 
 export default function StudioScreen() {
   const job = useGame(currentJob);
-  const results = useGame((s) => s.results);
+  const oldStencil = useGame((s) => s.results["tino-1"]?.stencil ?? null);
   const setStencil = useGame((s) => s.setStencil);
   const goTo = useGame((s) => s.goTo);
   const [startImage, setStartImage] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  const coverup = job.startFrom === "tino-1";
 
-  // PRD 10.4: blank paper as a data URL, or the raw tino-1 stencil for the cover-up.
+  // PRD 10.4: blank paper as a data URL, or, for the cover-up, the exact raw tino-1 editor output
+  // (JPEG from Save or PNG from our Transfer button), untouched.
   const prepare = useCallback(async () => {
     setFailed(false);
-    const previous = job.startFrom === "tino-1" ? results["tino-1"]?.stencil : null;
-    if (previous) return setStartImage(previous);
+    if (coverup) return setStartImage(oldStencil);
     try {
       setStartImage(await urlToDataUrl(BLANK_STENCIL));
     } catch (err) {
       console.error("[Studio] could not load the blank stencil", err);
       setFailed(true);
     }
-  }, [job.startFrom, results]);
+  }, [coverup, oldStencil]);
 
   useEffect(() => {
     void prepare();
@@ -61,7 +62,16 @@ export default function StudioScreen() {
       </aside>
 
       <div className="min-w-0">
-        {failed ? (
+        {coverup && !oldStencil ? (
+          // Only reachable if the night-1 result is gone; never a blank editor for a cover-up.
+          <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
+            <p className="font-bold text-sunset">Tino&apos;s old stencil is missing from the files.</p>
+            <p className="text-sm text-muted">There&apos;s nothing to cover up without it. Start the shift again.</p>
+            <button type="button" onClick={() => useGame.getState().reset()} className="rounded bg-sunset px-4 py-2 font-bold text-night">
+              Restart shift
+            </button>
+          </div>
+        ) : failed ? (
           <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
             <p className="font-bold text-sunset">Out of stencil paper.</p>
             <button type="button" onClick={prepare} className="rounded bg-sunset px-4 py-2 font-bold text-night">
@@ -69,15 +79,22 @@ export default function StudioScreen() {
             </button>
           </div>
         ) : startImage ? (
-          <InkEditor
-            key={job.id}
-            job={job}
-            startImage={startImage}
-            onTransfer={(dataUrl) => {
-              setStencil(dataUrl);
-              goTo("PLACEMENT");
-            }}
-          />
+          <>
+            {coverup && (
+              <p className="mb-3 rounded-lg border border-teal/30 bg-teal/5 px-4 py-2 text-sm text-teal">
+                This is your stencil from night 1, exactly as you left it. Paint over it until CRYSTAL is gone. Trim is locked so it lines up with the old ink.
+              </p>
+            )}
+            <InkEditor
+              key={job.id}
+              job={job}
+              startImage={startImage}
+              onTransfer={(dataUrl) => {
+                setStencil(dataUrl);
+                goTo("PLACEMENT");
+              }}
+            />
+          </>
         ) : (
           <p className="text-muted">Laying out the stencil paper…</p>
         )}

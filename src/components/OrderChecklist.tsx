@@ -42,13 +42,19 @@ export default function OrderChecklist({ job }: { job: Job }) {
   }
 
   return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-      {rows.map((r) => (
-        <div key={r.label} className="contents">
-          <dt className="text-muted uppercase tracking-wider">{r.label}</dt>
-          <dd>{r.value}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className="flex flex-col gap-3">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        {rows.map((r) => (
+          <div key={r.label} className="contents">
+            <dt className="text-muted uppercase tracking-wider">{r.label}</dt>
+            <dd>{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {job.lettering && (
+        // The Script tool takes the current brush color, so lettering typed after red strokes comes out red.
+        <p className="text-xs text-sunset">Tip: set your Script color before typing.</p>
+      )}
+    </div>
   );
 }

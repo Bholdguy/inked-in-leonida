@@ -7,10 +7,14 @@ import { currentJob, useGame } from "@/store/game";
 export default function OrderScreen() {
   const job = useGame(currentJob);
   const goTo = useGame((s) => s.goTo);
+  // Cover-up: the client walks back in wearing your night-1 work.
+  const oldWork = useGame((s) => (job.startFrom === "tino-1" ? s.results["tino-1"]?.composite : undefined));
 
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-6 rounded-2xl border border-white/10 bg-panel p-6 sm:p-8">
-      <p className="text-xs uppercase tracking-[0.3em] text-muted">New walk-in · Night {job.night}</p>
+      <p className="text-xs uppercase tracking-[0.3em] text-muted">
+        {job.startFrom === "tino-1" ? "Returning client" : "New walk-in"} · Night {job.night}
+      </p>
 
       <header className="flex items-center gap-4">
         <ClientBadge client={job.client} />
@@ -24,6 +28,16 @@ export default function OrderScreen() {
       <blockquote className="border-l-4 pl-4 text-lg italic" style={{ borderColor: job.client.accent }}>
         “{job.request}”
       </blockquote>
+
+      {oldWork && (
+        <figure className="flex items-center gap-4 rounded-xl border border-white/10 bg-night/60 p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element -- data URL composite */}
+          <img src={oldWork} alt="The CRYSTAL tattoo you did on night 1" className="aspect-[4/5] w-24 rounded-lg object-cover" />
+          <figcaption className="text-sm text-muted">
+            Your work from night 1. <span className="text-ink">It&apos;s still on his arm.</span>
+          </figcaption>
+        </figure>
+      )}
 
       <div className="rounded-xl border border-white/10 bg-night/60 p-4">
         <h3 className="mb-3 text-xs uppercase tracking-[0.3em] text-muted">The order</h3>

@@ -9,7 +9,9 @@ import { decodeImage, loadImage } from "@/lib/ink/dom";
 import { currentJob, useGame } from "@/store/game";
 import type { Job, Placement } from "@/types";
 
-function defaultPlacement(job: Job): Placement {
+// The cover-up starts exactly where the old ink sits (same stencil size, same transform).
+function defaultPlacement(job: Job, previous: Placement | undefined): Placement {
+  if (job.startFrom === "tino-1" && previous) return { ...previous };
   const z = job.targetZone;
   return z ? { cx: z.x + z.w / 2, cy: z.y + z.h / 2, scale: 1, rotate: 0 } : { cx: 0.5, cy: 0.5, scale: 1, rotate: 0 };
 }
@@ -18,7 +20,8 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
   const job = useGame(currentJob);
   const stencil = useGame((s) => s.draft.stencil);
   const saved = useGame((s) => s.draft.placement);
-  const [placement, setPlacement] = useState<Placement>(() => saved ?? defaultPlacement(job));
+  const previous = useGame((s) => s.results["tino-1"]?.placement);
+  const [placement, setPlacement] = useState<Placement>(() => saved ?? defaultPlacement(job, previous));
   const [assets, setAssets] = useState<{ body: HTMLImageElement; tattoo: HTMLCanvasElement } | null>(null);
   const [failed, setFailed] = useState(false);
   const [locking, setLocking] = useState(false);

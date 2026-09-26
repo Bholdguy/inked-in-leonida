@@ -215,7 +215,7 @@ All functions operate on a plain `{ data: Uint8ClampedArray; width: number; heig
    - hue 345-15: `red` (but if l > 0.68: `pink`)
    - 15-40: `orange` · 40-65: `yellow` · 65-170: `green` · 170-260: `blue` · 260-300: `purple` · 300-345: `pink`
 6. `colorShare(img, mask) -> Record<ColorName, number>`: fraction of ink pixels per color.
-7. `concealment(oldImg, newImg) -> number` (cover-up only): old ink = `inkMask(whiteToAlpha(oldImg))`; for each old ink pixel, it is "still visible" if the new pixel's RGB euclidean distance to the old pixel is < 40. Return 1 - visible / oldInkCount.
+7. `concealment(oldImg, newImg) -> number` (cover-up only): old ink = `inkMask(whiteToAlpha(oldImg))`; for each old ink pixel, it is "still visible" if the new pixel's RGB euclidean distance to the old pixel is < 40 **and its outline survives**: within 6 px (512 analysis scale) some pixel that contrasted with it in the old stencil (distance >= 40) still contrasts with it in the new one. Pixels deeper than 6 px inside a stroke, with no old outline in reach, keep the plain color rule. Return 1 - visible / oldInkCount. (Amended in 3.3, see Section 16 item 35: without the outline rule, black ink painted over the black CRYSTAL letters always counted as "still visible".)
 8. `placementHit(center, zone) -> boolean`: normalized center point (0..1) inside the zone rect.
 
 ### 9.2 Scoring
@@ -470,7 +470,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 ### Phase 3: Full content loop (Sat afternoon, ~5h)
 - [x] 3.1 kaylee-1 job with shoulder placeholder
 - [x] 3.2 NIGHT_INTRO screens + Kaylee callback (9.3)
-- [ ] 3.3 tino-2 cover-up: start image = tino-1 stencil, crop/resize off, concealment scoring
+- [x] 3.3 tino-2 cover-up: start image = tino-1 stencil, crop/resize off, concealment scoring
 - [ ] 3.4 FINALE_INTRO, SELF_SETUP, SELF_REVEAL
 - [ ] 3.5 SHOP_WALL with localStorage persistence
 - [ ] 3.6 Themed labels (10.3) or legend fallback
@@ -644,6 +644,7 @@ export interface JobResult {
 - Phase 3 on branch `phase-3` · 3.0 shift flow (`src/lib/game/flow.ts` `nextAfterJob` + `kayleeCallback`, store `advance`/`selfBody`/`setSelfBody`/`setSound`, starts on TITLE, restart keeps the sound preference; plain `TitleScreen.tsx`; VERDICT "Next client"): commit "feat: add shift flow from title through the wall"
 - 3.0: `97ecfec` · 3.1 kaylee-1: no code needed beyond 3.0 (job data from 1.1, `advance()` routes tino-1 -> kaylee-1 ORDER, shoulder placeholder + "Left shoulder" zone from `bodies.ts`): commit "chore: verify kaylee-1 end to end"
 - 3.1: `86823fb` · 3.2 NIGHT_INTRO (`src/components/screens/NightIntroScreen.tsx`: whole card is one button, 2.5 s auto-advance or click, guarded so it advances once; night 2 shows `kayleeCallback(stars)`): commit "feat: add night intro cards with the Kaylee callback"
+- 3.2: `877a334` · 3.3 cover-up (`StudioScreen.tsx` opens the editor on `results["tino-1"].stencil` untouched, "Tino's old stencil is missing" + Restart shift guard instead of a blank editor; `PlacementScreen.tsx` defaults to tino-1's saved placement; ORDER shows "Returning client" + the night-1 composite; checklist tip "Tip: set your Script color before typing." on lettering jobs; `concealment()` outline rule (item 35) + 5 tests; route test for server-side oldLettering; dev-only `window.__editor` handle for verification): commit "feat: cover-up opens on the exact night-1 stencil and placement"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -695,6 +696,9 @@ Plan-review flags (2026-09-25) and owner decisions:
 32. **Protection Bypass token revoked by the owner** (see 30). The owner will run the Preview (no-key) checklist steps 1-6 and report back; GATE 2 stays open until then.
 33. **`/api/judge` rate limit (2.6 item 4) is per-instance best effort.** In-memory sliding window keyed by client IP; separate Vercel instances and cold starts each keep their own counts, so a determined client can exceed 20/10 min across instances. Good enough to stop a runaway tab or casual abuse of the free-tier key; not a security boundary. 11.3 updated.
 34. **Git history is NOT rewritten (owner decision, 2.6 item 6).** The key-shaped fake fixture from `41ce673` stays in history. It was never a credential, the real key was rotated anyway, and a force-push rewrite of `main` would break the Vercel deployment links, the commit hashes logged in this section, and anyone's existing clones. The GitHub secret-scanning alert is closed as "used in tests".
+
+35. **Concealment amendment (3.3).** With the 9.1 rule as written, an old ink pixel was "still visible" whenever the new pixel kept its color, so black ink painted solidly over the black CRYSTAL letters counted as not hidden, and the dark cover-up Tino asks for could never score full concealment. Fix, in the pure function with tests: a same-color pixel is visible only if its outline survives (a nearby pixel that contrasted with it in the old stencil still contrasts in the new one, radius 6 at 512). All 13.1 cases still hold (identical -> 0, black over red -> 1, half -> 0.5), plus new tests: untouched black letters 0, black fill with margin 1, black letters on a new red background 0, half fill ~0.45, JPEG noise. PRD 9.1 item 7 updated.
+36. **Themed rail labels were not in the code.** The brief for Phases 3-5 said "Rail labels are already themed: verify only", but `src/lib/editorConfig.ts` on `main` has no `translations` (they were only runtime-tested in Phase 0). Implemented in 3.6.
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
@@ -750,6 +754,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 3.0 · typecheck pass · lint pass · test 188/188 (9 files; flow: 8.1 order, 9.3 callback lines; store: full shift walk, stable finale job, finale -> SELF_REVEAL, reset keeps sound)
 - 2026-09-26 · 3.1 · browser (dev, key set): TITLE -> tino-1 (canvas-injected stencil via dev handle) 100/100 vision -> "Next client" -> kaylee-1 ORDER (Night 1, pink + orange, STAY LOUD) -> PLACEMENT on shoulder-light -> INKING -> VERDICT 75/100 vision (palette 25, size 15, placement 10, lettering 25, motif 0 for a crude palm), "Next client" shown
 - 2026-09-26 · 3.2 · typecheck pass · lint pass · browser (dev): kaylee-1 4 stars -> Next client -> "NIGHT 2 · 12:10 AM / Somebody's back. / Kaylee's post hit 40K likes. Your DMs are on fire." -> auto-advanced to tino-2 ORDER after 2.5 s
+- 2026-09-26 · 3.3 · typecheck pass · lint pass · test 194/194 (10 files; +5 concealment outline cases, +1 route: tino-2 prompt says "The old tattoo said \"CRYSTAL\"" even when the client sends oldLettering "HACKED", oldTextReadable false passed through) · browser (dev, real editor, synthetic pointer events): **JPEG path** tino-1 red strokes + black Heading text -> editor Save -> `image/jpeg` 1024x1024, placement 0.8x / 25° -> tino-2 editor rail Filter/Draw/Text/Shapes/Stickers (no Crop, no Resize), `getImage()` of the fresh cover-up editor vs stored stencil: 1024x1024 both, max pixel diff 0; whole stencil painted black -> Save -> PLACEMENT defaulted to 0.8x / 25° (tino-1's) -> concealment 40/40, old name 20/20, palette 15/15, 90/100 (judge timed out at 8 s -> fallback, "Crystal who? Never heard of her.") · **PNG path** tino-1 via our Transfer button -> `image/png` 1024x1024 -> cover-up editor max pixel diff 0; left half painted black -> Transfer button -> concealment 2.24/40 (~0.56 hidden), vision oldTextReadable false -> 20/20, 37/100
 
 ---
 

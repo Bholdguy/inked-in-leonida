@@ -111,6 +111,44 @@ describe("concealment", () => {
   it("throws on mismatched sizes", () => {
     expect(() => concealment(createImage(4, 4), createImage(5, 5))).toThrow();
   });
+
+  // Black cover-up over black lettering (the dark cover-up Tino asks for).
+  const letters = () => {
+    const img = createImage(64, 64);
+    for (let k = 0; k < 4; k++) fillRect(img, 8 + k * 13, 24, 6, 16, BLACK); // four 6px-wide strokes
+    return img;
+  };
+
+  it("untouched black letters stay visible -> 0", () => {
+    expect(concealment(letters(), letters())).toBe(0);
+  });
+
+  it("black letters under a solid black fill with margin -> 1", () => {
+    const covered = letters();
+    fillRect(covered, 0, 10, 64, 44, BLACK);
+    expect(concealment(letters(), covered)).toBe(1);
+  });
+
+  it("black letters on a new red background stay readable -> 0", () => {
+    const newImg = createImage(64, 64);
+    fillRect(newImg, 0, 10, 64, 44, RED);
+    for (let k = 0; k < 4; k++) fillRect(newImg, 8 + k * 13, 24, 6, 16, BLACK);
+    expect(concealment(letters(), newImg)).toBe(0);
+  });
+
+  it("black fill over only the left half of the letters -> about half hidden", () => {
+    const newImg = letters();
+    fillRect(newImg, 0, 10, 30, 44, BLACK);
+    const c = concealment(letters(), newImg);
+    expect(c).toBeGreaterThan(0.3);
+    expect(c).toBeLessThan(0.55);
+  });
+
+  it("with JPEG noise: black letters under black fill still read as hidden", () => {
+    const covered = letters();
+    fillRect(covered, 0, 10, 64, 44, BLACK);
+    expect(concealment(addNoise(letters(), 12, 7), addNoise(covered, 12, 8))).toBe(1);
+  });
 });
 
 describe("placementHit", () => {

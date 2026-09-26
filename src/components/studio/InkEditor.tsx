@@ -160,6 +160,8 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
         minHeight={640}
         onLoad={(instance) => {
           instanceRef.current = instance;
+          // Dev-only debugging handle (removed from production builds), like the store's __game.
+          if (process.env.NODE_ENV === "development") (window as unknown as { __editor?: ImageEditorInstance }).__editor = instance;
           setLoaded(true);
         }}
         // hasChanges() reads false inside onSave (CDN 2.12.0), so Save is guarded by the ink check only.
