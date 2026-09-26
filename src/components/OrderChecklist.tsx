@@ -55,7 +55,7 @@ export default function OrderChecklist({ job, tone = "panel" }: { job: Job; tone
       </dl>
       {job.lettering && (
         // The Script tool takes the current brush color, so lettering typed after red strokes comes out red.
-        <p className={`text-xs font-medium ${tone === "paper" ? "text-[#b4471a]" : "text-sunset"}`}>Tip: set your Script color before typing.</p>
+        <p className={`text-xs font-medium ${tone === "paper" ? "text-[#b4471a]" : "text-sunset"}`}>Tip: set your Script color first, then double-click the text box to type.</p>
       )}
     </div>
   );

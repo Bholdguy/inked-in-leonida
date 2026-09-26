@@ -29,11 +29,19 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
   const load = useCallback(async () => {
     if (!stencil) return;
     setFailed(false);
+    // Label the failing stage so an intermittent "smudged" report says which step broke.
+    // Logs the error name and message only, never image data.
+    let stage = "body+stencil";
     try {
-      const [body, raw] = await Promise.all([loadImage(bodySrc(job.body.zone, job.body.tone)), decodeImage(stencil)]);
+      const [body, raw] = await Promise.all([
+        loadImage(bodySrc(job.body.zone, job.body.tone)).catch((e) => { stage = "body"; throw e; }),
+        decodeImage(stencil).catch((e) => { stage = "stencil-decode"; throw e; }),
+      ]);
+      stage = "tattoo-layer";
       setAssets({ body, tattoo: makeTattooLayer(raw) });
     } catch (err) {
-      console.error("[Placement] could not load the body or the stencil", err);
+      const e = err instanceof Error ? err : new Error(String(err));
+      console.error("[Placement] could not load the body or the stencil", { stage, name: e.name, message: e.message.slice(0, 200) });
       setFailed(true);
     }
   }, [job.body.zone, job.body.tone, stencil]);
@@ -42,6 +50,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
     void load();
   }, [load]);
 
+  if (!stencil) console.error("[Placement] no stencil in the draft");
   if (failed || !stencil) {
     return (
       <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
