@@ -492,7 +492,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 **GATE 4 (automated): PASSED 2026-09-26** (checks + bundle scan + reviewer fixes + local production-build full run; 390 px pass in dev). The owner's own desktop + phone run is in the final checklist.
 
 ### Phase 5: Ship (Sun afternoon, ~2h, done by 20:00 UTC)
-- [ ] 5.1 README (Section 17)
+- [x] 5.1 README (Section 17)
 - [x] 5.2 OG image + meta tags (title, description, share preview)
 - [ ] 5.3 Final `npm run build` clean, no console errors on production
 - [ ] 5.4 Owner records the 90s demo (Section 18)
@@ -665,6 +665,7 @@ export interface JobResult {
 - GATE 4 run 2 finding: cover-up placement locked to tino-1's (item 38) and the judge prompt names the body zone (item 39): commit "fix: lock the cover-up onto the old ink and tell the judge the body zone"
 - **GATE 4 (automated) passed 2026-09-26**: `phase-4` fast-forwarded into `main` at `54e08d2`, Production deployed
 - Phase 5 on branch `phase-5` · 5.2 OG + meta (`src/app/opengraph-image.tsx` 1200x630 `next/og` neon sign over a banded sunset, prerendered at build; `twitter-image.tsx` reuses it; `layout.tsx` `metadataBase`, Open Graph + `summary_large_image`, longer description, keywords, `viewport` theme color #0B0714) + `docs/title.png` (1440x900 headless-Edge capture of the local production TITLE for the README): commit "feat: add Open Graph and X share previews"
+- 5.2: `5e8a3e0` · 5.1 README per Section 17: title, tagline, live URL, title screenshot; why (3 player complaints); how to play (5 bullets); "How React Image Editor is used" table with file and line links for every integration point (component + key, per-job tools, translations, theme, AI off, image start states incl. the cover-up stencil, onSave pipeline, hasChanges guard, getImage, reset retry, onLoadError, onError + load timeout, onLoad); ink pipeline; both scoring tables; run locally + env vars; privacy note (Gemini, the section 16 item 25 wording); credits + disclaimer: commit "docs: write the README"
 
 ### Current task
 <!-- Agent: one task ID -->
