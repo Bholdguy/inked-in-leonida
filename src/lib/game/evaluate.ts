@@ -6,9 +6,8 @@ import { compositeOutputs, makeTattooLayer } from "@/lib/ink/composite";
 import { concealment } from "@/lib/ink/concealment";
 import { decodeImage, loadImage, normalize, rgbaToCanvas } from "@/lib/ink/dom";
 import type { ColorName, Job, JobResult, Placement } from "@/types";
-import { placementHit } from "@/lib/ink/placement";
 import { pickReaction } from "@/lib/ink/reaction";
-import { moodFor, scoreCoverup, scoreStandard, starsFor, tipFor } from "@/lib/ink/score";
+import { scoreCoverup, scoreStandard, verdictFor, zoneHit } from "@/lib/ink/score";
 import { FALLBACK, type JudgeResponse } from "@/lib/judge/types";
 
 export interface PreparedJob {
@@ -90,12 +89,11 @@ export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): Job
           shares: p.shares,
           coverage: p.coverage,
           range: job.coverage ?? { min: 0, max: 1 },
-          placementHit: job.targetZone ? placementHit({ x: placement.cx, y: placement.cy }, job.targetZone) : true,
+          placementHit: zoneHit({ x: placement.cx, y: placement.cy }, job.targetZone),
           vision,
         });
 
-  const stars = scored.offensive ? 1 : starsFor(scored.total);
-  const mood = scored.offensive ? "angry" : moodFor(stars);
+  const { stars, mood, tip } = verdictFor({ score: scored.total, offensive: scored.offensive, basePay: job.basePay });
   return {
     stencil: p.stencil,
     composite: p.composite,
@@ -107,7 +105,7 @@ export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): Job
     reaction: scored.offensive
       ? job.refusal
       : pickReaction({ scoreMood: mood, canned: job.lines, model: vision.source === "vision" ? vision : null }),
-    tip: scored.offensive ? 0 : tipFor(job.basePay, stars),
+    tip,
     source: vision.source,
     offensive: scored.offensive,
   };

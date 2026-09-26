@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ColorName } from "@/types";
 import { COLOR_NAMES } from "../color";
-import { coveragePoints, moodFor, scoreCoverup, scoreStandard, starsFor, tipFor, type VisionVerdict } from "../score";
+import { coveragePoints, moodFor, scoreCoverup, scoreStandard, starsFor, tipFor, verdictFor, zoneHit, type VisionVerdict } from "../score";
 
 const shares = (s: Partial<Record<ColorName, number>>) =>
   ({ ...Object.fromEntries(COLOR_NAMES.map((c) => [c, 0])), ...s }) as Record<ColorName, number>;
@@ -150,5 +150,28 @@ describe("stars, mood, tip", () => {
     expect(tipFor(250, 3)).toBe(150);
     expect(tipFor(300, 1)).toBe(60);
     expect(tipFor(180, 1)).toBe(35); // 36 -> 35
+  });
+});
+
+describe("zoneHit", () => {
+  const zone = { x: 0.3, y: 0.35, w: 0.4, h: 0.35 };
+  it("inside the zone", () => expect(zoneHit({ x: 0.5, y: 0.5 }, zone)).toBe(true));
+  it("outside the zone", () => expect(zoneHit({ x: 0.05, y: 0.5 }, zone)).toBe(false));
+  it("no zone (finale) always counts as a hit", () => {
+    expect(zoneHit({ x: 0.05, y: 0.95 }, null)).toBe(true);
+    expect(zoneHit({ x: 0.5, y: 0.5 }, null)).toBe(true);
+  });
+});
+
+describe("verdictFor", () => {
+  it("maps score to stars, mood and tip", () => {
+    expect(verdictFor({ score: 100, offensive: false, basePay: 180 })).toEqual({ stars: 5, mood: "thrilled", tip: 180 });
+    expect(verdictFor({ score: 80, offensive: false, basePay: 180 })).toEqual({ stars: 4, mood: "happy", tip: 145 });
+    expect(verdictFor({ score: 60, offensive: false, basePay: 250 })).toEqual({ stars: 3, mood: "meh", tip: 150 });
+    expect(verdictFor({ score: 10, offensive: false, basePay: 300 })).toEqual({ stars: 1, mood: "angry", tip: 60 });
+  });
+  it("offensive overrides everything: 1 star, angry, no tip", () => {
+    expect(verdictFor({ score: 100, offensive: true, basePay: 180 })).toEqual({ stars: 1, mood: "angry", tip: 0 });
+    expect(verdictFor({ score: 0, offensive: true, basePay: 300 })).toEqual({ stars: 1, mood: "angry", tip: 0 });
   });
 });

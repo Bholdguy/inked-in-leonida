@@ -1,4 +1,5 @@
-import type { ColorName, Mood } from "@/types";
+import type { ColorName, Mood, Rect } from "@/types";
+import { placementHit } from "./placement";
 
 export type VisionVerdict =
   | { source: "fallback" }
@@ -82,6 +83,24 @@ function finish(breakdown: Breakdown, v: VisionVerdict): ScoreResult {
   const offensive = v.source === "vision" && v.offensive;
   const sum = Object.values(breakdown).reduce((s, p) => s + p.got, 0);
   return { total: offensive ? 0 : Math.round(sum), breakdown, offensive };
+}
+
+// A job with no target zone (the finale) cannot miss.
+export function zoneHit(center: { x: number; y: number }, zone: Rect | null): boolean {
+  return zone ? placementHit(center, zone) : true;
+}
+
+export interface Verdict {
+  stars: 1 | 2 | 3 | 4 | 5;
+  mood: Mood;
+  tip: number;
+}
+
+// Stars, mood and tip from the score; an offensive tattoo overrides to 1 star, angry, no tip.
+export function verdictFor({ score, offensive, basePay }: { score: number; offensive: boolean; basePay: number }): Verdict {
+  if (offensive) return { stars: 1, mood: "angry", tip: 0 };
+  const stars = starsFor(score);
+  return { stars, mood: moodFor(stars), tip: tipFor(basePay, stars) };
 }
 
 export function starsFor(score: number): 1 | 2 | 3 | 4 | 5 {

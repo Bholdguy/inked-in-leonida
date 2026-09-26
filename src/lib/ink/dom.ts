@@ -7,7 +7,7 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Could not load image ${src.slice(0, 60)}`));
+    img.onerror = () => reject(new Error("Could not load image")); // never echo the source (data URLs are player drawings)
     img.src = src;
   });
 }

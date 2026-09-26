@@ -638,10 +638,11 @@ export interface JobResult {
 - 2.6 item 3: VERDICT no-result button, INKING `safeFinish` (vision -> canned fallback -> null + way back), jammed Retry remounts the editor when there is no instance or the reset throws
 - 2.6 item 4: `src/lib/judge/rateLimit.ts` (`createRateLimiter`, `judgeLimiter`, `clientIp`), checked first in `/api/judge`
 - 2.6 item 5: footer now "Your drawings are sent to Google's Gemini AI for judging. We don't store them."; README note (item 25) updated to match
+- 2.6 item 6: `zoneHit` and `verdictFor` (offensive override) are pure in `src/lib/ink/score.ts` and used by `finishJob`; `loadImage` error no longer echoes the image source; no history rewrite (item 34)
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.6 Hardening (item 6: housekeeping)
+- 2.6 Hardening: final gate check + push
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -680,6 +681,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 31. **Security incident: key-shaped string in a test (2026-09-25).** GitHub secret scanning flagged a Google API key at `src/lib/judge/__tests__/route.test.ts` line 8, introduced in commit `41ce673` (task 2.1). The string was a fabricated test fixture written by the agent (the Google key prefix + 35 characters, i.e. the real Google key shape); the real key was only ever read from `.env.local` at runtime and was never written to a file. Response: the owner rotated the key anyway (old key deleted in Google AI Studio; new key in `.env.local` and Vercel Production). The fixture was replaced with `"test-key-not-real"`; the whole working tree and every tracked file were searched for the Google key prefix and other secret shapes (GitHub, OpenAI, AWS, Slack, Vercel tokens, private-key blocks, `GEMINI_API_KEY=` values): no hits remain, and no `.env` file is tracked. A new absolute rule (Section 12 and CLAUDE.md) bans real or realistic keys in any file. The old fake string still exists in git history (commit `41ce673`); it is not a credential, so history was not rewritten; the GitHub alert can be closed as "used in tests". Production redeploy verified with the new key (see Test log).
 32. **Protection Bypass token revoked by the owner** (see 30). The owner will run the Preview (no-key) checklist steps 1-6 and report back; GATE 2 stays open until then.
 33. **`/api/judge` rate limit (2.6 item 4) is per-instance best effort.** In-memory sliding window keyed by client IP; separate Vercel instances and cold starts each keep their own counts, so a determined client can exceed 20/10 min across instances. Good enough to stop a runaway tab or casual abuse of the free-tier key; not a security boundary. 11.3 updated.
+34. **Git history is NOT rewritten (owner decision, 2.6 item 6).** The key-shaped fake fixture from `41ce673` stays in history. It was never a credential, the real key was rotated anyway, and a force-push rewrite of `main` would break the Vercel deployment links, the commit hashes logged in this section, and anyone's existing clones. The GitHub secret-scanning alert is closed as "used in tests".
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
@@ -729,6 +731,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 item 3 (dead ends) · typecheck pass · lint pass · test 169/169 (safeFinish: good verdict passes; merge throws -> canned fallback 80; fallback throws -> null) · browser (dev): VERDICT with no result -> "No verdict yet." + Back to the order -> ORDER; INKING with unscorable data -> "The needle jammed mid-line." + Back to placement -> PLACEMENT; tino-2 with a corrupt start image -> "Stencil paper jammed" -> Retry reset the image (instance present) and re-jammed, Retry still offered. The no-instance remount branch is not reachable from outside the component; verified by code review only
 - 2026-09-26 · 2.6 item 4 (rate limit) · typecheck pass · lint pass · test 177/177 (limiter: 20 then block, per-key isolation, sliding window edge at exactly 10 min, blocked attempts do not extend the window, reset; clientIp: x-forwarded-for first entry, x-real-ip, unknown; route: 20 allowed incl. cached, 21st 200 fallback with "rate-limited" log reason, another IP unaffected)
 - 2026-09-26 · 2.6 item 5 (footer) · typecheck pass · lint pass · test 177/177 · dev page HTML contains the new footer text
+- 2026-09-26 · 2.6 item 6 (housekeeping) · typecheck pass · lint pass · test 182/182 (zoneHit: inside, outside, null zone always hits; verdictFor: 100/80/60/10 -> stars, mood, tip; offensive overrides to 1 star, angry, $0 even at score 100)
 
 ---
 
