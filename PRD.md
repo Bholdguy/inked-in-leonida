@@ -630,10 +630,11 @@ export interface JobResult {
 - 2.3: `3805d50` · 2.4 offensive path (`JobResult.offensive`, store `startOver`, VERDICT "Start over" + refusal notice): commit "feat: offensive verdict offers Start over and remounts the studio"
 - 2.4: `be1ab61` · 2.5 fallback tag on VERDICT (`VerdictScreen.tsx`): commit "feat: show fallback tag on the verdict"
 - 2.5: `d862afc` · merged to `main` (fast-forward) for GATE 2
+- security fix: `f7d339d` (key-shaped fixture replaced, secrets rule added, incident logged as item 31)
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 2: production verified; Preview fallback run waiting on owner Vercel sign-in
+- GATE 2: production verified; waiting on owner's Preview (no-key) run, checklist steps 1-6
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -714,6 +715,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 2.4 · typecheck pass · lint pass · test 166/166 (store startOver; finishJob offensive flag) · dev with JUDGE_FORCE=offensive (port 3001): real editor stroke -> Save -> Lock it in -> VERDICT 0/100, 1 star, ANGRY, refusal line, $0, alert "Tino won't wear that...", button "Start over" -> STUDIO for tino-1, fresh blank editor, result + draft cleared · dev with JUDGE_FORCE=slow (port 3002, server holds 12 s): INKING gave up at 9.1 s -> VERDICT fallback 80, canned line
 - 2026-09-25 · 2.5 · typecheck pass · lint pass · test 166/166 · dev with key: vision verdict 100/100 shows no tag; same result with source fallback shows "Client squinted at it."
 - 2026-09-25 · GATE 2 (partial) · typecheck pass · lint pass · test 166/166 (7 files) · build pass (`/api/judge` dynamic) · client bundle scan: 0 files contain GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, or the actual key value · `phase-2` pushed -> Preview https://inked-in-leonida-re3kw0h7g-bholdguys-projects.vercel.app (Vercel login wall, not yet played) · `main` fast-forwarded to d862afc -> Production deployed · production API: probe images -> 200 vision CRYSTAL 3.7 s cold; bad input -> 200 fallback · production UI, real editor (Draw heart, brush default red; Text tool Heading, FILL set to black preset, typed CRYSTAL; editor Save; Lock it in): PLACEMENT -> INKING -> VERDICT in 4.2 s, 100/100, 5 stars, THRILLED, $180, all five bars full, drawing-specific model line, no fallback tag
+- 2026-09-26 · security fix `f7d339d` · typecheck pass · lint pass · test 166/166 · tracked-file + working-tree scan: no Google key prefix, no other secret shapes, no tracked .env · production redeploy of f7d339d with the rotated key: one /api/judge call -> 200, source "vision", CRYSTAL read, 3.9 s
 
 ---
 
