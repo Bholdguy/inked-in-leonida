@@ -112,13 +112,20 @@ export default function VerdictScreen() {
           ))}
         </ul>
 
-        <button
-          type="button"
-          onClick={() => (result.offensive ? useGame.getState().startOver(job.id) : useGame.getState().advance())}
-          className="btn btn-primary self-start"
-        >
-          {result.offensive ? "Start over" : nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client"}
-        </button>
+        {result.offensive ? (
+          <button type="button" onClick={() => useGame.getState().startOver(job.id)} className="btn btn-primary self-start">
+            Start over
+          </button>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => useGame.getState().goTo("INKGRAM")} className="btn btn-primary">
+              Post to InkGram
+            </button>
+            <button type="button" onClick={() => useGame.getState().advance()} className="btn btn-ghost">
+              {nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client"}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

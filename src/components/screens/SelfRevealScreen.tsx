@@ -1,5 +1,6 @@
 "use client";
 
+import ShareActions from "@/components/ShareActions";
 import { useGame } from "@/store/game";
 
 export default function SelfRevealScreen() {
@@ -27,6 +28,14 @@ export default function SelfRevealScreen() {
         className="aspect-[4/5] w-full max-w-[560px] rounded-xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))]"
       />
       <p className="text-muted">No client to please. No score. Just yours.</p>
+      <ShareActions
+        composite={result.composite}
+        handle="@nightshift"
+        stars={null}
+        caption="Last chair of the night. Inked it myself."
+        client={null}
+        filename="inked-in-leonida-your-ink.png"
+      />
       <button
         type="button"
         onClick={() => useGame.getState().advance()}

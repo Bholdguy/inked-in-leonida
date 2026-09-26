@@ -7,6 +7,7 @@ import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
 import FinaleIntroScreen from "@/components/screens/FinaleIntroScreen";
+import InkgramScreen from "@/components/screens/InkgramScreen";
 import NightIntroScreen from "@/components/screens/NightIntroScreen";
 import SelfRevealScreen from "@/components/screens/SelfRevealScreen";
 import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
@@ -27,6 +28,7 @@ const JOB_STEPS: { screen: Screen; label: string }[] = [
   { screen: "PLACEMENT", label: "Placement" },
   { screen: "INKING", label: "Inking" },
   { screen: "VERDICT", label: "Verdict" },
+  { screen: "INKGRAM", label: "InkGram" },
 ];
 const SELF_STEPS: { screen: Screen; label: string }[] = [
   { screen: "SELF_SETUP", label: "Your chair" },
@@ -110,6 +112,9 @@ export default function GameShell() {
       break;
     case "VERDICT":
       body = <VerdictScreen />;
+      break;
+    case "INKGRAM":
+      body = <InkgramScreen />;
       break;
     case "FINALE_INTRO":
       body = <FinaleIntroScreen />;
