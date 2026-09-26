@@ -666,17 +666,13 @@ export interface JobResult {
 
 ### Current task
 <!-- Agent: one task ID -->
-- Phase 3 done (GATE 3 passed 2026-09-26, `main` `3a8f45b`).
-- **Phase 4 (branch `phase-4`, started 2026-09-26 14:28 UTC).** Plan:
-  - 4.1 Visual direction: `next/font/google` Syne (display), Space Grotesk (UI/body), Pirata One (ORDER + SHOP_WALL headers only), replacing Geist; 8.3 tokens; neon title (layered pink/teal text-shadow, flicker keyframes off under reduced motion); 4% inline-SVG noise overlay; shared button/panel styles; header with a tips counter and progress.
-  - 4.2 INKING: ink-only layer + bounding box from the composite pipeline, 2.5 s reveal sweep over the bbox with a needle dot on the leading edge, 1 s fresh-ink red halo, judge in parallel (9 s cap unchanged); `prefers-reduced-motion` shows the result instantly.
-  - 4.3 Audio (11.5) in `src/lib/audio.ts`: AudioContext only after a gesture, needle buzz (110 Hz saw -> 900 Hz lowpass, 32 Hz LFO, 0.08) for the sweep, verdict stamp noise burst; toggle in zustand + guarded localStorage, off by default; toggle on TITLE and in the header.
-  - 4.4 INKGRAM: VERDICT "Post to InkGram" (+ "Next client"), feed post (composite, handle, caption, stars, seeded likes), `src/lib/share/card.ts` 1080x1350 PNG download via blob URL, X intent per 11.4 + attach note; SELF_REVEAL gets download + share.
-  - 4.5 Body art: no real art in `public/bodies/` (all 7 files are the Phase 0 placeholders), so regenerate the placeholders at the same paths with soft cylindrical shading and subtle skin texture (Node built-ins only, script kept out of the repo).
-  - 4.6 Error screens restyled in the new look (POWER'S OUT, jammed stencil, smudged placement, error boundaries).
-  - 4.7 Mobile pass at 390 px + "Best on desktop" banner under 768 px (never blocks).
-  - 4.8 TITLE screen (neon sign, tagline, Open the shop, sound toggle, last shift) + footer disclaimer ("Unofficial fan project..." + "Built with Unlayer React Image Editor" + Gemini privacy line).
-  - GATE 4: typecheck, lint, test, build, bundle scan, reviewer subagent, fixes, production-build full run, merge, push, live check.
+- Phases 3 and 4 done (GATE 4 automated pass 2026-09-26, `main` `54e08d2`).
+- **Phase 5 (branch `phase-5`, started 2026-09-26 15:40 UTC).** Plan:
+  - 5.1 README per Section 17: title, tagline, live URL, screenshot; why (3 lines); how to play (5 bullets); "How React Image Editor is used" table with file paths for every integration point; ink pipeline + scoring tables; run locally + env vars; privacy note (Gemini); credits + disclaimer.
+  - 5.2 OG image + meta tags: `src/app/opengraph-image.tsx` (next/og `ImageResponse`, built into Next, no new dependency), `metadataBase`, Open Graph + Twitter `summary_large_image`, description, theme color.
+  - 5.3 Final production check: build clean, private-window load (fresh browser context), zero console errors, full run TITLE -> SHOP_WALL on the live URL.
+  - 5.4 / 5.5 are the owner's (demo video, form, X post).
+  - Gate: typecheck, lint, test, build, bundle scan, reviewer subagent, fixes, merge, push, live check.
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -798,6 +794,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 4 reviewer · subagent run 1 stopped on a usage-limit API error (no report); run 2: 7/7 owner items + all Section 12 rules PASS, 9 ranked items (2 should-fix, 7 nice-to-have) -> 8 fixed, 1 kept by design
 - 2026-09-26 · GATE 4 run 2 · typecheck pass · lint pass · test 226/226 · build pass · bundle scan 0 hits · production-build run: moving the cover-up 20% right carried the old ink with it and still scored 40/40 -> fixed by locking the cover-up placement (item 38)
 - 2026-09-26 · GATE 4 run 3 · typecheck pass · lint pass · test 226/226 (13 files) · build pass · bundle scan 0 hits · **local production build, full real-editor run:** tino-1 nudged left -> kaylee-1 -> NIGHT 2 -> tino-2 PLACEMENT "Line it up", sliders disabled, Shift+Right ignored, cover-up composited exactly over the night-1 spot -> 40/40 + 20/20, 90/100 (judge timed out on the solid black square -> "Client squinted at it.") -> finale Back + Light -> SELF_REVEAL with Download card + Share on X -> SHOP_WALL $560, 3.7★; 0 console errors, 0 /api/judge calls in the finale
+- 2026-09-26 · GATE 4 live check · `main` `54e08d2` Production deploy success; live HTML has the footer disclaimer, the title sun and Syne; POST /api/judge -> vision, "CRYSTAL", 3.5 s (repeat 0.65 s cached). The browser pane first showed a cached copy of the old page; a fresh URL loaded the new build
 
 ---
 
