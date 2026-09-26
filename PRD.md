@@ -494,7 +494,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 ### Phase 5: Ship (Sun afternoon, ~2h, done by 20:00 UTC)
 - [x] 5.1 README (Section 17)
 - [x] 5.2 OG image + meta tags (title, description, share preview)
-- [ ] 5.3 Final `npm run build` clean, no console errors on production
+- [x] 5.3 Final `npm run build` clean, no console errors on production
 - [ ] 5.4 Owner records the 90s demo (Section 18)
 - [ ] 5.5 Owner submits the form and posts on X
 
@@ -667,16 +667,11 @@ export interface JobResult {
 - Phase 5 on branch `phase-5` · 5.2 OG + meta (`src/app/opengraph-image.tsx` 1200x630 `next/og` neon sign over a banded sunset, prerendered at build; `twitter-image.tsx` reuses it; `layout.tsx` `metadataBase`, Open Graph + `summary_large_image`, longer description, keywords, `viewport` theme color #0B0714) + `docs/title.png` (1440x900 headless-Edge capture of the local production TITLE for the README): commit "feat: add Open Graph and X share previews"
 - 5.2: `5e8a3e0` · 5.1 README per Section 17: title, tagline, live URL, title screenshot; why (3 player complaints); how to play (5 bullets); "How React Image Editor is used" table with file and line links for every integration point (component + key, per-job tools, translations, theme, AI off, image start states incl. the cover-up stencil, onSave pipeline, hasChanges guard, getImage, reset retry, onLoadError, onError + load timeout, onLoad); ink pipeline; both scoring tables; run locally + env vars; privacy note (Gemini, the section 16 item 25 wording); credits + disclaimer: commit "docs: write the README"
 - GATE 5 reviewer (independent subagent): all Section 17 items, privacy note, OG/meta, secrets and branding PASS, no blockers; README fixes applied: pipeline split into composite path (whiteToAlpha on the raw stencil -> placement -> multiply) and analysis path (normalize -> masks, concealment, judge JPEGs); component row names both keys (`job.id` on the wrapper, `attempt` on Retry); reset / timer / handOver links point at the exact lines; scoring adds the forbidden-color penalty, the 50%-90% cover-up ramp, $5 tip rounding and the offensive rule; shorter "Why" lines. Kept the PRD item 25 privacy wording: commit "docs: tighten the README after review"
+- **Phase 5 merged 2026-09-26**: `phase-5` fast-forwarded into `main` at `59ad9b2`, Production deployed (status success). 5.4 (demo video) and 5.5 (form + X post) are the owner's
 
 ### Current task
 <!-- Agent: one task ID -->
-- Phases 3 and 4 done (GATE 4 automated pass 2026-09-26, `main` `54e08d2`).
-- **Phase 5 (branch `phase-5`, started 2026-09-26 15:40 UTC).** Plan:
-  - 5.1 README per Section 17: title, tagline, live URL, screenshot; why (3 lines); how to play (5 bullets); "How React Image Editor is used" table with file paths for every integration point; ink pipeline + scoring tables; run locally + env vars; privacy note (Gemini); credits + disclaimer.
-  - 5.2 OG image + meta tags: `src/app/opengraph-image.tsx` (next/og `ImageResponse`, built into Next, no new dependency), `metadataBase`, Open Graph + Twitter `summary_large_image`, description, theme color.
-  - 5.3 Final production check: build clean, private-window load (fresh browser context), zero console errors, full run TITLE -> SHOP_WALL on the live URL.
-  - 5.4 / 5.5 are the owner's (demo video, form, X post).
-  - Gate: typecheck, lint, test, build, bundle scan, reviewer subagent, fixes, merge, push, live check.
+- Phases 3, 4 and 5 done and live (`main` `59ad9b2`). Remaining for the owner: 5.4 demo video (Section 18), 5.5 form + X post, the owner's own desktop + phone run (GATE 4 human check).
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -801,6 +796,8 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 4 live check · `main` `54e08d2` Production deploy success; live HTML has the footer disclaimer, the title sun and Syne; POST /api/judge -> vision, "CRYSTAL", 3.5 s (repeat 0.65 s cached). The browser pane first showed a cached copy of the old page; a fresh URL loaded the new build
 - 2026-09-26 · 5.2 · typecheck pass · lint pass · build pass (`/opengraph-image`, `/twitter-image` static) · local production HTML has og:title/description/url/image (1200x630, alt) and twitter:card summary_large_image; image inspected visually
 - 2026-09-26 · owner extra checks · **cover-up judge latency, live /api/judge, jobId tino-2**, realistic painted-over stencil (red heart + black CRYSTAL under a black panther head with teal eyes and fangs) + composite on the live forearm-deep art, a 2 px change per call to defeat the cache: 5/5 `vision` in 3051 / 2366 / 2659 / 2325 / 2674 ms, motifMatch true 5/5, oldTextReadable false 5/5 -> no timeouts, no fix needed. Worst case (featureless solid black stencil, the shape used in the GATE 4 run): 2744 ms vision, 8435 ms fallback (8 s server timeout), 3773 ms vision -> an occasional Gemini latency spike on a blank image, covered by the fallback · **deployed SHA:** `origin/main` `54e08d2` = latest GitHub Production deployment (Vercel status success, 15:37:43 UTC); the live page chunk contains strings added only in the last Phase 4 commits ("Line it up", "locked to where you put CRYSTAL", "The stencil machine won't power up")
+- 2026-09-26 · GATE 5 · typecheck pass · lint pass · test 226/226 (13 files) · build pass · bundle scan 0 hits · no key-shaped strings in tracked files · reviewer: no blockers, README fixes applied · live: `59ad9b2` Production success, og:image + twitter:card summary_large_image served, /opengraph-image 200 image/png
+- 2026-09-26 · 5.3 final production check · https://inked-in-leonida.vercel.app in a fresh tab with localStorage and sessionStorage cleared (no saved wall, no sound pref): TITLE -> NIGHT 1 -> tino-1 50/100 vision -> InkGram -> kaylee-1 32/100 vision -> NIGHT 2 "Kaylee posted a story about 'a certain shop'..." -> tino-2 "Returning client" + night-1 thumbnail -> editor on the old ink, black fill + blue eyes -> "Line it up" -> VERDICT 75/100 vision (Cover-up 40/40, Old name gone 20/20), 4.2 s lock-in to verdict -> "Close up shop" -> finale Back + Medium, all 8 tools -> SELF_REVEAL (Download card + Share on X) -> SHOP_WALL 4 frames, $360, 2.3★, wall saved (22.8 KB); 177 s end to end (scripted), 0 console errors, 0 page errors, 0 /api/judge calls in the finale
 
 ---
 
