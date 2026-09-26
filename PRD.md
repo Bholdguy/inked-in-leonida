@@ -486,7 +486,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 4.5 Real body art dropped in (if available; placeholders are acceptable)
 - [x] 4.6 Error screens: CDN failure, image load failure
 - [x] 4.7 Mobile pass at 390px + "best on desktop" banner
-- [ ] 4.8 Title screen and footer disclaimer
+- [x] 4.8 Title screen and footer disclaimer
 
 **GATE 4:** Owner plays a full run on desktop and on a phone with no broken states.
 
@@ -659,6 +659,7 @@ export interface JobResult {
 - 4.4: `dd8cf7a` · 4.5 body art: no owner art in `public/bodies/` (all 7 files were the Phase 0 flat placeholders), so the placeholders were regenerated at the same paths, zero code changes: silhouette SDFs (parametric forearm taper, shoulder cap + upper arm + neck slope, upper back with neck and shoulders), height field = 3x box-blurred silhouette mask + spine groove / shoulder blade / deltoid bumps, lit from the upper left with ambient + diffuse + faint sheen and edge darkening, low-frequency blotch + fine pore noise, warmer lit tones; 1 px antialiased alpha edge; skin hex per 11.1 as the mid-tone. Generator used Node built-ins only (`zlib`), run from the session scratchpad, not committed. Target-zone corners verified on skin (alpha 255) for forearm (all tones) and shoulder: commit "feat: shade and texture the body placeholders"
 - 4.5: `4a8966d` · 4.6 error screens in the new look (POWER'S OUT as a flickering sunset neon sign with a plain-language CDN line and Retry; error boundary "Breaker tripped" neon; jammed stencil, smudged placement, missing night-1 stencil, out of paper, printer jam all use the shared panel/button styles; every one keeps its retry or way back): commit "feat: restyle the shop error screens"
 - 4.6: `d76caf6` · 4.7 mobile (`DesktopBanner.tsx` "Best on desktop..." under 768 px via `md:hidden`, dismissible, never blocks; STUDIO hint mentions the editor's ✓ icon for Save on narrow screens (item 29); TITLE min height trimmed on phones): commit "feat: add the best-on-desktop banner and a 390px pass"
+- 4.7: `0faf4f0` · 4.8 TITLE + footer (TITLE built in 4.1/4.3: neon "INKED IN / LEONIDA" sign with flicker over a banded sunset, the 8.2 tagline, "Open the shop", sound toggle off by default, three-line pitch, last shift from storage; footer: "Built with Unlayer React Image Editor · #BuiltWithImageEditor", the Gemini privacy line, and "Unofficial fan project. Not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. All art is original."): commit "feat: add the fan disclaimer and built-with footer"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -784,6 +785,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 4.5 · 7 PNGs 1000x1250 RGBA regenerated (4.9 MB total, ~0.4-1.1 MB each, one to three load per run) · zone-corner alpha check 255 on forearm-light/medium/deep and shoulder-light · browser (dev): heart + CRYSTAL multiplied into the shaded forearm-deep, clipped at the edge
 - 2026-09-26 · 4.6 · typecheck pass · lint pass · browser (dev): editor embed script forced to 404 -> POWER'S OUT neon panel with Retry inside the STUDIO, order sidebar and header still usable
 - 2026-09-26 · 4.7 · typecheck pass · lint pass · browser (dev, 390x844): banner shown; TITLE, NIGHT_INTRO, ORDER, STUDIO (editor loads, rail Ink Age/Trim/Needle/Script..., ✓ save icon), PLACEMENT, VERDICT, INKGRAM, FINALE_INTRO, SELF_SETUP, SHOP_WALL: `scrollWidth == innerWidth` and no element past the right edge on every screen
+- 2026-09-26 · 4.8 · typecheck pass · lint pass · test 223/223
 
 ---
 
