@@ -122,6 +122,7 @@ describe("buildSystemPrompt", () => {
 
   it("without a stencil keeps the original single-image sentence", () => {
     const p = buildSystemPrompt(getJob("kaylee-1"), { hasStencil: false, oldLettering: null });
+    expect(p).toContain("on their shoulder."); // where the ink is, so the reaction doesn't guess
     expect(p).toContain("You see a tattoo on skin.");
     expect(p).not.toContain("STENCIL");
     expect(p).toContain('lettering "STAY LOUD"');

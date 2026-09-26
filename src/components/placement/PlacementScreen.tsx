@@ -54,7 +54,12 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
   }
   if (!assets) return <p className="text-muted">Prepping the skin…</p>;
 
-  const update = (patch: Partial<Placement>) => setPlacement((p) => ({ ...p, ...patch }));
+  // Cover-up: the new stencil already contains the old ink, so it must sit exactly where tino-1's
+  // did (concealment compares the same pixels; moving it would carry CRYSTAL along with it).
+  const locked = job.startFrom === "tino-1" && !!previous;
+  const update = (patch: Partial<Placement>) => {
+    if (!locked) setPlacement((p) => ({ ...p, ...patch }));
+  };
 
   return (
     <section className="grid gap-6 md:grid-cols-[minmax(0,480px)_1fr] md:items-start">
@@ -65,13 +70,16 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
         onMove={(cx, cy) => update({ cx, cy })}
         zone={job.targetZone}
         zoneLabel={zoneLabel(job)}
+        locked={locked}
       />
 
       <div className="flex flex-col gap-5 panel p-5">
         <div>
-          <h2 className="text-xl font-bold">Place it</h2>
+          <h2 className="text-xl font-bold">{locked ? "Line it up" : "Place it"}</h2>
           <p className="text-sm text-muted">
-            Drag the ink anywhere on the {job.body.zone}. Arrow keys nudge it, Shift + arrows move it further.
+            {locked
+              ? "The cover-up goes right over the old ink. It's locked to where you put CRYSTAL on night 1."
+              : `Drag the ink anywhere on the ${job.body.zone}. Arrow keys nudge it, Shift + arrows move it further.`}
           </p>
         </div>
 
@@ -85,6 +93,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
             max={1.5}
             step={0.01}
             value={placement.scale}
+            disabled={locked}
             onChange={(e) => update({ scale: Number(e.target.value) })}
             className="accent-pink"
           />
@@ -100,6 +109,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
             max={180}
             step={1}
             value={placement.rotate}
+            disabled={locked}
             onChange={(e) => update({ rotate: Number(e.target.value) })}
             className="accent-pink"
           />

@@ -12,7 +12,7 @@ export function buildSystemPrompt(job: Job, opts: { hasStencil: boolean; oldLett
 
   const lines = [
     ...intro,
-    `Client: ${job.client.name}. Personality: ${job.client.bio} They ordered: motif "${job.motif ?? "anything"}", lettering "${job.lettering ?? "none"}".`,
+    `Client: ${job.client.name}. Personality: ${job.client.bio} They ordered: motif "${job.motif ?? "anything"}", lettering "${job.lettering ?? "none"}", on their ${job.body.zone}.`,
   ];
   if (job.mode === "coverup" && opts.oldLettering) {
     lines.push(`This is a cover-up. The old tattoo said "${opts.oldLettering}". Report whether that old word is still readable.`);

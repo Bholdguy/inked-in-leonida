@@ -13,11 +13,12 @@ interface Props {
   onMove: (cx: number, cy: number) => void;
   zone: Rect | null;
   zoneLabel: string | null;
+  locked?: boolean; // cover-up: the stencil must sit exactly on the old ink
 }
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
-export default function PlacementStage({ body, tattoo, placement, onMove, zone, zoneLabel }: Props) {
+export default function PlacementStage({ body, tattoo, placement, onMove, zone, zoneLabel, locked = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scratchRef = useRef<HTMLCanvasElement | null>(null);
   const drag = useRef<{ x: number; y: number; cx: number; cy: number } | null>(null);
@@ -32,6 +33,7 @@ export default function PlacementStage({ body, tattoo, placement, onMove, zone, 
   }, [body, tattoo, placement]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (locked) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, cx: placement.cx, cy: placement.cy };
   };
@@ -48,6 +50,7 @@ export default function PlacementStage({ body, tattoo, placement, onMove, zone, 
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (locked) return;
     const step = e.shiftKey ? 0.05 : 0.01;
     const moves: Record<string, [number, number]> = {
       ArrowLeft: [-step, 0],
@@ -71,7 +74,7 @@ export default function PlacementStage({ body, tattoo, placement, onMove, zone, 
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onKeyDown={onKeyDown}
-      className="relative aspect-[4/5] w-full max-w-[480px] cursor-grab touch-none select-none overflow-hidden rounded-xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))] focus-visible:outline-2 focus-visible:outline-teal active:cursor-grabbing"
+      className={`relative aspect-[4/5] w-full max-w-[480px] ${locked ? "cursor-default" : "cursor-grab active:cursor-grabbing"} touch-none select-none overflow-hidden rounded-xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))] focus-visible:outline-2 focus-visible:outline-teal`}
     >
       <canvas ref={canvasRef} width={BODY_WIDTH} height={BODY_HEIGHT} className="absolute inset-0 h-full w-full" />
       {zone && (

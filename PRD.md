@@ -384,7 +384,7 @@ You are judging a tattoo in a comedy tattoo-parlor game. You see a tattoo on ski
    You get two images.
    Image 1 is the STENCIL: the design exactly as the artist drew it, on white paper. Judge the motif and the lettering from the STENCIL.
    Image 2 is the TATTOO ON SKIN: the same design inked on the client. React to the TATTOO ON SKIN.)
-Client: [name]. Personality: [bio]. They ordered: motif "[motif]", lettering "[lettering or none]".
+Client: [name]. Personality: [bio]. They ordered: motif "[motif]", lettering "[lettering or none]", on their [body zone].
 [COVER-UP ONLY: This is a cover-up. The old tattoo said "[oldLettering]". Report whether that old word is still readable.]
 Return ONLY JSON with keys:
 motifMatch (boolean: is the ordered motif, or something clearly meant as it, present? Be generous with rough drawings),
@@ -661,6 +661,7 @@ export interface JobResult {
 - 4.6: `d76caf6` · 4.7 mobile (`DesktopBanner.tsx` "Best on desktop..." under 768 px via `md:hidden`, dismissible, never blocks; STUDIO hint mentions the editor's ✓ icon for Save on narrow screens (item 29); TITLE min height trimmed on phones): commit "feat: add the best-on-desktop banner and a 390px pass"
 - 4.7: `0faf4f0` · 4.8 TITLE + footer (TITLE built in 4.1/4.3: neon "INKED IN / LEONIDA" sign with flicker over a banded sunset, the 8.2 tagline, "Open the shop", sound toggle off by default, three-line pitch, last shift from storage; footer: "Built with Unlayer React Image Editor · #BuiltWithImageEditor", the Gemini privacy line, and "Unofficial fan project. Not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. All art is original."): commit "feat: add the fan disclaimer and built-with footer"
 - 4.8: `2cfdb72` · GATE 4 reviewer fixes (independent subagent, second run after the first stopped on a usage-limit error: all 7 owner items and every Section 12 rule PASS, no blockers; fixed): (1) body art regenerated again: sloped trapezius and rounded shoulder caps on the back (no flat shelf), trapezius swells, forearm muscle bellies near the elbow and a tendon groove toward the wrist, gentler pore grain + even-valued channels, 4.9 MB -> 2.7 MB total, zone corners re-verified on skin; (2) POWER'S OUT copy is in-world again ("The stencil machine won't power up...", no "CDN"); (3) cover-up INKING sweeps the union of the new ink box and tino-1's placed-stencil box (`placementBox` / `unionBox` in `bounds.ts`, tested; `PreparedJob.stencilAspect`), so the old CRYSTAL is never snapped away outside the sweep; (4) share card falls back to `rect` where `roundRect` is missing; (5) finale share text logged as amendment 37; (6) sound toggle state is announced once (`aria-pressed`, on/off word aria-hidden); (7) paper-ticket labels raised to 70% for contrast; (9) progress pills drop their colour transition under reduced motion. (8) "Next client" next to "Post to InkGram" kept on purpose: sharing stays optional, InkGram is the primary button: commit "fix: apply GATE 4 review fixes"
+- GATE 4 run 2 finding: cover-up placement locked to tino-1's (item 38) and the judge prompt names the body zone (item 39): commit "fix: lock the cover-up onto the old ink and tell the judge the body zone"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -719,6 +720,9 @@ Plan-review flags (2026-09-25) and owner decisions:
 36. **Themed rail labels were not in the code.** The brief for Phases 3-5 said "Rail labels are already themed: verify only", but `src/lib/editorConfig.ts` on `main` has no `translations` (they were only runtime-tested in Phase 0). Implemented in 3.6.
 
 37. **Finale share text (4.4).** 11.4 only defines the client wording. For SELF_REVEAL the X text is "I just inked myself at a Leonida tattoo shop. {url} #BuiltWithImageEditor @unlayer" (no stars: the finale is unscored), and the card shows no stars. Tested in `social.test.ts`.
+
+38. **Cover-up placement is locked (GATE 4 run 2).** The cover-up editor opens on tino-1's stencil, so the new stencil carries the old CRYSTAL ink inside it. With free placement, moving the cover-up moved the old tattoo with it (the night-1 ink "teleported") while concealment, measured in stencil space, still read 100%. Decision: the cover-up placement is locked to tino-1's saved placement (PRD 15.2 already required it as the default; locking follows the same reasoning as Trim being off in 10.2). PLACEMENT says "Line it up" and explains the lock; drag, keys and sliders are disabled for tino-2 only.
+39. **Judge prompt names the body zone.** Reactions kept saying "on my back" for forearm tattoos. The 11.3 order sentence now ends "on their [body zone]." (prompt test added).
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
