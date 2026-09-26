@@ -1,6 +1,7 @@
 // POST /api/judge (PRD 11.3). Always HTTP 200; any failure is { source: "fallback" }.
 import { forcedResponse, forceMode } from "@/lib/judge/force";
 import { judgeWithGemini } from "@/lib/judge/gemini";
+import { clientIp, judgeLimiter } from "@/lib/judge/rateLimit";
 import { FALLBACK, type JudgeResponse } from "@/lib/judge/types";
 import { parseJudgeRequest } from "@/lib/judge/validate";
 
@@ -13,6 +14,10 @@ const reply = (body: JudgeResponse) =>
 
 export async function POST(request: Request): Promise<Response> {
   try {
+    if (!judgeLimiter.allow(clientIp(request.headers))) {
+      console.warn("[judge] fallback: rate-limited");
+      return reply(FALLBACK);
+    }
     const req = parseJudgeRequest(await request.json().catch(() => null));
     if (!req) {
       console.warn("[judge] fallback: bad-request");

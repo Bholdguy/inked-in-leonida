@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import { POST } from "@/app/api/judge/route";
+import { judgeLimiter } from "../rateLimit";
 import { clearJudgeCache, TIMEOUT_MS } from "../gemini";
 
 // Distinctive fake image bytes so we can prove they never reach a log line.
@@ -23,14 +24,21 @@ const geminiOk = (text: string) =>
     headers: { "content-type": "application/json" },
   });
 
-const call = (body: unknown) =>
-  POST(new Request("http://localhost/api/judge", { method: "POST", body: typeof body === "string" ? body : JSON.stringify(body) }));
+const call = (body: unknown, ip = "203.0.113.7") =>
+  POST(
+    new Request("http://localhost/api/judge", {
+      method: "POST",
+      headers: { "x-forwarded-for": `${ip}, 10.0.0.1` },
+      body: typeof body === "string" ? body : JSON.stringify(body),
+    }),
+  );
 
 let fetchMock: MockInstance;
 let logs: string[];
 
 beforeEach(() => {
   clearJudgeCache();
+  judgeLimiter.reset();
   vi.stubEnv("GEMINI_API_KEY", KEY);
   vi.stubEnv("GEMINI_MODEL", "");
   vi.stubEnv("JUDGE_FORCE", "");
@@ -175,6 +183,18 @@ describe("POST /api/judge", () => {
     const body = await (await call({ jobId: "tino-1", compositeJpegB64: IMAGE })).json();
     expect(body).toEqual({ source: "vision", ...verdict });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("rate limit: 20 requests per IP per 10 minutes, the 21st gets 200 fallback", async () => {
+    for (let i = 0; i < 20; i++) {
+      const body = await (await call({ jobId: "tino-1", compositeJpegB64: IMAGE })).json();
+      expect(body.source).toBe("vision"); // cached after the first, still allowed
+    }
+    await expectFallback(await call({ jobId: "tino-1", compositeJpegB64: IMAGE }));
+    expect(logs.some((l) => l.includes("rate-limited"))).toBe(true);
+    // A different client is unaffected.
+    const other = await (await call({ jobId: "tino-1", compositeJpegB64: IMAGE }, "198.51.100.2")).json();
+    expect(other.source).toBe("vision");
   });
 
   it("JUDGE_FORCE=fallback outside production", async () => {

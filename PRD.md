@@ -374,6 +374,7 @@ On any failure (no key, timeout 8s, bad JSON, 4xx/5xx): `{ "source": "fallback" 
 - Dev-only test switch `JUDGE_FORCE=offensive|fallback|slow` (server-side; ignored when `NODE_ENV` is `production`, unit-tested).
 - Truncate `reaction` to 140 chars. Strip anything that is not plain text.
 - Cache by SHA-256 of jobId + images in a module-level Map (best effort, per instance, 100 entries, vision verdicts only).
+- Rate limit: 20 requests per client IP (first `x-forwarded-for` entry) per 10 minutes, sliding window, checked before anything else. Over the limit returns 200 `{ source: "fallback" }`. In-memory and per server instance: best effort only (each Vercel instance and cold start has its own counter).
 - MUST NOT log image data. MUST NOT expose the key to the client.
 
 **Vision system prompt (use verbatim, fill the brackets):**
@@ -635,10 +636,11 @@ export interface JobResult {
 - 2.6 item 1: InkEditor waits for onLoad (loading line, Transfer disabled), 15 s `LOAD_TIMEOUT_MS` -> POWER'S OUT; Retry remounts with a fresh `scriptUrl` (`?retry=N`) because the package loader caches a hung load per URL
 - 2.6 item 2: `src/app/error.tsx` + `src/app/global-error.tsx` (own html/body, inline styles), both reset the store then re-render; log only the error digest or name
 - 2.6 item 3: VERDICT no-result button, INKING `safeFinish` (vision -> canned fallback -> null + way back), jammed Retry remounts the editor when there is no instance or the reset throws
+- 2.6 item 4: `src/lib/judge/rateLimit.ts` (`createRateLimiter`, `judgeLimiter`, `clientIp`), checked first in `/api/judge`
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.6 Hardening (item 4: rate limit)
+- 2.6 Hardening (item 5: footer wording)
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -676,6 +678,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 30. **Preview deployments are behind Vercel Deployment Protection (GATE 2).** Opening the Preview URL redirects to the Vercel login, which the agent may not complete. `vercel curl` (CLI 60.1.1, beta) auto-generated a **Protection Bypass for Automation** token on the project, then failed locally (HTTP 000 on Windows). Owner: revoke it under Project Settings > Deployment Protection if unwanted. The Preview fallback run needs the owner signed in to Vercel.
 31. **Security incident: key-shaped string in a test (2026-09-25).** GitHub secret scanning flagged a Google API key at `src/lib/judge/__tests__/route.test.ts` line 8, introduced in commit `41ce673` (task 2.1). The string was a fabricated test fixture written by the agent (the Google key prefix + 35 characters, i.e. the real Google key shape); the real key was only ever read from `.env.local` at runtime and was never written to a file. Response: the owner rotated the key anyway (old key deleted in Google AI Studio; new key in `.env.local` and Vercel Production). The fixture was replaced with `"test-key-not-real"`; the whole working tree and every tracked file were searched for the Google key prefix and other secret shapes (GitHub, OpenAI, AWS, Slack, Vercel tokens, private-key blocks, `GEMINI_API_KEY=` values): no hits remain, and no `.env` file is tracked. A new absolute rule (Section 12 and CLAUDE.md) bans real or realistic keys in any file. The old fake string still exists in git history (commit `41ce673`); it is not a credential, so history was not rewritten; the GitHub alert can be closed as "used in tests". Production redeploy verified with the new key (see Test log).
 32. **Protection Bypass token revoked by the owner** (see 30). The owner will run the Preview (no-key) checklist steps 1-6 and report back; GATE 2 stays open until then.
+33. **`/api/judge` rate limit (2.6 item 4) is per-instance best effort.** In-memory sliding window keyed by client IP; separate Vercel instances and cold starts each keep their own counts, so a determined client can exceed 20/10 min across instances. Good enough to stop a runaway tab or casual abuse of the free-tier key; not a security boundary. 11.3 updated.
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
@@ -723,6 +726,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 item 1 (editor load timeout) · typecheck pass · lint pass · test 166/166 · browser (dev), CDN embed script rerouted to a non-routable host (hang): loading line "Setting up the stencil paper..." + Transfer disabled at 1.5 s, still loading at ~12 s, POWER'S OUT at ~17 s (15 s after mount); block removed + Retry -> editor in 1.9 s via `embed.js?retry=1`, loading line gone, Transfer enabled · embed script rerouted to a 404: POWER'S OUT in 0.9 s via onError; Retry loads the editor
 - 2026-09-26 · 2.6 item 2 (error boundaries) · typecheck pass · lint pass · test 166/166 · browser (dev): malformed result (breakdown null) on VERDICT -> error.tsx "Something shorted out in the shop."; Restart shift -> ORDER with results cleared. global-error.tsx is production-only (checked by build)
 - 2026-09-26 · 2.6 item 3 (dead ends) · typecheck pass · lint pass · test 169/169 (safeFinish: good verdict passes; merge throws -> canned fallback 80; fallback throws -> null) · browser (dev): VERDICT with no result -> "No verdict yet." + Back to the order -> ORDER; INKING with unscorable data -> "The needle jammed mid-line." + Back to placement -> PLACEMENT; tino-2 with a corrupt start image -> "Stencil paper jammed" -> Retry reset the image (instance present) and re-jammed, Retry still offered. The no-instance remount branch is not reachable from outside the component; verified by code review only
+- 2026-09-26 · 2.6 item 4 (rate limit) · typecheck pass · lint pass · test 177/177 (limiter: 20 then block, per-key isolation, sliding window edge at exactly 10 min, blocked attempts do not extend the window, reset; clientIp: x-forwarded-for first entry, x-real-ip, unknown; route: 20 allowed incl. cached, 21st 200 fallback with "rate-limited" log reason, another IP unaffected)
 
 ---
 
