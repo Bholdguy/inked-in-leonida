@@ -9,7 +9,7 @@ export default function Home() {
       </header>
       <GameShell />
       <footer className="mt-auto border-t border-white/10 pt-4 text-xs text-muted">
-        Your drawings are sent to an AI to judge them. Nothing is stored.
+        Your drawings are sent to Google&apos;s Gemini AI for judging. We don&apos;t store them.
       </footer>
     </main>
   );

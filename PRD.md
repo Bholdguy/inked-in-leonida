@@ -637,10 +637,11 @@ export interface JobResult {
 - 2.6 item 2: `src/app/error.tsx` + `src/app/global-error.tsx` (own html/body, inline styles), both reset the store then re-render; log only the error digest or name
 - 2.6 item 3: VERDICT no-result button, INKING `safeFinish` (vision -> canned fallback -> null + way back), jammed Retry remounts the editor when there is no instance or the reset throws
 - 2.6 item 4: `src/lib/judge/rateLimit.ts` (`createRateLimiter`, `judgeLimiter`, `clientIp`), checked first in `/api/judge`
+- 2.6 item 5: footer now "Your drawings are sent to Google's Gemini AI for judging. We don't store them."; README note (item 25) updated to match
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.6 Hardening (item 5: footer wording)
+- 2.6 Hardening (item 6: housekeeping)
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -670,7 +671,7 @@ Plan-review flags (2026-09-25) and owner decisions:
 22. **Gotcha 14.2 verified (1.5).** Filter edits in an open panel ARE included by `getImage()` and Save. An unapplied crop is NOT included by `getImage()` but IS committed by Save. Decision per 14.2: the editor Save is the primary path; our button shows "Close the tool panel, then Transfer." Details in NOTES.md.
 23. **Stencil format varies (1.5).** Save gives JPEG, `getImage()` gives PNG for the same opaque stencil; a crop can make it non-square. `JobResult.stencil` stores whichever came in; analysis letterboxes via `normalize()`, compositing draws it at its own aspect.
 24. **Phase 2 plan decisions (owner, 2026-09-25):** flag 2 server derives order/mode/oldLettering from jobId, client values ignored (11.3 updated); flag 3 optional `stencilJpegB64`, motif + lettering judged from the stencil, reaction from the composite (11.3 + prompt updated); flag 5 `JUDGE_FORCE` dev switch, ignored in production (unit-tested); flag 1 a plain INKING screen now, animation stays in 4.2; flag 4 `responseSchema` + hand validation; flag 6 route `maxDuration` 10 s (Gemini timeout 8 s, client cap 9 s); flag 9 cache key includes jobId; flag 10 Phase 2 on branch `phase-2`, merge to `main` at GATE 2.
-25. **Privacy line (flag 8, owner):** footer on the page: "Your drawings are sent to an AI to judge them. Nothing is stored." **README draft note for Phase 5:** add a Privacy line: player drawings (the stencil and the composite, 512px JPEGs) are sent to Google's Gemini API for judging; the game stores nothing server-side (only an in-memory cache per server instance); the free tier may let Google use inputs to improve its products.
+25. **Privacy line (flag 8, owner):** footer on the page, updated in 2.6 item 5 to: "Your drawings are sent to Google's Gemini AI for judging. We don't store them." **README draft note for Phase 5:** Privacy: "Your drawings are sent to Google's Gemini AI for judging. We don't store them." Detail line: the stencil and the tattoo-on-skin image (512px JPEGs) go to Google's Gemini API; the game keeps no copy server-side (only a short-lived in-memory cache per server instance); on Gemini's free tier Google may use inputs to improve its products.
 26. **`/api/judge` only answers POST.** GET returns Next's default 405. The 200-always rule applies to the POST contract.
 27. **Editor Text tool default color (2.2).** New text objects take the current color (red after drawing with the default brush), not black. A player who types CRYSTAL without changing the text Fill color gets no black and loses half the palette points. Scoring is correct; Phase 3/4 order copy or the checklist should hint "set the lettering color".
 28. **`JobResult.offensive` (2.4).** Added to 15.1 (updated) so VERDICT can switch its button to "Start over" without guessing from the text. `startOver(jobId)` deletes that job's result, clears the draft and inking state, and returns to STUDIO; STUDIO was unmounted during VERDICT, so the editor remounts fresh on the job's start image.
@@ -727,6 +728,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 item 2 (error boundaries) · typecheck pass · lint pass · test 166/166 · browser (dev): malformed result (breakdown null) on VERDICT -> error.tsx "Something shorted out in the shop."; Restart shift -> ORDER with results cleared. global-error.tsx is production-only (checked by build)
 - 2026-09-26 · 2.6 item 3 (dead ends) · typecheck pass · lint pass · test 169/169 (safeFinish: good verdict passes; merge throws -> canned fallback 80; fallback throws -> null) · browser (dev): VERDICT with no result -> "No verdict yet." + Back to the order -> ORDER; INKING with unscorable data -> "The needle jammed mid-line." + Back to placement -> PLACEMENT; tino-2 with a corrupt start image -> "Stencil paper jammed" -> Retry reset the image (instance present) and re-jammed, Retry still offered. The no-instance remount branch is not reachable from outside the component; verified by code review only
 - 2026-09-26 · 2.6 item 4 (rate limit) · typecheck pass · lint pass · test 177/177 (limiter: 20 then block, per-key isolation, sliding window edge at exactly 10 min, blocked attempts do not extend the window, reset; clientIp: x-forwarded-for first entry, x-real-ip, unknown; route: 20 allowed incl. cached, 21st 200 fallback with "rate-limited" log reason, another IP unaffected)
+- 2026-09-26 · 2.6 item 5 (footer) · typecheck pass · lint pass · test 177/177 · dev page HTML contains the new footer text
 
 ---
 
