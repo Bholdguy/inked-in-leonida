@@ -463,7 +463,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [x] 2.4 Offensive path -> "Start over"
 - [x] 2.5 "Client squinted at it" tag on fallback
-- [ ] 2.6 Hardening (verifier fixes before GATE 2): editor load timeout, error boundaries, dead ends, /api/judge rate limit, footer wording, housekeeping
+- [x] 2.6 Hardening (verifier fixes before GATE 2): editor load timeout, error boundaries, dead ends, /api/judge rate limit, footer wording, housekeeping
 
 **GATE 2:** With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
 
@@ -639,10 +639,11 @@ export interface JobResult {
 - 2.6 item 4: `src/lib/judge/rateLimit.ts` (`createRateLimiter`, `judgeLimiter`, `clientIp`), checked first in `/api/judge`
 - 2.6 item 5: footer now "Your drawings are sent to Google's Gemini AI for judging. We don't store them."; README note (item 25) updated to match
 - 2.6 item 6: `zoneHit` and `verdictFor` (offensive override) are pure in `src/lib/ink/score.ts` and used by `finishJob`; `loadImage` error no longer echoes the image source; no history rewrite (item 34)
+- 2.6 done (items 1-6 as separate commits, last `c010807`), pushed to `main`; `phase-2` fast-forwarded for a fresh Preview
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.6 Hardening: final gate check + push
+- GATE 2: waiting on owner's Preview (no-key) run, checklist steps 1-6
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -732,6 +733,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 item 4 (rate limit) · typecheck pass · lint pass · test 177/177 (limiter: 20 then block, per-key isolation, sliding window edge at exactly 10 min, blocked attempts do not extend the window, reset; clientIp: x-forwarded-for first entry, x-real-ip, unknown; route: 20 allowed incl. cached, 21st 200 fallback with "rate-limited" log reason, another IP unaffected)
 - 2026-09-26 · 2.6 item 5 (footer) · typecheck pass · lint pass · test 177/177 · dev page HTML contains the new footer text
 - 2026-09-26 · 2.6 item 6 (housekeeping) · typecheck pass · lint pass · test 182/182 (zoneHit: inside, outside, null zone always hits; verdictFor: 100/80/60/10 -> stars, mood, tip; offensive overrides to 1 star, angry, $0 even at score 100)
+- 2026-09-26 · 2.6 final check · typecheck pass · lint pass · test 182/182 (8 files) · build pass · client bundle: 0 files with GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, or the actual key value · tracked files: no Google key prefix · dev regression with key: tino-1 100/100, 5 stars, thrilled, $180, new footer shown
 
 ---
 
