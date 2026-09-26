@@ -23,7 +23,7 @@ const MOOD_STYLE: Record<Mood, string> = {
 
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
-export default function VerdictScreen({ onDone }: { onDone: () => void }) {
+export default function VerdictScreen() {
   const job = useGame(currentJob);
   const result = useGame((s) => s.results[job.id]);
 
@@ -105,10 +105,10 @@ export default function VerdictScreen({ onDone }: { onDone: () => void }) {
 
         <button
           type="button"
-          onClick={result.offensive ? () => useGame.getState().startOver(job.id) : onDone}
+          onClick={() => (result.offensive ? useGame.getState().startOver(job.id) : useGame.getState().advance())}
           className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
         >
-          {result.offensive ? "Start over" : "Restart shift"}
+          {result.offensive ? "Start over" : "Next client"}
         </button>
       </div>
     </section>

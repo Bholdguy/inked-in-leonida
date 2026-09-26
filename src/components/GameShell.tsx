@@ -6,11 +6,13 @@ import InkingScreen from "@/components/screens/InkingScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
+import TitleScreen from "@/components/screens/TitleScreen";
 import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
 import type { Placement } from "@/types";
 
-// Route for tino-1: ORDER -> STUDIO -> PLACEMENT -> INKING (judge) -> VERDICT.
+// Per-job steps: ORDER -> STUDIO -> PLACEMENT -> INKING (judge) -> VERDICT. The shift around
+// them (TITLE, NIGHT_INTRO, finale, SHOP_WALL) is driven by the store's advance().
 const STEPS: { screen: Screen; label: string }[] = [
   { screen: "ORDER", label: "Order" },
   { screen: "STUDIO", label: "Stencil" },
@@ -52,6 +54,9 @@ export default function GameShell() {
 
   let body: React.ReactNode;
   switch (screen) {
+    case "TITLE":
+      body = <TitleScreen />;
+      break;
     case "ORDER":
       body = <OrderScreen />;
       break;
@@ -74,10 +79,10 @@ export default function GameShell() {
       body = <InkingScreen />;
       break;
     case "VERDICT":
-      body = <VerdictScreen onDone={restart} />;
+      body = <VerdictScreen />;
       break;
     default:
-      // Screens from later phases are unreachable in Phase 1; never leave the player stranded.
+      // Any screen without a view must still leave the player a way back.
       body = (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
           <p className="font-bold">This part of the shop is still under renovation.</p>

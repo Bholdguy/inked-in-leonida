@@ -19,9 +19,9 @@ const result: JobResult = {
 describe("game store", () => {
   beforeEach(() => useGame.getState().reset());
 
-  it("starts on Tino's order", () => {
+  it("starts on the title with Tino as the first client", () => {
     const s = useGame.getState();
-    expect(s.screen).toBe("ORDER");
+    expect(s.screen).toBe("TITLE");
     expect(currentJob(s).id).toBe("tino-1");
     expect(s.sound).toBe(false);
   });
@@ -39,7 +39,7 @@ describe("game store", () => {
     expect(s.draft.stencil).toBe("data:image/jpeg;base64,STENCIL");
     expect(s.results["tino-1"]?.score).toBe(80);
 
-    s.nextJob();
+    s.advance();
     s = useGame.getState();
     expect(currentJob(s).id).toBe("kaylee-1");
     expect(s.screen).toBe("ORDER");
@@ -78,11 +78,50 @@ describe("game store", () => {
     const g = useGame.getState();
     g.saveResult("tino-1", result);
     g.toggleSound();
-    g.nextJob();
+    g.advance();
+    g.setSelfBody({ zone: "back", tone: "light" });
     g.reset();
     const s = useGame.getState();
     expect(s.jobIndex).toBe(0);
+    expect(s.screen).toBe("TITLE");
     expect(s.results).toEqual({});
-    expect(s.sound).toBe(false);
+    expect(s.selfBody).toEqual({ zone: "forearm", tone: "deep" });
+    expect(s.sound).toBe(true); // the sound preference survives a restart
+    g.setSound(false);
+  });
+
+  it("advance walks the whole shift: tino-1, kaylee-1, night 2, tino-2, finale, wall", () => {
+    const g = useGame.getState();
+    const seen: string[] = [];
+    const step = () => {
+      useGame.getState().advance();
+      const s = useGame.getState();
+      seen.push(`${currentJob(s).id}:${s.screen}`);
+    };
+    g.setStencil("data:image/jpeg;base64,X");
+    step();
+    expect(useGame.getState().draft).toEqual({ stencil: null, placement: null });
+    step();
+    step();
+    step();
+    expect(seen).toEqual(["kaylee-1:ORDER", "tino-2:NIGHT_INTRO", "self:FINALE_INTRO", "self:SHOP_WALL"]);
+  });
+
+  it("the finale job carries the chosen body and is a stable object", () => {
+    const g = useGame.getState();
+    g.advance();
+    g.advance();
+    g.advance();
+    g.setSelfBody({ zone: "back", tone: "medium" });
+    const a = currentJob(useGame.getState());
+    const b = currentJob(useGame.getState());
+    expect(a.id).toBe("self");
+    expect(a.body).toEqual({ zone: "back", tone: "medium" });
+    expect(a).toBe(b);
+  });
+
+  it("finishing the finale goes to the reveal, not a verdict", () => {
+    useGame.getState().finishInking("self", result);
+    expect(useGame.getState().screen).toBe("SELF_REVEAL");
   });
 });
