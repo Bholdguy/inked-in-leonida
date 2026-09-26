@@ -493,7 +493,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 
 ### Phase 5: Ship (Sun afternoon, ~2h, done by 20:00 UTC)
 - [ ] 5.1 README (Section 17)
-- [ ] 5.2 OG image + meta tags (title, description, share preview)
+- [x] 5.2 OG image + meta tags (title, description, share preview)
 - [ ] 5.3 Final `npm run build` clean, no console errors on production
 - [ ] 5.4 Owner records the 90s demo (Section 18)
 - [ ] 5.5 Owner submits the form and posts on X
@@ -663,6 +663,8 @@ export interface JobResult {
 - 4.7: `0faf4f0` · 4.8 TITLE + footer (TITLE built in 4.1/4.3: neon "INKED IN / LEONIDA" sign with flicker over a banded sunset, the 8.2 tagline, "Open the shop", sound toggle off by default, three-line pitch, last shift from storage; footer: "Built with Unlayer React Image Editor · #BuiltWithImageEditor", the Gemini privacy line, and "Unofficial fan project. Not affiliated with or endorsed by Rockstar Games or Take-Two Interactive. All art is original."): commit "feat: add the fan disclaimer and built-with footer"
 - 4.8: `2cfdb72` · GATE 4 reviewer fixes (independent subagent, second run after the first stopped on a usage-limit error: all 7 owner items and every Section 12 rule PASS, no blockers; fixed): (1) body art regenerated again: sloped trapezius and rounded shoulder caps on the back (no flat shelf), trapezius swells, forearm muscle bellies near the elbow and a tendon groove toward the wrist, gentler pore grain + even-valued channels, 4.9 MB -> 2.7 MB total, zone corners re-verified on skin; (2) POWER'S OUT copy is in-world again ("The stencil machine won't power up...", no "CDN"); (3) cover-up INKING sweeps the union of the new ink box and tino-1's placed-stencil box (`placementBox` / `unionBox` in `bounds.ts`, tested; `PreparedJob.stencilAspect`), so the old CRYSTAL is never snapped away outside the sweep; (4) share card falls back to `rect` where `roundRect` is missing; (5) finale share text logged as amendment 37; (6) sound toggle state is announced once (`aria-pressed`, on/off word aria-hidden); (7) paper-ticket labels raised to 70% for contrast; (9) progress pills drop their colour transition under reduced motion. (8) "Next client" next to "Post to InkGram" kept on purpose: sharing stays optional, InkGram is the primary button: commit "fix: apply GATE 4 review fixes"
 - GATE 4 run 2 finding: cover-up placement locked to tino-1's (item 38) and the judge prompt names the body zone (item 39): commit "fix: lock the cover-up onto the old ink and tell the judge the body zone"
+- **GATE 4 (automated) passed 2026-09-26**: `phase-4` fast-forwarded into `main` at `54e08d2`, Production deployed
+- Phase 5 on branch `phase-5` · 5.2 OG + meta (`src/app/opengraph-image.tsx` 1200x630 `next/og` neon sign over a banded sunset, prerendered at build; `twitter-image.tsx` reuses it; `layout.tsx` `metadataBase`, Open Graph + `summary_large_image`, longer description, keywords, `viewport` theme color #0B0714) + `docs/title.png` (1440x900 headless-Edge capture of the local production TITLE for the README): commit "feat: add Open Graph and X share previews"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -795,6 +797,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 4 run 2 · typecheck pass · lint pass · test 226/226 · build pass · bundle scan 0 hits · production-build run: moving the cover-up 20% right carried the old ink with it and still scored 40/40 -> fixed by locking the cover-up placement (item 38)
 - 2026-09-26 · GATE 4 run 3 · typecheck pass · lint pass · test 226/226 (13 files) · build pass · bundle scan 0 hits · **local production build, full real-editor run:** tino-1 nudged left -> kaylee-1 -> NIGHT 2 -> tino-2 PLACEMENT "Line it up", sliders disabled, Shift+Right ignored, cover-up composited exactly over the night-1 spot -> 40/40 + 20/20, 90/100 (judge timed out on the solid black square -> "Client squinted at it.") -> finale Back + Light -> SELF_REVEAL with Download card + Share on X -> SHOP_WALL $560, 3.7★; 0 console errors, 0 /api/judge calls in the finale
 - 2026-09-26 · GATE 4 live check · `main` `54e08d2` Production deploy success; live HTML has the footer disclaimer, the title sun and Syne; POST /api/judge -> vision, "CRYSTAL", 3.5 s (repeat 0.65 s cached). The browser pane first showed a cached copy of the old page; a fresh URL loaded the new build
+- 2026-09-26 · 5.2 · typecheck pass · lint pass · build pass (`/opengraph-image`, `/twitter-image` static) · local production HTML has og:title/description/url/image (1200x630, alt) and twitter:card summary_large_image; image inspected visually
 
 ---
 
