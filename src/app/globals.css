@@ -273,3 +273,34 @@ body::after {
   opacity: 0.55;
   filter: blur(0.3px) drop-shadow(0 0 60px rgb(255 62 154 / 0.5));
 }
+
+/* INKING: the needle dot rides the reveal edge. */
+.needle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow:
+    0 0 0 3px rgb(255 62 154 / 0.85),
+    0 0 18px 6px rgb(255 62 154 / 0.7),
+    0 0 40px 10px rgb(25 227 209 / 0.35);
+  pointer-events: none;
+}
+
+/* Fresh-ink halo: raw red skin around new ink, fading out over 1 s. */
+@keyframes fresh-halo {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fresh-halo {
+  mix-blend-mode: multiply;
+  filter: blur(7px) drop-shadow(0 0 6px rgb(230 40 60 / 0.8));
+  animation: fresh-halo 1s ease-out both;
+}

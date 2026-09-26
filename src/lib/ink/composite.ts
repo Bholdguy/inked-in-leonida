@@ -1,8 +1,9 @@
 // PRD 11.2. DOM compositing: ink that sits in the skin, not a sticker on top of it.
 import { BODY_HEIGHT, BODY_WIDTH } from "@/data/bodies";
-import type { Placement } from "@/types";
+import type { Placement, Rect } from "@/types";
 import { whiteToAlpha } from "./alpha";
-import { makeCanvas, rgbaToCanvas } from "./dom";
+import { alphaBounds } from "./bounds";
+import { makeCanvas, readPixels, rgbaToCanvas } from "./dom";
 import type { RGBAImage } from "./image";
 
 // At scale 1 the stencil is drawn 40% of the body image wide.
@@ -21,20 +22,9 @@ function context(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   return ctx;
 }
 
-/**
- * Steps 1, 3, 4 onto `target` (BODY_WIDTH x BODY_HEIGHT). `scratch` is reused between frames
- * by the live preview; the final output passes nothing and gets a fresh one.
- */
-export function renderComposite(
-  target: HTMLCanvasElement,
-  body: CanvasImageSource,
-  tattoo: HTMLCanvasElement,
-  p: Placement,
-  scratch: HTMLCanvasElement = makeCanvas(BODY_WIDTH, BODY_HEIGHT),
-): void {
+// Step 3: tattoo on its own layer with the placement transform, clipped to the body alpha.
+function drawInkLayer(scratch: HTMLCanvasElement, body: CanvasImageSource, tattoo: HTMLCanvasElement, p: Placement): void {
   const W = BODY_WIDTH, H = BODY_HEIGHT;
-
-  // Step 3: tattoo on its own layer with the placement transform, clipped to the body alpha.
   const ink = context(scratch);
   ink.globalCompositeOperation = "source-over";
   ink.clearRect(0, 0, W, H);
@@ -49,16 +39,47 @@ export function renderComposite(
   ink.globalCompositeOperation = "destination-in";
   ink.drawImage(body, 0, 0, W, H);
   ink.globalCompositeOperation = "source-over";
+}
+
+/**
+ * Steps 1, 3, 4 onto `target` (BODY_WIDTH x BODY_HEIGHT). `scratch` is reused between frames
+ * by the live preview; the final output passes nothing and gets a fresh one.
+ */
+export function renderComposite(
+  target: HTMLCanvasElement,
+  body: CanvasImageSource,
+  tattoo: HTMLCanvasElement,
+  p: Placement,
+  scratch: HTMLCanvasElement = makeCanvas(BODY_WIDTH, BODY_HEIGHT),
+): void {
+  drawInkLayer(scratch, body, tattoo, p);
 
   // Steps 1 + 4: body, then the clipped ink multiplied into it.
   const out = context(target);
   out.save();
-  out.clearRect(0, 0, W, H);
-  out.drawImage(body, 0, 0, W, H);
+  out.clearRect(0, 0, BODY_WIDTH, BODY_HEIGHT);
+  out.drawImage(body, 0, 0, BODY_WIDTH, BODY_HEIGHT);
   out.globalCompositeOperation = "multiply";
   out.globalAlpha = INK_ALPHA;
   out.drawImage(scratch, 0, 0);
   out.restore();
+}
+
+export interface FreshInk {
+  halo: string; // PNG data URL: the ink's silhouette in raw-skin red, for the fresh-ink halo
+  box: Rect | null; // normalized bounding box of the ink on the body, for the INKING sweep
+}
+
+// INKING extras from the same clipped ink layer as the composite.
+export function freshInk(body: CanvasImageSource, tattoo: HTMLCanvasElement, p: Placement): FreshInk {
+  const layer = makeCanvas(BODY_WIDTH, BODY_HEIGHT);
+  drawInkLayer(layer, body, tattoo, p);
+  const box = alphaBounds(readPixels(layer));
+  const ctx = context(layer);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = "rgb(230, 40, 60)";
+  ctx.fillRect(0, 0, BODY_WIDTH, BODY_HEIGHT);
+  return { halo: layer.toDataURL("image/png"), box };
 }
 
 export interface CompositeOutputs {

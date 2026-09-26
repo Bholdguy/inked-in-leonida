@@ -20,6 +20,8 @@ const prepared = (over: Partial<PreparedJob> = {}): PreparedJob => ({
   coverage: 0.2,
   shares: shares({ red: 0.6, black: 0.4 }),
   concealment: null,
+  halo: "data:image/png;base64,HALO",
+  inkBox: { x: 0.4, y: 0.4, w: 0.2, h: 0.2 },
   ...over,
 });
 

@@ -2,10 +2,10 @@
 // prepareJob (browser: composite, analysis, judge images) -> judge -> finishJob (pure scoring merge).
 import { bodySrc } from "@/data/bodies";
 import { analyzeStencil } from "@/lib/ink/analyze";
-import { compositeOutputs, makeTattooLayer } from "@/lib/ink/composite";
+import { compositeOutputs, freshInk, makeTattooLayer } from "@/lib/ink/composite";
 import { concealment } from "@/lib/ink/concealment";
 import { decodeImage, loadImage, normalize, rgbaToCanvas } from "@/lib/ink/dom";
-import type { ColorName, Job, JobResult, Placement } from "@/types";
+import type { ColorName, Job, JobResult, Placement, Rect } from "@/types";
 import { pickReaction } from "@/lib/ink/reaction";
 import { scoreCoverup, scoreStandard, verdictFor, zoneHit } from "@/lib/ink/score";
 import { FALLBACK, type JudgeResponse } from "@/lib/judge/types";
@@ -20,6 +20,8 @@ export interface PreparedJob {
   coverage: number;
   shares: Record<ColorName, number>;
   concealment: number | null; // cover-up only
+  halo: string; // INKING: fresh-ink halo layer (PNG data URL, body size)
+  inkBox: Rect | null; // INKING: where the needle sweeps
 }
 
 export interface PrepareInput {
@@ -37,7 +39,9 @@ export async function prepareJob({ job, stencil, placement, previousStencil }: P
     decodeImage(stencil),
     analyzeStencil(stencil),
   ]);
-  const { png, jpeg512 } = compositeOutputs(body, makeTattooLayer(raw), placement);
+  const tattoo = makeTattooLayer(raw);
+  const { png, jpeg512 } = compositeOutputs(body, tattoo, placement);
+  const { halo, box } = freshInk(body, tattoo, placement);
 
   let hidden: number | null = null;
   if (job.mode === "coverup") {
@@ -56,6 +60,8 @@ export async function prepareJob({ job, stencil, placement, previousStencil }: P
     coverage: analysis.coverage,
     shares: analysis.shares,
     concealment: hidden,
+    halo,
+    inkBox: box,
   };
 }
 

@@ -480,7 +480,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 
 ### Phase 4: Polish (Sun morning, ~5h)
 - [x] 4.1 Visual direction (8.3): tokens, fonts, neon title, noise texture
-- [ ] 4.2 INKING animation + fresh-ink halo + reduced-motion path
+- [x] 4.2 INKING animation + fresh-ink halo + reduced-motion path
 - [ ] 4.3 Audio (11.5)
 - [ ] 4.4 INKGRAM screen + share card + X intent
 - [ ] 4.5 Real body art dropped in (if available; placeholders are acceptable)
@@ -653,6 +653,7 @@ export interface JobResult {
 - GATE 3 follow-up: our Transfer button on an untouched cover-up says "That still says CRYSTAL. Paint over it first." instead of "Empty stencil" (found in the production-build run): commit "fix: explain an untouched cover-up on the Transfer button"
 - **GATE 3 passed 2026-09-26**: `phase-3` fast-forwarded into `main` at `b222783`, pushed; Vercel Git integration deployed Production (status success)
 - Phase 4 on branch `phase-4` · 4.1 visual direction (`layout.tsx` Syne / Space Grotesk / Pirata One via `next/font/google`, Geist removed; `globals.css` tokens + `font-display` / `font-flash`, neon text-shadow + flicker keyframes (off under reduced motion), 4% inline-SVG noise, night-sky gradients, shared `.btn*` / `.panel` / `.eyebrow`, stamp + rise-in animations; `ShopHeader.tsx` neon logo + night + tips HUD; pill progress steps; ORDER as a pinned paper work ticket with Pirata One; VERDICT stamped mood badge + gradient bars; SHOP_WALL crooked flash frames on a wall with Pirata One; neon NIGHT_INTRO / FINALE / YOUR INK; TITLE neon sign over a banded sunset disc): commit "feat: apply the neon night-shop visual direction"
+- 4.1: `9b5a43d` · 4.2 INKING (`src/lib/ink/bounds.ts` pure `alphaBounds` + tests; `composite.ts` shares one `drawInkLayer` between the composite and `freshInk()` (red ink silhouette for the halo + ink bbox); `PreparedJob.halo` / `inkBox`; `InkingScreen.tsx`: rAF clip-path sweep across the ink bbox in 2.5 s over the "before" image (bare skin, or the old CRYSTAL composite for the cover-up), needle dot zigzagging on the edge, 1 s multiply-blended blurred red halo fading out, verdict waits for sweep + halo, judge in parallel (9 s cap unchanged); `prefers-reduced-motion`: no sweep, no needle, no halo, result shown at once, 1.2 s minimum): commit "feat: animate inking with a needle sweep and fresh-ink halo"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -771,6 +772,8 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 3 run 1 · typecheck pass · lint pass · test 204/204 (11 files) · build pass · client bundle: 0 files with GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, __editor, or the actual key value · reviewer subagent: all Phase 3 + owner items PASS, 7 ranked fixes (1 should-fix, 5 nice-to-have, 1 docs) -> all applied · after fixes: typecheck pass · lint pass · test 211/211 (11 files)
 - 2026-09-26 · GATE 3 run 2 · typecheck pass · lint pass · test 211/211 (11 files) · build pass · client bundle scan: 0 hits (same patterns incl. `__editor`) · **local production build (`next start`), full real-editor run, synthetic pointer events, key set:** TITLE -> NIGHT 1 -> tino-1 (red Needle strokes, editor "Transfer Stencil") 38/100 vision -> Next client -> kaylee-1 (orange) 68/100 -> NIGHT 2 "Kaylee posted it. Then archived it." (3 stars) -> tino-2 ORDER "Returning client" + night-1 thumbnail -> STUDIO rail without Trim/Resize; untouched editor Save refused "That still says CRYSTAL. Paint over it first." (proves the old ink loaded; a blank editor would say "Empty stencil") -> whole stencil painted black -> PLACEMENT at tino-1's placement -> Cover-up 40/40, Old name gone 20/20, Palette 15/15, 75/100 vision -> "Close up shop" -> FINALE -> Back + Medium -> all 8 tools -> SELF_REVEAL (0 /api/judge calls) -> SHOP_WALL $460, 3.0★, wall saved (18 KB); 110 s total, 0 console errors. Note: one dev-server run showed a blank cover-up editor while Next was recompiling after a production build (Fast Refresh); not reproducible after the compile settled, never seen in the production build
 - 2026-09-26 · GATE 3 live check · https://inked-in-leonida.vercel.app after reload: TITLE with "Open the shop"; POST /api/judge (tino-1, canvas heart + CRYSTAL) -> 200 source "vision", letteringFound "CRYSTAL", 3.2 s, repeat 0.7 s (cache). The very first call after the deploy fell back at 9.5 s (cold start + Gemini latency), which the fallback path covered
+- 2026-09-26 · 4.1 · typecheck pass · lint pass · browser (dev, 1440x900): TITLE neon sign + banded sunset; ORDER panel + pinned paper ticket, Pirata One names; header HUD Night 1 / Tips $0
+- 2026-09-26 · 4.2 · typecheck pass · lint pass · test 213/213 (+alphaBounds x2) · browser (dev): tino-1 lock-in -> INKING with inkBox {x .384, y .469, w .233, h .162}; at ~1.1 s the heart is half revealed with the needle dot on the edge; VERDICT after sweep + halo; with `matchMedia` reporting reduced motion: no clip, no needle, no halo, "Fresh ink. Let it breathe…" immediately
 
 ---
 

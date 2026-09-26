@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { whiteToAlpha } from "../alpha";
 import { classifyColor, colorShare } from "../color";
+import { alphaBounds } from "../bounds";
 import { changedShare, UNTOUCHED_SHARE } from "../change";
 import { concealment } from "../concealment";
 import { createImage } from "../image";
@@ -287,5 +288,19 @@ describe("changedShare (untouched cover-up guard)", () => {
 
   it("throws on mismatched sizes", () => {
     expect(() => changedShare(createImage(4, 4), createImage(5, 5))).toThrow();
+  });
+});
+
+describe("alphaBounds (INKING sweep box)", () => {
+  it("finds the box of visible pixels, normalized", () => {
+    const img = createImage(10, 20, [0, 0, 0, 0]);
+    fillRect(img, 2, 5, 3, 4, RED);
+    expect(alphaBounds(img)).toEqual({ x: 0.2, y: 0.25, w: 0.3, h: 0.2 });
+  });
+
+  it("ignores near-transparent pixels and returns null when empty", () => {
+    const img = createImage(4, 4, [0, 0, 0, 0]);
+    setPixel(img, 1, 1, [255, 0, 0], 5);
+    expect(alphaBounds(img)).toBeNull();
   });
 });
