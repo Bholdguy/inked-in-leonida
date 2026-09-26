@@ -644,7 +644,15 @@ export interface JobResult {
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 2 passed. Phase 3 not started (waiting for owner go-ahead).
+- **Phase 3 (branch `phase-3`, started 2026-09-26 12:05 UTC, owner go-ahead given for Phases 3-5 autonomously).** Plan:
+  - 3.0 Shift flow in the store: TITLE start screen (plain, styled in 4.8), NIGHT_INTRO, `advance()` after a verdict (tino-1 -> kaylee-1 ORDER; kaylee-1 -> NIGHT_INTRO 2; tino-2 -> FINALE_INTRO), pure `nextStep()` with tests. VERDICT button becomes "Next client" (INKGRAM slots in during 4.4).
+  - 3.1 kaylee-1 routed end to end on the shoulder placeholder.
+  - 3.2 NIGHT_INTRO (2.5 s auto-advance or click) + Kaylee callback (9.3) as a pure, tested function.
+  - 3.3 Cover-up: editor opens on the exact stored `results["tino-1"].stencil` (JPEG from Save or PNG from our Transfer button), crop + resize off, placement defaults to tino-1's saved placement, both stencils through the same `normalize()`, oldLettering derived server-side (route test), diegetic dead-end guard if the tino-1 stencil is missing. Order checklist tip "Tip: set your Script color before typing." on lettering jobs (Phase 3 backlog).
+  - 3.4 FINALE_INTRO, SELF_SETUP (zone + tone), self STUDIO with all 8 tools, INKING without the judge, SELF_REVEAL.
+  - 3.5 SHOP_WALL (4 framed pieces, total tips, shop rating, Restart shift) + localStorage wall (small JPEG thumbs, every call in try/catch, works if storage throws).
+  - 3.6 Themed labels (10.3) via `options.translations`. Note: the brief said "already themed, verify only", but `src/lib/editorConfig.ts` on `main` has no translations; they were only runtime-tested in Phase 0. Implementing them here.
+  - GATE 3: typecheck, lint, test, build, client-bundle secret scan, independent reviewer subagent, fixes, merge to `main`, push (Vercel Git integration deploys Production), live check.
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
