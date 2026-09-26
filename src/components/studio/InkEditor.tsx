@@ -106,9 +106,12 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
 
   if (fatal) {
     return (
-      <div role="alert" className="flex min-h-[640px] flex-col items-center justify-center gap-4 rounded-xl border border-sunset/40 bg-panel p-8 text-center">
-        <p className="text-3xl font-bold tracking-widest text-sunset">POWER&apos;S OUT AT THE SHOP</p>
-        <p className="max-w-sm text-muted">The stencil machine won&apos;t start. Check your connection, then flip the breaker.</p>
+      <div role="alert" className="panel flex min-h-[640px] flex-col items-center justify-center gap-5 border-sunset/40 bg-[radial-gradient(ellipse_at_center,rgba(255,138,61,0.12),transparent_65%)] p-8 text-center">
+        <p className="eyebrow text-sunset">The stencil machine is dark</p>
+        <p className="neon neon-flicker text-4xl tracking-[0.12em] [text-shadow:0_0_2px_#fff,0_0_10px_var(--sunset),0_0_26px_var(--sunset)] sm:text-5xl">
+          POWER&apos;S OUT AT THE SHOP
+        </p>
+        <p className="max-w-sm text-muted">The editor couldn&apos;t load from its CDN. Check your connection, then flip the breaker.</p>
         <button
           type="button"
           onClick={() => {
@@ -151,7 +154,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
       )}
 
       {jammed && (
-        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
+        <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
           <span>Stencil paper jammed.</span>
           <button type="button" onClick={retryLoad} className="btn btn-warn btn-sm">
             Retry

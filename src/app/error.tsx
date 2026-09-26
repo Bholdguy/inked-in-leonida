@@ -11,7 +11,8 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col items-start justify-center gap-4 px-4 py-10">
-      <p className="text-3xl font-bold tracking-widest text-sunset">Something shorted out in the shop.</p>
+      <p className="eyebrow">Breaker tripped</p>
+      <p className="neon neon-flicker text-4xl sm:text-5xl">Something shorted out in the shop.</p>
       <p className="text-muted">The lights flickered and the needle stopped. Start the shift again.</p>
       <button
         type="button"
