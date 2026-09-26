@@ -476,6 +476,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 3.6 Themed labels (10.3) or legend fallback
 
 **GATE 3:** One full run from TITLE to SHOP_WALL on the deployed URL in under 6 minutes, cover-up opens on the exact stencil made for tino-1.
+**GATE 3: PASSED 2026-09-26** (automated gate + independent reviewer + local production-build full run in 110 s; merged to `main` `b222783`, Production live).
 
 ### Phase 4: Polish (Sun morning, ~5h)
 - [ ] 4.1 Visual direction (8.3): tokens, fonts, neon title, noise texture
@@ -650,6 +651,7 @@ export interface JobResult {
 - 3.5: `202c783` · 3.6 themed labels (`src/lib/editorConfig.ts` `RAIL_LABELS` + `SAVE_LABEL` in `options.translations.en`; `src/lib/__tests__/editorConfig.test.ts` locks AI off / no projectId / 10.2 tool table / labels <= 8 chars; STUDIO hint now names the editor's "Transfer Stencil" button): commit "feat: theme the editor rail with shop labels"
 - 3.6: `a1d24ea` · GATE 3 reviewer fixes (independent subagent: Phase 3 PASS, no blockers; all ranked items fixed): (1) `concealment()` thick-stroke interiors now follow their stroke's edge (flood fill), so a black-filled night-1 shape under black fill counts as hidden (item 35 extended, 9.1 updated, +4 tests); (3) cover-up Save/Transfer refused when the stencil is untouched (`src/lib/ink/change.ts` `changedShare` < 0.1%, tested; `stencilUntouched` in `analyze.ts`; toast "That still says CRYSTAL. Paint over it first."); (4) tino-2 VERDICT button reads "Close up shop" (it leads to the finale); (5) the unknown-screen fallback now advances instead of resetting the shift; (6) "Stencil paper jammed" also offers "Restart shift"; (7) test log file count corrected: commit "fix: apply GATE 3 review fixes"
 - GATE 3 follow-up: our Transfer button on an untouched cover-up says "That still says CRYSTAL. Paint over it first." instead of "Empty stencil" (found in the production-build run): commit "fix: explain an untouched cover-up on the Transfer button"
+- **GATE 3 passed 2026-09-26**: `phase-3` fast-forwarded into `main` at `b222783`, pushed; Vercel Git integration deployed Production (status success)
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -765,6 +767,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 3.6 · typecheck pass · lint pass · test 204/204 (11 files) · browser (dev): tino-1 rail reads Ink Age, Trim, Needle, Script, Stencil, Flash; toolbar Save reads "Transfer Stencil"; every label scrollWidth == clientWidth (no truncation)
 - 2026-09-26 · GATE 3 run 1 · typecheck pass · lint pass · test 204/204 (11 files) · build pass · client bundle: 0 files with GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, __editor, or the actual key value · reviewer subagent: all Phase 3 + owner items PASS, 7 ranked fixes (1 should-fix, 5 nice-to-have, 1 docs) -> all applied · after fixes: typecheck pass · lint pass · test 211/211 (11 files)
 - 2026-09-26 · GATE 3 run 2 · typecheck pass · lint pass · test 211/211 (11 files) · build pass · client bundle scan: 0 hits (same patterns incl. `__editor`) · **local production build (`next start`), full real-editor run, synthetic pointer events, key set:** TITLE -> NIGHT 1 -> tino-1 (red Needle strokes, editor "Transfer Stencil") 38/100 vision -> Next client -> kaylee-1 (orange) 68/100 -> NIGHT 2 "Kaylee posted it. Then archived it." (3 stars) -> tino-2 ORDER "Returning client" + night-1 thumbnail -> STUDIO rail without Trim/Resize; untouched editor Save refused "That still says CRYSTAL. Paint over it first." (proves the old ink loaded; a blank editor would say "Empty stencil") -> whole stencil painted black -> PLACEMENT at tino-1's placement -> Cover-up 40/40, Old name gone 20/20, Palette 15/15, 75/100 vision -> "Close up shop" -> FINALE -> Back + Medium -> all 8 tools -> SELF_REVEAL (0 /api/judge calls) -> SHOP_WALL $460, 3.0★, wall saved (18 KB); 110 s total, 0 console errors. Note: one dev-server run showed a blank cover-up editor while Next was recompiling after a production build (Fast Refresh); not reproducible after the compile settled, never seen in the production build
+- 2026-09-26 · GATE 3 live check · https://inked-in-leonida.vercel.app after reload: TITLE with "Open the shop"; POST /api/judge (tino-1, canvas heart + CRYSTAL) -> 200 source "vision", letteringFound "CRYSTAL", 3.2 s, repeat 0.7 s (cache). The very first call after the deploy fell back at 9.5 s (cold start + Gemini latency), which the fallback path covered
 
 ---
 
