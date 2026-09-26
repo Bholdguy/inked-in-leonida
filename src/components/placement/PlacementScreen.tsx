@@ -41,7 +41,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
       setAssets({ body, tattoo: makeTattooLayer(raw) });
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
-      console.error("[Placement] could not load the body or the stencil", { stage, name: e.name, message: e.message.slice(0, 200) });
+      console.error(`[Placement] could not load the body or the stencil: stage=${stage} name=${e.name} message=${e.message.slice(0, 200)}`);
       setFailed(true);
     }
   }, [job.body.zone, job.body.tone, stencil]);
