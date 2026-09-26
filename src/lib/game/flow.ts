@@ -17,6 +17,11 @@ export function nextAfterJob(jobId: JobId): { advanceJob: boolean; screen: FlowS
   }
 }
 
+// The first verdict only offers "Post to InkGram", so every player sees the share flow once.
+export function mustPostFirst(jobId: JobId): boolean {
+  return jobId === "tino-1";
+}
+
 // PRD 9.3: one line on NIGHT_INTRO(2) from Kaylee's stars. No result (should not happen) -> no line.
 export function kayleeCallback(stars: number | undefined): string | null {
   if (stars === undefined) return null;

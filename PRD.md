@@ -668,6 +668,7 @@ export interface JobResult {
 - 5.2: `5e8a3e0` · 5.1 README per Section 17: title, tagline, live URL, title screenshot; why (3 player complaints); how to play (5 bullets); "How React Image Editor is used" table with file and line links for every integration point (component + key, per-job tools, translations, theme, AI off, image start states incl. the cover-up stencil, onSave pipeline, hasChanges guard, getImage, reset retry, onLoadError, onError + load timeout, onLoad); ink pipeline; both scoring tables; run locally + env vars; privacy note (Gemini, the section 16 item 25 wording); credits + disclaimer: commit "docs: write the README"
 - GATE 5 reviewer (independent subagent): all Section 17 items, privacy note, OG/meta, secrets and branding PASS, no blockers; README fixes applied: pipeline split into composite path (whiteToAlpha on the raw stencil -> placement -> multiply) and analysis path (normalize -> masks, concealment, judge JPEGs); component row names both keys (`job.id` on the wrapper, `attempt` on Retry); reset / timer / handOver links point at the exact lines; scoring adds the forbidden-color penalty, the 50%-90% cover-up ramp, $5 tip rounding and the offensive rule; shorter "Why" lines. Kept the PRD item 25 privacy wording: commit "docs: tighten the README after review"
 - **Phase 5 merged 2026-09-26**: `phase-5` fast-forwarded into `main` at `59ad9b2`, Production deployed (status success). 5.4 (demo video) and 5.5 (form + X post) are the owner's
+- Post-Phase-5 change on branch `inkgram-once` (item 40): tino-1 VERDICT hides "Next client": commit "feat: route the first verdict through InkGram"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -719,6 +720,8 @@ Plan-review flags (2026-09-25) and owner decisions:
 
 38. **Cover-up placement is locked (GATE 4 run 2).** The cover-up editor opens on tino-1's stencil, so the new stencil carries the old CRYSTAL ink inside it. With free placement, moving the cover-up moved the old tattoo with it (the night-1 ink "teleported") while concealment, measured in stencil space, still read 100%. Decision: the cover-up placement is locked to tino-1's saved placement (PRD 15.2 already required it as the default; locking follows the same reasoning as Trim being off in 10.2). PLACEMENT says "Line it up" and explains the lock; drag, keys and sliders are disabled for tino-2 only.
 39. **Judge prompt names the body zone.** Reactions kept saying "on my back" for forearm tattoos. The 11.3 order sentence now ends "on their [body zone]." (prompt test added).
+
+40. **First verdict routes through InkGram (owner decision, after Phase 5).** GATE 4 reviewer item 8: a hurried player could skip the share flow. Tino's first VERDICT now shows only "Post to InkGram" (INKGRAM then offers "Next client"); every later verdict keeps both buttons. The offensive path still shows only "Start over". Pure `mustPostFirst` in `src/lib/game/flow.ts`, tested.
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
