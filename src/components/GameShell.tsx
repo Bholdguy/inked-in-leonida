@@ -13,7 +13,9 @@ import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
 import ShopWallScreen from "@/components/screens/ShopWallScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
 import ShopHeader from "@/components/ShopHeader";
+import { unlockAudio } from "@/lib/audio";
 import { prepareJob } from "@/lib/game/evaluate";
+import { loadSound } from "@/lib/game/prefs";
 import { currentJob, useGame, type Screen } from "@/store/game";
 import type { Placement } from "@/types";
 
@@ -42,6 +44,18 @@ export default function GameShell() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [screen]);
+
+  // Sound preference from last visit (off by default). Audio can only start after a gesture,
+  // so while sound is on, the next tap anywhere wakes the AudioContext.
+  const sound = useGame((s) => s.sound);
+  useEffect(() => {
+    if (loadSound()) useGame.getState().setSound(true);
+  }, []);
+  useEffect(() => {
+    if (!sound) return;
+    window.addEventListener("pointerdown", unlockAudio);
+    return () => window.removeEventListener("pointerdown", unlockAudio);
+  }, [sound]);
 
   const lockIn = async (placement: Placement) => {
     const { draft, results, setPlacement, startInking, goTo } = useGame.getState();

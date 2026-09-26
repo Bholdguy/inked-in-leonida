@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { playStamp } from "@/lib/audio";
 import ClientBadge from "@/components/ClientBadge";
 import { nextAfterJob } from "@/lib/game/flow";
 import { currentJob, useGame } from "@/store/game";
@@ -27,6 +29,12 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 export default function VerdictScreen() {
   const job = useGame(currentJob);
   const result = useGame((s) => s.results[job.id]);
+  const hasResult = !!result;
+
+  // The mood badge stamps down; so does the sound, if it's on.
+  useEffect(() => {
+    if (hasResult && useGame.getState().sound) playStamp();
+  }, [hasResult]);
 
   if (!result) {
     return (

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { bodySrc } from "@/data/bodies";
+import { startNeedleBuzz } from "@/lib/audio";
 import { finishFree, safeFinish } from "@/lib/game/evaluate";
 import { requestJudgement } from "@/lib/game/judgeClient";
 import { useGame } from "@/store/game";
@@ -48,6 +49,7 @@ export default function InkingScreen() {
   useEffect(() => {
     if (!inking || phase !== "sweep") return;
     const box = inking.inkBox ?? { x: 0, y: 0, w: 1, h: 1 };
+    const stopBuzz = useGame.getState().sound ? startNeedleBuzz() : () => {};
     const start = performance.now();
     let frame = 0;
     const tick = (now: number) => {
@@ -61,10 +63,16 @@ export default function InkingScreen() {
         needleRef.current.style.top = `${y * 100}%`;
       }
       if (t < 1) frame = requestAnimationFrame(tick);
-      else setPhase("halo");
+      else {
+        stopBuzz();
+        setPhase("halo");
+      }
     };
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      stopBuzz();
+    };
   }, [inking, phase]);
 
   useEffect(() => {

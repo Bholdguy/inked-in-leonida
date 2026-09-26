@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SoundToggle from "@/components/SoundToggle";
 import { loadWall, type SavedWall } from "@/lib/game/wall";
 import { useGame } from "@/store/game";
 
@@ -31,6 +32,7 @@ export default function TitleScreen() {
         <button type="button" onClick={() => goTo("NIGHT_INTRO")} className="btn btn-primary btn-lg">
           Open the shop
         </button>
+        <SoundToggle />
       </div>
 
       <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted">
