@@ -670,6 +670,7 @@ export interface JobResult {
 - **Phase 5 merged 2026-09-26**: `phase-5` fast-forwarded into `main` at `59ad9b2`, Production deployed (status success). 5.4 (demo video) and 5.5 (form + X post) are the owner's
 - Post-Phase-5 change on branch `inkgram-once` (item 40): tino-1 VERDICT hides "Next client": commit "feat: route the first verdict through InkGram"
 - reviewer (independent subagent): all items PASS, no blockers; low items fixed: shared `nextLabel` in `flow.ts` (used by VERDICT and INKGRAM), store test for tino-1 VERDICT -> INKGRAM -> kaylee-1 ORDER: commit "test: cover the first-verdict InkGram path"
+- Final pre-judging pass on branch `final-fixes` (items 41, 42): commits "fix: clearer Script tip and stage-labelled logging for the placement smudge" and "fix: log the placement smudge stage as a plain string"; merged to `main`. No further changes after this.
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -723,6 +724,9 @@ Plan-review flags (2026-09-25) and owner decisions:
 39. **Judge prompt names the body zone.** Reactions kept saying "on my back" for forearm tattoos. The 11.3 order sentence now ends "on their [body zone]." (prompt test added).
 
 40. **First verdict routes through InkGram (owner decision, after Phase 5).** GATE 4 reviewer item 8: a hurried player could skip the share flow. Tino's first VERDICT now shows only "Post to InkGram" (INKGRAM then offers "Next client"); every later verdict keeps both buttons. The offensive path still shows only "Start over". Pure `mustPostFirst` in `src/lib/game/flow.ts`, tested.
+
+41. **Placement "smudged" screen (final pre-judging pass).** Seen once in about 8 cover-ups during demo capture (2026-09-26), never on demand. The screen has two paths in `PlacementScreen.tsx`: (a) `failed`, when loading the body PNG or decoding the stencil throws, where Retry re-runs `load()` with the same `draft.stencil` from the store; (b) `!stencil`, an empty draft, which nothing reachable from PLACEMENT can cause (`advance`, `startOver` and `reset` are not reachable there). Change: the catch now logs the failing stage (`body` / `stencil-decode` / `tattoo-layer`) plus the error name and message as one plain string, never image data, and path (b) logs `[Placement] no stencil in the draft`. Retry was verified to recover and keep the painted stencil: on a local production build, a one-shot test hook made the next body-image load 404, the smudge screen appeared, Retry loaded placement with the painted cover-up intact, and the flow went on to a verdict. Reproduction: 10 cover-ups on a local production build (3 + 3 + 4 in parallel headless Chrome sessions) all reached the verdict with no smudge and no console errors. Not reproduced, so there is no pipeline change and no guessed fix.
+42. **Order tip copy (final pass).** The lettering-job tip now reads "Tip: set your Script color first, then double-click the text box to type."
 
 ### Phase 3 backlog
 <!-- Agent: items to build in Phase 3, logged before the phase starts -->
@@ -803,6 +807,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · GATE 5 · typecheck pass · lint pass · test 226/226 (13 files) · build pass · bundle scan 0 hits · no key-shaped strings in tracked files · reviewer: no blockers, README fixes applied · live: `59ad9b2` Production success, og:image + twitter:card summary_large_image served, /opengraph-image 200 image/png
 - 2026-09-26 · 5.3 final production check · https://inked-in-leonida.vercel.app in a fresh tab with localStorage and sessionStorage cleared (no saved wall, no sound pref): TITLE -> NIGHT 1 -> tino-1 50/100 vision -> InkGram -> kaylee-1 32/100 vision -> NIGHT 2 "Kaylee posted a story about 'a certain shop'..." -> tino-2 "Returning client" + night-1 thumbnail -> editor on the old ink, black fill + blue eyes -> "Line it up" -> VERDICT 75/100 vision (Cover-up 40/40, Old name gone 20/20), 4.2 s lock-in to verdict -> "Close up shop" -> finale Back + Medium, all 8 tools -> SELF_REVEAL (Download card + Share on X) -> SHOP_WALL 4 frames, $360, 2.3★, wall saved (22.8 KB); 177 s end to end (scripted), 0 console errors, 0 page errors, 0 /api/judge calls in the finale
 - 2026-09-26 · item 40 (InkGram once) · typecheck pass · lint pass · test 229/229 (13 files; mustPostFirst, nextLabel, store path tino-1 VERDICT -> INKGRAM -> kaylee-1 ORDER) · build pass · bundle scan 0 hits · local production build: tino-1 VERDICT buttons ["Post to InkGram"] -> INKGRAM ["Download card", "Next client"] + Share on X link -> kaylee-1 VERDICT ["Post to InkGram", "Next client"]; 0 console errors
+- 2026-09-26 · final pass · typecheck pass · lint pass · test 229/229 (13 files) · build pass · bundle scan 0 hits · forced-smudge Retry test pass (stencil kept) · 10/10 cover-up reproduction runs on a local production build: no smudge, 0 console errors · live check below
 
 ---
 
