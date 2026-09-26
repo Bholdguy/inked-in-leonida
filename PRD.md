@@ -655,15 +655,17 @@ export interface JobResult {
 
 ### Current task
 <!-- Agent: one task ID -->
-- **Phase 3 (branch `phase-3`, started 2026-09-26 12:05 UTC, owner go-ahead given for Phases 3-5 autonomously).** Plan:
-  - 3.0 Shift flow in the store: TITLE start screen (plain, styled in 4.8), NIGHT_INTRO, `advance()` after a verdict (tino-1 -> kaylee-1 ORDER; kaylee-1 -> NIGHT_INTRO 2; tino-2 -> FINALE_INTRO), pure `nextStep()` with tests. VERDICT button becomes "Next client" (INKGRAM slots in during 4.4).
-  - 3.1 kaylee-1 routed end to end on the shoulder placeholder.
-  - 3.2 NIGHT_INTRO (2.5 s auto-advance or click) + Kaylee callback (9.3) as a pure, tested function.
-  - 3.3 Cover-up: editor opens on the exact stored `results["tino-1"].stencil` (JPEG from Save or PNG from our Transfer button), crop + resize off, placement defaults to tino-1's saved placement, both stencils through the same `normalize()`, oldLettering derived server-side (route test), diegetic dead-end guard if the tino-1 stencil is missing. Order checklist tip "Tip: set your Script color before typing." on lettering jobs (Phase 3 backlog).
-  - 3.4 FINALE_INTRO, SELF_SETUP (zone + tone), self STUDIO with all 8 tools, INKING without the judge, SELF_REVEAL.
-  - 3.5 SHOP_WALL (4 framed pieces, total tips, shop rating, Restart shift) + localStorage wall (small JPEG thumbs, every call in try/catch, works if storage throws).
-  - 3.6 Themed labels (10.3) via `options.translations`. Note: the brief said "already themed, verify only", but `src/lib/editorConfig.ts` on `main` has no translations; they were only runtime-tested in Phase 0. Implementing them here.
-  - GATE 3: typecheck, lint, test, build, client-bundle secret scan, independent reviewer subagent, fixes, merge to `main`, push (Vercel Git integration deploys Production), live check.
+- Phase 3 done (GATE 3 passed 2026-09-26, `main` `3a8f45b`).
+- **Phase 4 (branch `phase-4`, started 2026-09-26 14:28 UTC).** Plan:
+  - 4.1 Visual direction: `next/font/google` Syne (display), Space Grotesk (UI/body), Pirata One (ORDER + SHOP_WALL headers only), replacing Geist; 8.3 tokens; neon title (layered pink/teal text-shadow, flicker keyframes off under reduced motion); 4% inline-SVG noise overlay; shared button/panel styles; header with a tips counter and progress.
+  - 4.2 INKING: ink-only layer + bounding box from the composite pipeline, 2.5 s reveal sweep over the bbox with a needle dot on the leading edge, 1 s fresh-ink red halo, judge in parallel (9 s cap unchanged); `prefers-reduced-motion` shows the result instantly.
+  - 4.3 Audio (11.5) in `src/lib/audio.ts`: AudioContext only after a gesture, needle buzz (110 Hz saw -> 900 Hz lowpass, 32 Hz LFO, 0.08) for the sweep, verdict stamp noise burst; toggle in zustand + guarded localStorage, off by default; toggle on TITLE and in the header.
+  - 4.4 INKGRAM: VERDICT "Post to InkGram" (+ "Next client"), feed post (composite, handle, caption, stars, seeded likes), `src/lib/share/card.ts` 1080x1350 PNG download via blob URL, X intent per 11.4 + attach note; SELF_REVEAL gets download + share.
+  - 4.5 Body art: no real art in `public/bodies/` (all 7 files are the Phase 0 placeholders), so regenerate the placeholders at the same paths with soft cylindrical shading and subtle skin texture (Node built-ins only, script kept out of the repo).
+  - 4.6 Error screens restyled in the new look (POWER'S OUT, jammed stencil, smudged placement, error boundaries).
+  - 4.7 Mobile pass at 390 px + "Best on desktop" banner under 768 px (never blocks).
+  - 4.8 TITLE screen (neon sign, tagline, Open the shop, sound toggle, last shift) + footer disclaimer ("Unofficial fan project..." + "Built with Unlayer React Image Editor" + Gemini privacy line).
+  - GATE 4: typecheck, lint, test, build, bundle scan, reviewer subagent, fixes, production-build full run, merge, push, live check.
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
