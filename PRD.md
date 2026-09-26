@@ -468,7 +468,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 **GATE 2: PASSED 2026-09-26** (production with key: agent run 100/100 via real editor; Preview without key: owner run). With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
 
 ### Phase 3: Full content loop (Sat afternoon, ~5h)
-- [ ] 3.1 kaylee-1 job with shoulder placeholder
+- [x] 3.1 kaylee-1 job with shoulder placeholder
 - [ ] 3.2 NIGHT_INTRO screens + Kaylee callback (9.3)
 - [ ] 3.3 tino-2 cover-up: start image = tino-1 stencil, crop/resize off, concealment scoring
 - [ ] 3.4 FINALE_INTRO, SELF_SETUP, SELF_REVEAL
@@ -642,6 +642,7 @@ export interface JobResult {
 - 2.6 done (items 1-6 as separate commits, last `c010807`), pushed to `main`; `phase-2` fast-forwarded for a fresh Preview
 - **GATE 2 passed 2026-09-26** (Phase 2 tasks 2.0-2.6 complete)
 - Phase 3 on branch `phase-3` · 3.0 shift flow (`src/lib/game/flow.ts` `nextAfterJob` + `kayleeCallback`, store `advance`/`selfBody`/`setSelfBody`/`setSound`, starts on TITLE, restart keeps the sound preference; plain `TitleScreen.tsx`; VERDICT "Next client"): commit "feat: add shift flow from title through the wall"
+- 3.0: `97ecfec` · 3.1 kaylee-1: no code needed beyond 3.0 (job data from 1.1, `advance()` routes tino-1 -> kaylee-1 ORDER, shoulder placeholder + "Left shoulder" zone from `bodies.ts`): commit "chore: verify kaylee-1 end to end"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -746,6 +747,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 2.6 final check · typecheck pass · lint pass · test 182/182 (8 files) · build pass · client bundle: 0 files with GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, or the actual key value · tracked files: no Google key prefix · dev regression with key: tino-1 100/100, 5 stars, thrilled, $180, new footer shown
 - 2026-09-26 · GATE 2 PASSED · Preview (no key, https://inked-in-leonida-a0smniq4y-bholdguys-projects.vercel.app), owner run: loading line + greyed Transfer shown, new footer shown, VERDICT "Client squinted at it." with a canned Tino line, Motif 15/25, Lettering 15/25, 78/100, 4 stars, HAPPY, $145 · Production (key): agent run 2026-09-25 via real editor 100/100, 5 stars, drawing-specific reaction; 2.6 re-check 2026-09-26 /api/judge 200 vision
 - 2026-09-26 · 3.0 · typecheck pass · lint pass · test 188/188 (9 files; flow: 8.1 order, 9.3 callback lines; store: full shift walk, stable finale job, finale -> SELF_REVEAL, reset keeps sound)
+- 2026-09-26 · 3.1 · browser (dev, key set): TITLE -> tino-1 (canvas-injected stencil via dev handle) 100/100 vision -> "Next client" -> kaylee-1 ORDER (Night 1, pink + orange, STAY LOUD) -> PLACEMENT on shoulder-light -> INKING -> VERDICT 75/100 vision (palette 25, size 15, placement 10, lettering 25, motif 0 for a crude palm), "Next client" shown
 
 ---
 
