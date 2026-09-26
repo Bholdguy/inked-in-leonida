@@ -479,7 +479,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 **GATE 3: PASSED 2026-09-26** (automated gate + independent reviewer + local production-build full run in 110 s; merged to `main` `b222783`, Production live).
 
 ### Phase 4: Polish (Sun morning, ~5h)
-- [ ] 4.1 Visual direction (8.3): tokens, fonts, neon title, noise texture
+- [x] 4.1 Visual direction (8.3): tokens, fonts, neon title, noise texture
 - [ ] 4.2 INKING animation + fresh-ink halo + reduced-motion path
 - [ ] 4.3 Audio (11.5)
 - [ ] 4.4 INKGRAM screen + share card + X intent
@@ -652,6 +652,7 @@ export interface JobResult {
 - 3.6: `a1d24ea` · GATE 3 reviewer fixes (independent subagent: Phase 3 PASS, no blockers; all ranked items fixed): (1) `concealment()` thick-stroke interiors now follow their stroke's edge (flood fill), so a black-filled night-1 shape under black fill counts as hidden (item 35 extended, 9.1 updated, +4 tests); (3) cover-up Save/Transfer refused when the stencil is untouched (`src/lib/ink/change.ts` `changedShare` < 0.1%, tested; `stencilUntouched` in `analyze.ts`; toast "That still says CRYSTAL. Paint over it first."); (4) tino-2 VERDICT button reads "Close up shop" (it leads to the finale); (5) the unknown-screen fallback now advances instead of resetting the shift; (6) "Stencil paper jammed" also offers "Restart shift"; (7) test log file count corrected: commit "fix: apply GATE 3 review fixes"
 - GATE 3 follow-up: our Transfer button on an untouched cover-up says "That still says CRYSTAL. Paint over it first." instead of "Empty stencil" (found in the production-build run): commit "fix: explain an untouched cover-up on the Transfer button"
 - **GATE 3 passed 2026-09-26**: `phase-3` fast-forwarded into `main` at `b222783`, pushed; Vercel Git integration deployed Production (status success)
+- Phase 4 on branch `phase-4` · 4.1 visual direction (`layout.tsx` Syne / Space Grotesk / Pirata One via `next/font/google`, Geist removed; `globals.css` tokens + `font-display` / `font-flash`, neon text-shadow + flicker keyframes (off under reduced motion), 4% inline-SVG noise, night-sky gradients, shared `.btn*` / `.panel` / `.eyebrow`, stamp + rise-in animations; `ShopHeader.tsx` neon logo + night + tips HUD; pill progress steps; ORDER as a pinned paper work ticket with Pirata One; VERDICT stamped mood badge + gradient bars; SHOP_WALL crooked flash frames on a wall with Pirata One; neon NIGHT_INTRO / FINALE / YOUR INK; TITLE neon sign over a banded sunset disc): commit "feat: apply the neon night-shop visual direction"
 
 ### Current task
 <!-- Agent: one task ID -->

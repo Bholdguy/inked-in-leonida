@@ -46,7 +46,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
     return (
       <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
         <p className="font-bold text-sunset">The client flinched and the stencil smudged.</p>
-        <button type="button" onClick={load} className="rounded bg-sunset px-4 py-2 font-bold text-night">
+        <button type="button" onClick={load} className="btn btn-warn btn-sm">
           Retry
         </button>
       </div>
@@ -67,7 +67,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
         zoneLabel={zoneLabel(job)}
       />
 
-      <div className="flex flex-col gap-5 rounded-xl border border-white/10 bg-panel p-5">
+      <div className="flex flex-col gap-5 panel p-5">
         <div>
           <h2 className="text-xl font-bold">Place it</h2>
           <p className="text-sm text-muted">
@@ -116,7 +116,7 @@ export default function PlacementScreen({ onLock }: { onLock: (placement: Placem
               setLocking(false);
             }
           }}
-          className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+          className="btn btn-primary self-start"
         >
           {locking ? "Inking…" : "Lock it in"}
         </button>

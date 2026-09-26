@@ -31,9 +31,9 @@ export default function InkingScreen() {
 
   if (!inking || failed) {
     return (
-      <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+      <div role="alert" className="flex flex-col items-start gap-3 panel p-6">
         <p className="font-bold">{failed ? "The needle jammed mid-line." : "The needle has nothing to ink."}</p>
-        <button type="button" onClick={() => useGame.getState().goTo("PLACEMENT")} className="rounded bg-pink px-4 py-2 font-bold text-night">
+        <button type="button" onClick={() => useGame.getState().goTo("PLACEMENT")} className="btn btn-primary btn-sm">
           Back to placement
         </button>
       </div>

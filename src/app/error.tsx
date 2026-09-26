@@ -19,7 +19,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           useGame.getState().reset();
           reset();
         }}
-        className="rounded-lg bg-pink px-6 py-3 font-bold text-night hover:brightness-110"
+        className="btn btn-primary"
       >
         Restart shift
       </button>

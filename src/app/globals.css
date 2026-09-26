@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* PRD 8.3 tokens */
 :root {
   --night: #0b0714;
   --panel: #160e24;
@@ -8,6 +9,8 @@
   --sunset: #ff8a3d;
   --ink: #f4ede4;
   --muted: #9c8fb0;
+  --paper: #f4ede4;
+  --frame: #3a2a1c;
 }
 
 @theme inline {
@@ -18,14 +21,173 @@
   --color-sunset: var(--sunset);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-frame: var(--frame);
+  --font-sans: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), var(--font-space-grotesk), sans-serif;
+  --font-flash: var(--font-pirata-one), Georgia, serif;
+}
+
+html {
+  background: var(--night);
 }
 
 body {
-  background: var(--night);
+  min-height: 100vh;
   color: var(--ink);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  /* Humid night: a pink haze up top, a sunset glow at the horizon. */
+  background:
+    radial-gradient(1200px 520px at 12% -8%, rgb(255 62 154 / 0.16), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgb(25 227 209 / 0.09), transparent 60%),
+    radial-gradient(1400px 600px at 50% 115%, rgb(255 138 61 / 0.16), transparent 65%),
+    var(--night);
+  background-attachment: fixed;
+}
+
+/* 4% film-grain noise over everything (inline SVG, no request). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+::selection {
+  background: var(--pink);
+  color: var(--night);
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  .font-flash {
+    font-family: var(--font-flash);
+    letter-spacing: 0.02em;
+  }
+
+  /* Neon tube lettering: titles only, body text stays clean. */
+  .neon {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: #fff5fb;
+    text-shadow:
+      0 0 2px #fff,
+      0 0 8px var(--pink),
+      0 0 18px var(--pink),
+      0 0 38px rgb(255 62 154 / 0.7),
+      0 0 70px rgb(255 62 154 / 0.45);
+  }
+  .neon-teal {
+    color: #effffd;
+    text-shadow:
+      0 0 2px #fff,
+      0 0 8px var(--teal),
+      0 0 20px var(--teal),
+      0 0 44px rgb(25 227 209 / 0.55);
+  }
+  .neon-flicker {
+    animation: neon-flicker 5.5s infinite;
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    color: var(--teal);
+  }
+
+  .panel {
+    border: 1px solid rgb(255 255 255 / 0.09);
+    background: linear-gradient(180deg, rgb(32 20 50 / 0.82), rgb(22 14 36 / 0.88));
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 24px 60px -30px rgb(0 0 0 / 0.8);
+    backdrop-filter: blur(6px);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.2s ease,
+      filter 0.2s ease,
+      background-color 0.2s ease;
+    cursor: pointer;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+  }
+  .btn:disabled {
+    cursor: wait;
+    opacity: 0.55;
+  }
+  .btn:not(:disabled):active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn-primary {
+    background: var(--pink);
+    color: var(--night);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.12) inset,
+      0 8px 28px -8px rgb(255 62 154 / 0.75);
+  }
+  .btn-primary:not(:disabled):hover {
+    filter: brightness(1.08);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.18) inset,
+      0 10px 36px -6px rgb(255 62 154 / 0.95);
+  }
+  .btn-warn {
+    background: var(--sunset);
+    color: var(--night);
+    box-shadow: 0 8px 26px -10px rgb(255 138 61 / 0.8);
+  }
+  .btn-warn:not(:disabled):hover {
+    filter: brightness(1.08);
+  }
+  .btn-ghost {
+    border: 1px solid rgb(255 255 255 / 0.18);
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.03);
+  }
+  .btn-ghost:not(:disabled):hover {
+    border-color: var(--teal);
+    color: #fff;
+    box-shadow: 0 0 20px -6px rgb(25 227 209 / 0.6);
+  }
+  .btn-lg {
+    padding: 0.95rem 2rem;
+    font-size: 1.1rem;
+  }
+  .btn-sm {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.875rem;
+    border-radius: 0.6rem;
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.55;
+  }
 }
 
 @keyframes shake {
@@ -39,8 +201,75 @@ body {
   animation: shake 0.4s both;
 }
 
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.45s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .shake {
+  .shake,
+  .neon-flicker,
+  .rise-in {
     animation: none;
   }
+  .btn {
+    transition: none;
+  }
+}
+
+/* Verdict mood badge lands like a rubber stamp. */
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(2.2) rotate(-14deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-6deg);
+  }
+  100% {
+    transform: scale(1) rotate(-6deg);
+  }
+}
+
+.stamp {
+  animation: stamp-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.15s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    animation: none;
+  }
+}
+
+/* Flash sheets hang a little crooked on the wall. */
+.flash-frame:nth-child(odd) {
+  transform: rotate(-1.2deg);
+}
+.flash-frame:nth-child(even) {
+  transform: rotate(1deg) translateY(6px);
+}
+
+/* Title: a banded sunset disc, fading into the night. */
+.title-sun {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #ffd36e 0%, var(--sunset) 38%, var(--pink) 72%, #7a1f7a 100%);
+  -webkit-mask-image: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 20px),
+    linear-gradient(180deg, #000 45%, transparent 85%);
+  -webkit-mask-composite: source-in;
+  mask-image: repeating-linear-gradient(180deg, #000 0 14px, transparent 14px 20px),
+    linear-gradient(180deg, #000 45%, transparent 85%);
+  mask-composite: intersect;
+  opacity: 0.55;
+  filter: blur(0.3px) drop-shadow(0 0 60px rgb(255 62 154 / 0.5));
 }

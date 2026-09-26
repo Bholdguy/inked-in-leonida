@@ -12,6 +12,7 @@ import SelfRevealScreen from "@/components/screens/SelfRevealScreen";
 import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
 import ShopWallScreen from "@/components/screens/ShopWallScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
+import ShopHeader from "@/components/ShopHeader";
 import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
 import type { Placement } from "@/types";
@@ -111,9 +112,9 @@ export default function GameShell() {
     default:
       // Any screen without a view must still leave the player a way back.
       body = (
-        <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+        <div role="alert" className="flex flex-col items-start gap-3 panel p-6">
           <p className="font-bold">This part of the shop is still under renovation.</p>
-          <button type="button" onClick={() => useGame.getState().advance()} className="rounded bg-pink px-4 py-2 font-bold text-night">
+          <button type="button" onClick={() => useGame.getState().advance()} className="btn btn-primary btn-sm">
             Back to the shop
           </button>
         </div>
@@ -121,23 +122,30 @@ export default function GameShell() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-6">
+      {screen !== "TITLE" && <ShopHeader />}
       {stepIndex >= 0 && (
-        <nav aria-label="Job progress" className="flex items-center gap-2 text-xs uppercase tracking-[0.2em]">
+        <nav aria-label="Job progress" className="flex flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-[0.2em]">
           {STEPS.map((s, i) => (
-            <span key={s.screen} className="flex items-center gap-2">
-              <span
-                aria-current={i === stepIndex ? "step" : undefined}
-                className={i === stepIndex ? "text-pink" : i < stepIndex ? "text-ink" : "text-muted/60"}
-              >
-                {s.label}
-              </span>
-              {i < STEPS.length - 1 && <span className="text-muted/40">/</span>}
+            <span
+              key={s.screen}
+              aria-current={i === stepIndex ? "step" : undefined}
+              className={`rounded-full border px-3 py-1 transition-colors ${
+                i === stepIndex
+                  ? "border-pink bg-pink/15 text-ink shadow-[0_0_16px_-4px_var(--pink)]"
+                  : i < stepIndex
+                    ? "border-white/15 text-ink/80"
+                    : "border-white/5 text-muted/60"
+              }`}
+            >
+              {s.label}
             </span>
           ))}
         </nav>
       )}
-      {body}
+      <div key={screen} className="rise-in flex flex-col">
+        {body}
+      </div>
     </div>
   );
 }

@@ -30,9 +30,9 @@ export default function VerdictScreen() {
 
   if (!result) {
     return (
-      <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+      <div role="alert" className="flex flex-col items-start gap-3 panel p-6">
         <p className="font-bold">No verdict yet.</p>
-        <button type="button" onClick={() => useGame.getState().goTo("ORDER")} className="rounded bg-pink px-4 py-2 font-bold text-night">
+        <button type="button" onClick={() => useGame.getState().goTo("ORDER")} className="btn btn-primary btn-sm">
           Back to the order
         </button>
       </div>
@@ -45,22 +45,22 @@ export default function VerdictScreen() {
       <img
         src={result.composite}
         alt={`The finished tattoo on ${job.client.name}'s ${job.body.zone}`}
-        className="aspect-[4/5] w-full rounded-xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))]"
+        className="aspect-[4/5] w-full rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))] shadow-[0_30px_80px_-30px_rgba(255,62,154,0.45)]"
       />
 
-      <div className="flex flex-col gap-5 rounded-xl border border-white/10 bg-panel p-6">
+      <div className="flex flex-col gap-5 panel p-6">
         <div className="flex items-center gap-3">
           <ClientBadge client={job.client} size={48} />
           <div>
-            <p className="font-bold">{job.client.name}</p>
+            <p className="font-display text-lg font-bold leading-none" style={{ color: job.client.accent }}>{job.client.name}</p>
             <p className="text-xs text-muted">{job.client.handle}</p>
           </div>
-          <span className={`ml-auto rounded-full border-2 px-3 py-1 text-xs font-bold tracking-[0.2em] ${MOOD_STYLE[result.mood]}`}>
+          <span className={`stamp ml-auto -rotate-6 rounded-md border-[3px] px-3 py-1 font-display text-sm font-extrabold tracking-[0.25em] ${MOOD_STYLE[result.mood]}`}>
             {result.mood.toUpperCase()}
           </span>
         </div>
 
-        <p className="text-2xl font-bold leading-snug">“{result.reaction}”</p>
+        <p className="font-display text-2xl font-bold leading-snug sm:text-3xl">“{result.reaction}”</p>
 
         {result.source === "fallback" && (
           // The judge didn't answer (no key, timeout, bad reply). Diegetic, never error jargon.
@@ -98,7 +98,7 @@ export default function VerdictScreen() {
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-pink" style={{ width: `${(got / max) * 100}%` }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-pink to-sunset shadow-[0_0_10px_var(--pink)]" style={{ width: `${(got / max) * 100}%` }} />
               </div>
             </li>
           ))}
@@ -107,7 +107,7 @@ export default function VerdictScreen() {
         <button
           type="button"
           onClick={() => (result.offensive ? useGame.getState().startOver(job.id) : useGame.getState().advance())}
-          className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+          className="btn btn-primary self-start"
         >
           {result.offensive ? "Start over" : nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client"}
         </button>

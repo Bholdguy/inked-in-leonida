@@ -50,7 +50,7 @@ export default function StudioScreen() {
 
   return (
     <section className="grid gap-6 lg:grid-cols-[260px_1fr]">
-      <aside className="rounded-xl border border-white/10 bg-panel p-4 lg:self-start">
+      <aside className="panel p-4 lg:self-start">
         <details className="lg:hidden">
           <summary className="cursor-pointer text-xs uppercase tracking-[0.3em] text-muted">{job.mode === "free" ? "Free hand" : "The order"}</summary>
           <div className="mt-4">{checklist}</div>
@@ -67,14 +67,14 @@ export default function StudioScreen() {
           <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
             <p className="font-bold text-sunset">Tino&apos;s old stencil is missing from the files.</p>
             <p className="text-sm text-muted">There&apos;s nothing to cover up without it. Start the shift again.</p>
-            <button type="button" onClick={() => useGame.getState().reset()} className="rounded bg-sunset px-4 py-2 font-bold text-night">
+            <button type="button" onClick={() => useGame.getState().reset()} className="btn btn-warn btn-sm">
               Restart shift
             </button>
           </div>
         ) : failed ? (
           <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-sunset/40 bg-panel p-6">
             <p className="font-bold text-sunset">Out of stencil paper.</p>
-            <button type="button" onClick={prepare} className="rounded bg-sunset px-4 py-2 font-bold text-night">
+            <button type="button" onClick={prepare} className="btn btn-warn btn-sm">
               Retry
             </button>
           </div>

@@ -8,9 +8,9 @@ export default function SelfRevealScreen() {
 
   if (!result) {
     return (
-      <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+      <div role="alert" className="flex flex-col items-start gap-3 panel p-6">
         <p className="font-bold">The last chair is still empty.</p>
-        <button type="button" onClick={() => useGame.getState().goTo("SELF_SETUP")} className="rounded bg-pink px-4 py-2 font-bold text-night">
+        <button type="button" onClick={() => useGame.getState().goTo("SELF_SETUP")} className="btn btn-primary btn-sm">
           Back to your chair
         </button>
       </div>
@@ -19,7 +19,7 @@ export default function SelfRevealScreen() {
 
   return (
     <section className="flex flex-col items-center gap-6">
-      <h2 className="text-5xl font-bold tracking-widest">YOUR INK</h2>
+      <h2 className="neon text-6xl tracking-[0.15em] sm:text-7xl">YOUR INK</h2>
       {/* eslint-disable-next-line @next/next/no-img-element -- data URL composite */}
       <img
         src={result.composite}
@@ -30,7 +30,7 @@ export default function SelfRevealScreen() {
       <button
         type="button"
         onClick={() => useGame.getState().advance()}
-        className="rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+        className="btn btn-primary"
       >
         Hang it on the wall
       </button>

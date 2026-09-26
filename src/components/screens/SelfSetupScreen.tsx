@@ -35,7 +35,7 @@ export default function SelfSetupScreen() {
         alt={`Your ${body.zone}, ${body.tone} skin`}
         className="aspect-[4/5] w-full max-w-[320px] rounded-xl border border-white/10 bg-[radial-gradient(circle_at_50%_30%,#241838,var(--night))]"
       />
-      <div className="flex flex-col gap-6 rounded-xl border border-white/10 bg-panel p-6">
+      <div className="flex flex-col gap-6 panel p-6">
         <h2 className="text-2xl font-bold">Your chair</h2>
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-2 text-xs uppercase tracking-[0.3em] text-muted">Where</legend>
@@ -61,7 +61,7 @@ export default function SelfSetupScreen() {
         <button
           type="button"
           onClick={() => useGame.getState().goTo("STUDIO")}
-          className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+          className="btn btn-primary self-start"
         >
           Start the stencil
         </button>

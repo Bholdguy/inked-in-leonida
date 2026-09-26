@@ -115,7 +115,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
             setFatal(false);
             remount();
           }}
-          className="rounded-lg bg-sunset px-5 py-2 font-bold text-night hover:brightness-110"
+          className="btn btn-warn"
         >
           Retry
         </button>
@@ -131,7 +131,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
           onClick={transfer}
           disabled={!loaded}
           onAnimationEnd={() => setShaking(false)}
-          className={`rounded-lg bg-pink px-5 py-2 font-bold text-night transition hover:brightness-110 disabled:cursor-wait disabled:opacity-50 disabled:hover:brightness-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${shaking ? "shake" : ""}`}
+          className={`btn btn-primary ${shaking ? "shake" : ""}`}
         >
           Transfer stencil
         </button>
@@ -153,11 +153,11 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
       {jammed && (
         <div role="alert" className="flex flex-wrap items-center gap-3 rounded-lg border border-sunset/40 bg-sunset/10 px-4 py-2 text-sm text-sunset">
           <span>Stencil paper jammed.</span>
-          <button type="button" onClick={retryLoad} className="rounded bg-sunset px-3 py-1 font-bold text-night">
+          <button type="button" onClick={retryLoad} className="btn btn-warn btn-sm">
             Retry
           </button>
           {/* A start image that never loads would loop on Retry: always leave a way out. */}
-          <button type="button" onClick={() => useGame.getState().reset()} className="rounded border border-sunset/60 px-3 py-1 font-bold">
+          <button type="button" onClick={() => useGame.getState().reset()} className="btn btn-ghost btn-sm">
             Restart shift
           </button>
         </div>

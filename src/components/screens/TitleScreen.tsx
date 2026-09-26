@@ -12,23 +12,39 @@ export default function TitleScreen() {
   useEffect(() => setLastWall(loadWall()), []);
 
   return (
-    <section className="flex flex-col items-start gap-6 py-10">
-      <h2 className="text-5xl font-bold tracking-widest">INKED IN LEONIDA</h2>
-      <p className="max-w-xl text-lg text-muted">Night shift on the strip. Their parlor is a menu. This one isn&apos;t.</p>
-      <button
-        type="button"
-        onClick={() => goTo("NIGHT_INTRO")}
-        className="rounded-lg bg-pink px-8 py-3 text-lg font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-      >
-        Open the shop
-      </button>
+    <section className="relative isolate flex min-h-[78vh] flex-col items-center justify-center gap-8 overflow-hidden py-10 text-center">
+      {/* Striped sunset sinking behind the sign. */}
+      <div aria-hidden className="title-sun absolute left-1/2 top-[46%] -z-10 aspect-square w-[min(620px,92vw)] -translate-x-1/2 -translate-y-1/2" />
+
+      <p className="eyebrow">Leonida strip · open late</p>
+
+      <h1 className="flex flex-col items-center gap-1 leading-none">
+        <span className="neon neon-teal font-display text-2xl tracking-[0.5em] sm:text-4xl">INKED IN</span>
+        <span className="neon neon-flicker text-[clamp(3.4rem,13vw,9rem)] tracking-[0.06em]">LEONIDA</span>
+      </h1>
+
+      <p className="max-w-xl text-lg text-ink/85 sm:text-xl">
+        Night shift on the strip. <span className="text-sunset">Their parlor is a menu. This one isn&apos;t.</span>
+      </p>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button type="button" onClick={() => goTo("NIGHT_INTRO")} className="btn btn-primary btn-lg">
+          Open the shop
+        </button>
+      </div>
+
+      <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted">
+        <li>Design every piece in a real image editor</li>
+        <li>Place it anywhere on the skin</li>
+        <li>Live with the reaction</li>
+      </ul>
 
       {lastWall && (
-        <aside aria-label="Your last shift" className="flex flex-wrap items-center gap-4 rounded-xl border border-white/10 bg-panel/70 p-3">
+        <aside aria-label="Your last shift" className="panel flex flex-wrap items-center justify-center gap-4 px-4 py-3">
           <div className="flex -space-x-3">
             {lastWall.pieces.map((p) => (
               // eslint-disable-next-line @next/next/no-img-element -- saved data URL thumbnail
-              <img key={p.jobId} src={p.thumb} alt="" className="h-16 w-12 rounded border-2 border-[#f4ede4] object-cover" />
+              <img key={p.jobId} src={p.thumb} alt="" className="h-16 w-12 rounded border-2 border-paper object-cover" />
             ))}
           </div>
           <p className="text-sm text-muted">
