@@ -1,6 +1,7 @@
 "use client";
 
 import ClientBadge from "@/components/ClientBadge";
+import { nextAfterJob } from "@/lib/game/flow";
 import { currentJob, useGame } from "@/store/game";
 import type { Mood } from "@/types";
 
@@ -108,7 +109,7 @@ export default function VerdictScreen() {
           onClick={() => (result.offensive ? useGame.getState().startOver(job.id) : useGame.getState().advance())}
           className="self-start rounded-lg bg-pink px-6 py-3 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
         >
-          {result.offensive ? "Start over" : "Next client"}
+          {result.offensive ? "Start over" : nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client"}
         </button>
       </div>
     </section>

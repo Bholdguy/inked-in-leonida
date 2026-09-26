@@ -7,7 +7,8 @@ import {
   type ImageEditorRef,
 } from "@unlayer/react-image-editor";
 import { editorOptions } from "@/lib/editorConfig";
-import { stencilHasInk } from "@/lib/ink/analyze";
+import { useGame } from "@/store/game";
+import { stencilHasInk, stencilUntouched } from "@/lib/ink/analyze";
 import type { Job } from "@/types";
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const EMPTY_STENCIL = "Empty stencil. The client is staring at you.";
+const UNTOUCHED_COVERUP = "That still says CRYSTAL. Paint over it first.";
 export const LOAD_TIMEOUT_MS = 15_000; // no onLoad by then -> treat as a dead CDN
 // The package default. A hung load stays cached per URL inside the package loader, so a retry
 // after a timeout asks for a fresh URL; harmless once window.ImageEditor exists (it short-circuits).
@@ -51,21 +53,26 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
 
   const editor = () => editorRef.current?.editor ?? instanceRef.current;
 
-  const refuseEmpty = () => {
+  const refuse = (message: string) => {
     setShaking(true);
-    setToast(EMPTY_STENCIL);
+    setToast(message);
   };
+  const refuseEmpty = () => refuse(EMPTY_STENCIL);
 
-  // Both paths end here. Paper with no ink on it (e.g. only a filter applied) is still empty.
+  // Both paths end here. Paper with no ink on it (e.g. only a filter applied) is still empty, and
+  // a cover-up handed back untouched is refused too (the old stencil already has ink on it).
   const handOver = async (dataUrl: string) => {
     let inked = true;
+    let untouched = false;
     try {
       inked = await stencilHasInk(dataUrl);
+      if (inked && job.startFrom === "tino-1") untouched = await stencilUntouched(startImage, dataUrl);
     } catch (err) {
       console.error("[InkEditor] could not read the stencil, letting it through", err);
     }
-    if (inked) onTransfer(dataUrl);
-    else refuseEmpty();
+    if (!inked) refuseEmpty();
+    else if (untouched) refuse(UNTOUCHED_COVERUP);
+    else onTransfer(dataUrl);
   };
 
   // Our button: PRD hasChanges() guard, then getImage(). getImage() does not commit an
@@ -147,6 +154,10 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
           <span>Stencil paper jammed.</span>
           <button type="button" onClick={retryLoad} className="rounded bg-sunset px-3 py-1 font-bold text-night">
             Retry
+          </button>
+          {/* A start image that never loads would loop on Retry: always leave a way out. */}
+          <button type="button" onClick={() => useGame.getState().reset()} className="rounded border border-sunset/60 px-3 py-1 font-bold">
+            Restart shift
           </button>
         </div>
       )}

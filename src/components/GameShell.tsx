@@ -61,7 +61,6 @@ export default function GameShell() {
     }
   };
 
-  const restart = () => useGame.getState().reset();
   const STEPS = job.mode === "free" ? SELF_STEPS : JOB_STEPS;
   const stepIndex = STEPS.findIndex((s) => s.screen === screen);
 
@@ -114,8 +113,8 @@ export default function GameShell() {
       body = (
         <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
           <p className="font-bold">This part of the shop is still under renovation.</p>
-          <button type="button" onClick={restart} className="rounded bg-pink px-4 py-2 font-bold text-night">
-            Back to the first client
+          <button type="button" onClick={() => useGame.getState().advance()} className="rounded bg-pink px-4 py-2 font-bold text-night">
+            Back to the shop
           </button>
         </div>
       );

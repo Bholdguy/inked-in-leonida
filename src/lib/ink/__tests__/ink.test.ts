@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { whiteToAlpha } from "../alpha";
 import { classifyColor, colorShare } from "../color";
+import { changedShare, UNTOUCHED_SHARE } from "../change";
 import { concealment } from "../concealment";
 import { createImage } from "../image";
 import { coverage, inkMask } from "../mask";
@@ -144,6 +145,39 @@ describe("concealment", () => {
     expect(c).toBeLessThan(0.55);
   });
 
+  // Thick strokes: pixels deeper than the outline radius follow their stroke.
+  const blob = () => {
+    const img = createImage(64, 64);
+    fillRect(img, 12, 12, 36, 36, BLACK); // a solid black-filled shape, far thicker than 2 x 6 px
+    return img;
+  };
+
+  it("an untouched thick black shape stays visible, interior included -> 0", () => {
+    expect(concealment(blob(), blob())).toBe(0);
+  });
+
+  it("a thick black shape under a bigger black fill is hidden, interior included -> 1", () => {
+    const covered = blob();
+    fillRect(covered, 2, 2, 60, 60, BLACK);
+    expect(concealment(blob(), covered)).toBe(1);
+  });
+
+  it("a thick black shape half swallowed by a new fill stays mostly visible", () => {
+    const partly = blob();
+    fillRect(partly, 2, 2, 60, 30, BLACK); // top part merged; the lower sides and bottom still show
+    const c = concealment(blob(), partly);
+    expect(c).toBeGreaterThan(0.1); // the merged top edge is gone
+    expect(c).toBeLessThan(0.4); // the interior is still tied to the visible bottom edge
+  });
+
+  it("a thick red shape painted black -> 1", () => {
+    const red = createImage(64, 64);
+    fillRect(red, 12, 12, 36, 36, RED);
+    const black = createImage(64, 64);
+    fillRect(black, 12, 12, 36, 36, BLACK);
+    expect(concealment(red, black)).toBe(1);
+  });
+
   it("with JPEG noise: black letters under black fill still read as hidden", () => {
     const covered = letters();
     fillRect(covered, 0, 10, 64, 44, BLACK);
@@ -232,5 +266,26 @@ describe("JPEG tolerance (+/-12 noise around a stroke)", () => {
     const img = createImage(2, 2);
     setPixel(img, 1, 1, [1, 2, 3]);
     expect(Array.from(img.data.slice(12, 16))).toEqual([1, 2, 3, 255]);
+  });
+});
+
+describe("changedShare (untouched cover-up guard)", () => {
+  it("identical and noise-only stencils read as untouched", () => {
+    const img = createImage(64, 64);
+    fillRect(img, 8, 28, 48, 8, RED);
+    expect(changedShare(img, img)).toBe(0);
+    expect(changedShare(addNoise(img, 12, 1), addNoise(img, 12, 2))).toBeLessThan(UNTOUCHED_SHARE);
+  });
+
+  it("a small painted patch counts as changed", () => {
+    const img = createImage(64, 64);
+    const painted = createImage(64, 64);
+    fillRect(painted, 0, 0, 4, 4, BLACK); // 16 of 4096 pixels
+    expect(changedShare(img, painted)).toBeCloseTo(16 / 4096);
+    expect(changedShare(img, painted)).toBeGreaterThan(UNTOUCHED_SHARE);
+  });
+
+  it("throws on mismatched sizes", () => {
+    expect(() => changedShare(createImage(4, 4), createImage(5, 5))).toThrow();
   });
 });
