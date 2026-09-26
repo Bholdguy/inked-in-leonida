@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { kayleeCallback, mustPostFirst, nextAfterJob } from "@/lib/game/flow";
+import { kayleeCallback, mustPostFirst, nextAfterJob, nextLabel } from "@/lib/game/flow";
 
 describe("nextAfterJob", () => {
   it("follows PRD 8.1", () => {
@@ -30,5 +30,13 @@ describe("mustPostFirst", () => {
     expect(mustPostFirst("kaylee-1")).toBe(false);
     expect(mustPostFirst("tino-2")).toBe(false);
     expect(mustPostFirst("self")).toBe(false);
+  });
+});
+
+describe("nextLabel", () => {
+  it("names the way out of each job", () => {
+    expect(nextLabel("tino-1")).toBe("Next client");
+    expect(nextLabel("kaylee-1")).toBe("Next client");
+    expect(nextLabel("tino-2")).toBe("Close up shop");
   });
 });

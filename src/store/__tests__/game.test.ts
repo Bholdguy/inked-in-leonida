@@ -124,4 +124,16 @@ describe("game store", () => {
     useGame.getState().finishInking("self", result);
     expect(useGame.getState().screen).toBe("SELF_REVEAL");
   });
+
+  it("tino-1: VERDICT -> INKGRAM (the only way on) -> Next client -> kaylee-1 ORDER", () => {
+    const g = useGame.getState();
+    g.finishInking("tino-1", result);
+    expect(useGame.getState().screen).toBe("VERDICT");
+    useGame.getState().goTo("INKGRAM"); // "Post to InkGram", the only button on this verdict
+    useGame.getState().advance(); // INKGRAM "Next client"
+    const s = useGame.getState();
+    expect(s.screen).toBe("ORDER");
+    expect(currentJob(s).id).toBe("kaylee-1");
+    expect(s.results["tino-1"]).toBe(result);
+  });
 });

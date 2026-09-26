@@ -2,7 +2,7 @@
 
 import ClientBadge from "@/components/ClientBadge";
 import ShareActions from "@/components/ShareActions";
-import { nextAfterJob } from "@/lib/game/flow";
+import { nextLabel } from "@/lib/game/flow";
 import { formatLikes, likeCount } from "@/lib/share/social";
 import { currentJob, useGame } from "@/store/game";
 
@@ -22,7 +22,7 @@ export default function InkgramScreen() {
   }
 
   const likes = likeCount(job.id, result.stars);
-  const next = nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client";
+  const next = nextLabel(job.id);
   const user = job.client.handle.replace(/^@/, "");
 
   return (

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { playStamp } from "@/lib/audio";
 import ClientBadge from "@/components/ClientBadge";
-import { mustPostFirst, nextAfterJob } from "@/lib/game/flow";
+import { mustPostFirst, nextLabel } from "@/lib/game/flow";
 import { currentJob, useGame } from "@/store/game";
 import type { Mood } from "@/types";
 
@@ -123,7 +123,7 @@ export default function VerdictScreen() {
             </button>
             {!mustPostFirst(job.id) && (
               <button type="button" onClick={() => useGame.getState().advance()} className="btn btn-ghost">
-                {nextAfterJob(job.id).screen === "FINALE_INTRO" ? "Close up shop" : "Next client"}
+                {nextLabel(job.id)}
               </button>
             )}
           </div>

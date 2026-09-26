@@ -17,6 +17,11 @@ export function nextAfterJob(jobId: JobId): { advanceJob: boolean; screen: FlowS
   }
 }
 
+// Label for the button that leaves a job (VERDICT, INKGRAM): the cover-up leads into the finale.
+export function nextLabel(jobId: JobId): "Next client" | "Close up shop" {
+  return nextAfterJob(jobId).screen === "FINALE_INTRO" ? "Close up shop" : "Next client";
+}
+
 // The first verdict only offers "Post to InkGram", so every player sees the share flow once.
 export function mustPostFirst(jobId: JobId): boolean {
   return jobId === "tino-1";
