@@ -17,12 +17,17 @@ interface Props {
 }
 
 const EMPTY_STENCIL = "Empty stencil. The client is staring at you.";
+export const LOAD_TIMEOUT_MS = 15_000; // no onLoad by then -> treat as a dead CDN
+// The package default. A hung load stays cached per URL inside the package loader, so a retry
+// after a timeout asks for a fresh URL; harmless once window.ImageEditor exists (it short-circuits).
+const EMBED_URL = "https://cdn.unlayer.com/image-editor/embed.js";
 
 export default function InkEditor({ job, startImage, onTransfer }: Props) {
   const editorRef = useRef<ImageEditorRef>(null);
   const instanceRef = useRef<ImageEditorInstance | null>(null);
   const [attempt, setAttempt] = useState(0); // bumped by "Retry" after a fatal error to remount
   const [fatal, setFatal] = useState(false);
+  const [loaded, setLoaded] = useState(false); // onLoad fired for the current attempt
   const [jammed, setJammed] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
@@ -33,6 +38,16 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
     const t = setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(t);
   }, [toast]);
+
+  // Each mount attempt gets 15 s to fire onLoad before the shop "loses power".
+  useEffect(() => {
+    if (fatal || loaded) return;
+    const t = setTimeout(() => {
+      console.error(`[InkEditor] editor did not load within ${LOAD_TIMEOUT_MS} ms`);
+      setFatal(true);
+    }, LOAD_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [attempt, fatal, loaded]);
 
   const editor = () => editorRef.current?.editor ?? instanceRef.current;
 
@@ -82,6 +97,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
           type="button"
           onClick={() => {
             setFatal(false);
+            setLoaded(false);
             setAttempt((a) => a + 1);
           }}
           className="rounded-lg bg-sunset px-5 py-2 font-bold text-night hover:brightness-110"
@@ -98,13 +114,20 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
         <button
           type="button"
           onClick={transfer}
+          disabled={!loaded}
           onAnimationEnd={() => setShaking(false)}
-          className={`rounded-lg bg-pink px-5 py-2 font-bold text-night transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${shaking ? "shake" : ""}`}
+          className={`rounded-lg bg-pink px-5 py-2 font-bold text-night transition hover:brightness-110 disabled:cursor-wait disabled:opacity-50 disabled:hover:brightness-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${shaking ? "shake" : ""}`}
         >
           Transfer stencil
         </button>
         <p className="text-xs text-muted">Close the tool panel, then Transfer. The editor&apos;s Save works too.</p>
       </div>
+
+      {!loaded && (
+        <p role="status" className="text-sm text-muted">
+          Setting up the stencil paper...
+        </p>
+      )}
 
       {toast && (
         <p role="status" className="rounded-lg border border-pink/40 bg-pink/10 px-4 py-2 text-sm text-pink">
@@ -124,11 +147,13 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
       <ImageEditor
         key={attempt}
         ref={editorRef}
+        scriptUrl={attempt > 0 ? `${EMBED_URL}?retry=${attempt}` : undefined}
         image={startImage}
         options={options}
         minHeight={640}
         onLoad={(instance) => {
           instanceRef.current = instance;
+          setLoaded(true);
         }}
         // hasChanges() reads false inside onSave (CDN 2.12.0), so Save is guarded by the ink check only.
         onSave={({ dataUrl }) => void handOver(dataUrl)}

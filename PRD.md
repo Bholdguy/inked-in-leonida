@@ -462,6 +462,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 2.3 Canned lines (Section 15.2) + mood consistency rule
 - [x] 2.4 Offensive path -> "Start over"
 - [x] 2.5 "Client squinted at it" tag on fallback
+- [ ] 2.6 Hardening (verifier fixes before GATE 2): editor load timeout, error boundaries, dead ends, /api/judge rate limit, footer wording, housekeeping
 
 **GATE 2:** With the key set, reactions are specific to the drawing. With the key removed, the game still completes with canned lines. Both verified on Vercel (use a Preview deployment without the env var).
 
@@ -631,10 +632,11 @@ export interface JobResult {
 - 2.4: `be1ab61` · 2.5 fallback tag on VERDICT (`VerdictScreen.tsx`): commit "feat: show fallback tag on the verdict"
 - 2.5: `d862afc` · merged to `main` (fast-forward) for GATE 2
 - security fix: `f7d339d` (key-shaped fixture replaced, secrets rule added, incident logged as item 31)
+- 2.6 item 1: InkEditor waits for onLoad (loading line, Transfer disabled), 15 s `LOAD_TIMEOUT_MS` -> POWER'S OUT; Retry remounts with a fresh `scriptUrl` (`?retry=N`) because the package loader caches a hung load per URL
 
 ### Current task
 <!-- Agent: one task ID -->
-- GATE 2: production verified; waiting on owner's Preview (no-key) run, checklist steps 1-6
+- 2.6 Hardening (item 2: error boundaries)
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -716,6 +718,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-25 · 2.5 · typecheck pass · lint pass · test 166/166 · dev with key: vision verdict 100/100 shows no tag; same result with source fallback shows "Client squinted at it."
 - 2026-09-25 · GATE 2 (partial) · typecheck pass · lint pass · test 166/166 (7 files) · build pass (`/api/judge` dynamic) · client bundle scan: 0 files contain GEMINI, the Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, __game, or the actual key value · `phase-2` pushed -> Preview https://inked-in-leonida-re3kw0h7g-bholdguys-projects.vercel.app (Vercel login wall, not yet played) · `main` fast-forwarded to d862afc -> Production deployed · production API: probe images -> 200 vision CRYSTAL 3.7 s cold; bad input -> 200 fallback · production UI, real editor (Draw heart, brush default red; Text tool Heading, FILL set to black preset, typed CRYSTAL; editor Save; Lock it in): PLACEMENT -> INKING -> VERDICT in 4.2 s, 100/100, 5 stars, THRILLED, $180, all five bars full, drawing-specific model line, no fallback tag
 - 2026-09-26 · security fix `f7d339d` · typecheck pass · lint pass · test 166/166 · tracked-file + working-tree scan: no Google key prefix, no other secret shapes, no tracked .env · production redeploy of f7d339d with the rotated key: one /api/judge call -> 200, source "vision", CRYSTAL read, 3.9 s
+- 2026-09-26 · 2.6 item 1 (editor load timeout) · typecheck pass · lint pass · test 166/166 · browser (dev), CDN embed script rerouted to a non-routable host (hang): loading line "Setting up the stencil paper..." + Transfer disabled at 1.5 s, still loading at ~12 s, POWER'S OUT at ~17 s (15 s after mount); block removed + Retry -> editor in 1.9 s via `embed.js?retry=1`, loading line gone, Transfer enabled · embed script rerouted to a 404: POWER'S OUT in 0.9 s via onError; Retry loads the editor
 
 ---
 
