@@ -634,10 +634,11 @@ export interface JobResult {
 - security fix: `f7d339d` (key-shaped fixture replaced, secrets rule added, incident logged as item 31)
 - 2.6 item 1: InkEditor waits for onLoad (loading line, Transfer disabled), 15 s `LOAD_TIMEOUT_MS` -> POWER'S OUT; Retry remounts with a fresh `scriptUrl` (`?retry=N`) because the package loader caches a hung load per URL
 - 2.6 item 2: `src/app/error.tsx` + `src/app/global-error.tsx` (own html/body, inline styles), both reset the store then re-render; log only the error digest or name
+- 2.6 item 3: VERDICT no-result button, INKING `safeFinish` (vision -> canned fallback -> null + way back), jammed Retry remounts the editor when there is no instance or the reset throws
 
 ### Current task
 <!-- Agent: one task ID -->
-- 2.6 Hardening (item 3: dead ends)
+- 2.6 Hardening (item 4: rate limit)
 
 ### Blockers and amendments
 <!-- Agent: anything that forced a deviation from this PRD -->
@@ -721,6 +722,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · security fix `f7d339d` · typecheck pass · lint pass · test 166/166 · tracked-file + working-tree scan: no Google key prefix, no other secret shapes, no tracked .env · production redeploy of f7d339d with the rotated key: one /api/judge call -> 200, source "vision", CRYSTAL read, 3.9 s
 - 2026-09-26 · 2.6 item 1 (editor load timeout) · typecheck pass · lint pass · test 166/166 · browser (dev), CDN embed script rerouted to a non-routable host (hang): loading line "Setting up the stencil paper..." + Transfer disabled at 1.5 s, still loading at ~12 s, POWER'S OUT at ~17 s (15 s after mount); block removed + Retry -> editor in 1.9 s via `embed.js?retry=1`, loading line gone, Transfer enabled · embed script rerouted to a 404: POWER'S OUT in 0.9 s via onError; Retry loads the editor
 - 2026-09-26 · 2.6 item 2 (error boundaries) · typecheck pass · lint pass · test 166/166 · browser (dev): malformed result (breakdown null) on VERDICT -> error.tsx "Something shorted out in the shop."; Restart shift -> ORDER with results cleared. global-error.tsx is production-only (checked by build)
+- 2026-09-26 · 2.6 item 3 (dead ends) · typecheck pass · lint pass · test 169/169 (safeFinish: good verdict passes; merge throws -> canned fallback 80; fallback throws -> null) · browser (dev): VERDICT with no result -> "No verdict yet." + Back to the order -> ORDER; INKING with unscorable data -> "The needle jammed mid-line." + Back to placement -> PLACEMENT; tino-2 with a corrupt start image -> "Stencil paper jammed" -> Retry reset the image (instance present) and re-jammed, Retry still offered. The no-instance remount branch is not reachable from outside the component; verified by code review only
 
 ---
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { finishJob } from "@/lib/game/evaluate";
+import { useEffect, useRef, useState } from "react";
+import { safeFinish } from "@/lib/game/evaluate";
 import { requestJudgement } from "@/lib/game/judgeClient";
 import { useGame } from "@/store/game";
 
@@ -12,6 +12,7 @@ const MIN_SHOW_MS = 1200; // so a fast fallback doesn't flash past
 export default function InkingScreen() {
   const inking = useGame((s) => s.inking);
   const started = useRef(false); // survives the Strict Mode double effect
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!inking || started.current) return;
@@ -21,14 +22,16 @@ export default function InkingScreen() {
       const verdict = await requestJudgement(inking.job.id, inking.compositeJpegB64, inking.stencilJpegB64);
       const wait = MIN_SHOW_MS - (performance.now() - t0);
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-      useGame.getState().finishInking(inking.job.id, finishJob(inking, verdict));
+      const result = safeFinish(inking, verdict);
+      if (result) useGame.getState().finishInking(inking.job.id, result);
+      else setFailed(true);
     })();
   }, [inking]);
 
-  if (!inking) {
+  if (!inking || failed) {
     return (
       <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
-        <p className="font-bold">The needle has nothing to ink.</p>
+        <p className="font-bold">{failed ? "The needle jammed mid-line." : "The needle has nothing to ink."}</p>
         <button type="button" onClick={() => useGame.getState().goTo("PLACEMENT")} className="rounded bg-pink px-4 py-2 font-bold text-night">
           Back to placement
         </button>

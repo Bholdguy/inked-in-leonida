@@ -78,13 +78,21 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
     void handOver(dataUrl);
   };
 
+  // "Stencil paper jammed" Retry: reload the image in place, or remount the editor when there is
+  // no instance to reset (or the reset itself fails).
+  const remount = () => {
+    setLoaded(false);
+    setAttempt((a) => a + 1);
+  };
   const retryLoad = async () => {
     setJammed(false);
+    const ed = editor();
+    if (!ed) return remount();
     try {
-      await editor()?.reset(startImage);
+      await ed.reset(startImage);
     } catch (err) {
-      console.error("[InkEditor] reset failed", err);
-      setJammed(true);
+      console.error("[InkEditor] reset failed, remounting", err);
+      remount();
     }
   };
 
@@ -97,8 +105,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
           type="button"
           onClick={() => {
             setFatal(false);
-            setLoaded(false);
-            setAttempt((a) => a + 1);
+            remount();
           }}
           className="rounded-lg bg-sunset px-5 py-2 font-bold text-night hover:brightness-110"
         >

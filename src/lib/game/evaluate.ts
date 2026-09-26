@@ -60,6 +60,24 @@ export async function prepareJob({ job, stencil, placement, previousStencil }: P
   };
 }
 
+/**
+ * finishJob with a safety net for INKING: if merging the judge verdict throws, score the same
+ * drawing on the canned fallback; null only if even that fails (the screen then offers a way back).
+ */
+export function safeFinish(p: PreparedJob, vision: JudgeResponse): JobResult | null {
+  try {
+    return finishJob(p, vision);
+  } catch (err) {
+    console.error("[evaluate] verdict merge failed, using the canned fallback", err instanceof Error ? err.name : err);
+  }
+  try {
+    return finishJob(p, FALLBACK);
+  } catch (err) {
+    console.error("[evaluate] fallback scoring failed", err instanceof Error ? err.name : err);
+    return null;
+  }
+}
+
 /** Pure: merges the judge verdict (or the fallback) into the 9.2 score and picks the line (11.3). */
 export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): JobResult {
   const { job, placement } = p;

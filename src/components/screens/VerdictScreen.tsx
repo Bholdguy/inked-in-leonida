@@ -28,7 +28,14 @@ export default function VerdictScreen({ onDone }: { onDone: () => void }) {
   const result = useGame((s) => s.results[job.id]);
 
   if (!result) {
-    return <p className="text-muted">No verdict yet.</p>;
+    return (
+      <div role="alert" className="flex flex-col items-start gap-3 rounded-xl border border-white/10 bg-panel p-6">
+        <p className="font-bold">No verdict yet.</p>
+        <button type="button" onClick={() => useGame.getState().goTo("ORDER")} className="rounded bg-pink px-4 py-2 font-bold text-night">
+          Back to the order
+        </button>
+      </div>
+    );
   }
 
   return (

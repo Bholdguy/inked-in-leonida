@@ -3,7 +3,7 @@ import { getJob } from "@/data/jobs";
 import { COLOR_NAMES } from "@/lib/ink/color";
 import type { VisionJudgement } from "@/lib/judge/types";
 import type { ColorName } from "@/types";
-import { finishJob, type PreparedJob } from "../evaluate";
+import { finishJob, safeFinish, type PreparedJob } from "../evaluate";
 import { CLIENT_CAP_MS, requestJudgement } from "../judgeClient";
 
 const shares = (s: Partial<Record<ColorName, number>>) =>
@@ -86,6 +86,29 @@ describe("finishJob (vision merged into 9.2)", () => {
     const r = finishJob(prepared({ job: getJob("tino-2"), concealment: 0.95, shares: shares({ black: 0.8 }) }), vision({ oldTextReadable: false }));
     expect(r.breakdown).toMatchObject({ concealment: { got: 40 }, oldName: { got: 20 }, palette: { got: 15 }, motif: { got: 25 } });
     expect(r.score).toBe(100);
+  });
+});
+
+describe("safeFinish (INKING safety net)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("passes a good verdict through", () => {
+    expect(safeFinish(prepared(), vision({}))?.score).toBe(100);
+  });
+
+  it("falls back to the canned result when merging the verdict throws", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const broken = { ...vision({}), reaction: undefined } as unknown as VisionJudgement; // .trim() on undefined
+    const r = safeFinish(prepared(), broken);
+    expect(r?.source).toBe("fallback");
+    expect(r?.score).toBe(80);
+    expect(r?.reaction).toBe(tino.lines.happy);
+  });
+
+  it("returns null when even the fallback cannot score", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const bad = prepared({ shares: undefined as unknown as PreparedJob["shares"] });
+    expect(safeFinish(bad, vision({}))).toBeNull();
   });
 });
 
