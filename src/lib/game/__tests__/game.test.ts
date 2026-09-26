@@ -3,7 +3,7 @@ import { getJob } from "@/data/jobs";
 import { COLOR_NAMES } from "@/lib/ink/color";
 import type { VisionJudgement } from "@/lib/judge/types";
 import type { ColorName } from "@/types";
-import { finishJob, safeFinish, type PreparedJob } from "../evaluate";
+import { finishFree, finishJob, safeFinish, type PreparedJob } from "../evaluate";
 import { CLIENT_CAP_MS, requestJudgement } from "../judgeClient";
 
 const shares = (s: Partial<Record<ColorName, number>>) =>
@@ -86,6 +86,19 @@ describe("finishJob (vision merged into 9.2)", () => {
     const r = finishJob(prepared({ job: getJob("tino-2"), concealment: 0.95, shares: shares({ black: 0.8 }) }), vision({ oldTextReadable: false }));
     expect(r.breakdown).toMatchObject({ concealment: { got: 40 }, oldName: { got: 20 }, palette: { got: 15 }, motif: { got: 25 } });
     expect(r.score).toBe(100);
+  });
+});
+
+describe("finishFree (finale, unscored)", () => {
+  it("keeps the ink and adds no score or tip", () => {
+    const r = finishFree(prepared({ job: getJob("self"), placement: { cx: 0.3, cy: 0.6, scale: 1.2, rotate: -15 } }));
+    expect(r.stencil).toBe("data:image/jpeg;base64,STENCIL");
+    expect(r.composite).toBe("data:image/png;base64,COMPOSITE");
+    expect(r.placement).toEqual({ cx: 0.3, cy: 0.6, scale: 1.2, rotate: -15 });
+    expect(r.score).toBe(0);
+    expect(r.tip).toBe(0);
+    expect(r.breakdown).toEqual({});
+    expect(r.offensive).toBe(false);
   });
 });
 

@@ -6,7 +6,10 @@ import InkingScreen from "@/components/screens/InkingScreen";
 import OrderScreen from "@/components/screens/OrderScreen";
 import VerdictScreen from "@/components/screens/VerdictScreen";
 import StudioScreen from "@/components/studio/StudioScreen";
+import FinaleIntroScreen from "@/components/screens/FinaleIntroScreen";
 import NightIntroScreen from "@/components/screens/NightIntroScreen";
+import SelfRevealScreen from "@/components/screens/SelfRevealScreen";
+import SelfSetupScreen from "@/components/screens/SelfSetupScreen";
 import TitleScreen from "@/components/screens/TitleScreen";
 import { prepareJob } from "@/lib/game/evaluate";
 import { currentJob, useGame, type Screen } from "@/store/game";
@@ -14,12 +17,19 @@ import type { Placement } from "@/types";
 
 // Per-job steps: ORDER -> STUDIO -> PLACEMENT -> INKING (judge) -> VERDICT. The shift around
 // them (TITLE, NIGHT_INTRO, finale, SHOP_WALL) is driven by the store's advance().
-const STEPS: { screen: Screen; label: string }[] = [
+const JOB_STEPS: { screen: Screen; label: string }[] = [
   { screen: "ORDER", label: "Order" },
   { screen: "STUDIO", label: "Stencil" },
   { screen: "PLACEMENT", label: "Placement" },
   { screen: "INKING", label: "Inking" },
   { screen: "VERDICT", label: "Verdict" },
+];
+const SELF_STEPS: { screen: Screen; label: string }[] = [
+  { screen: "SELF_SETUP", label: "Your chair" },
+  { screen: "STUDIO", label: "Stencil" },
+  { screen: "PLACEMENT", label: "Placement" },
+  { screen: "INKING", label: "Inking" },
+  { screen: "SELF_REVEAL", label: "Reveal" },
 ];
 
 export default function GameShell() {
@@ -51,6 +61,7 @@ export default function GameShell() {
   };
 
   const restart = () => useGame.getState().reset();
+  const STEPS = job.mode === "free" ? SELF_STEPS : JOB_STEPS;
   const stepIndex = STEPS.findIndex((s) => s.screen === screen);
 
   let body: React.ReactNode;
@@ -84,6 +95,15 @@ export default function GameShell() {
       break;
     case "VERDICT":
       body = <VerdictScreen />;
+      break;
+    case "FINALE_INTRO":
+      body = <FinaleIntroScreen />;
+      break;
+    case "SELF_SETUP":
+      body = <SelfSetupScreen />;
+      break;
+    case "SELF_REVEAL":
+      body = <SelfRevealScreen />;
       break;
     default:
       // Any screen without a view must still leave the player a way back.

@@ -52,11 +52,11 @@ export default function StudioScreen() {
     <section className="grid gap-6 lg:grid-cols-[260px_1fr]">
       <aside className="rounded-xl border border-white/10 bg-panel p-4 lg:self-start">
         <details className="lg:hidden">
-          <summary className="cursor-pointer text-xs uppercase tracking-[0.3em] text-muted">The order</summary>
+          <summary className="cursor-pointer text-xs uppercase tracking-[0.3em] text-muted">{job.mode === "free" ? "Free hand" : "The order"}</summary>
           <div className="mt-4">{checklist}</div>
         </details>
         <div className="hidden lg:block">
-          <h3 className="mb-4 text-xs uppercase tracking-[0.3em] text-muted">The order</h3>
+          <h3 className="mb-4 text-xs uppercase tracking-[0.3em] text-muted">{job.mode === "free" ? "Free hand" : "The order"}</h3>
           {checklist}
         </div>
       </aside>

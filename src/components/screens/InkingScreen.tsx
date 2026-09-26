@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { safeFinish } from "@/lib/game/evaluate";
+import { finishFree, safeFinish } from "@/lib/game/evaluate";
 import { requestJudgement } from "@/lib/game/judgeClient";
 import { useGame } from "@/store/game";
 
@@ -18,11 +18,12 @@ export default function InkingScreen() {
     if (!inking || started.current) return;
     started.current = true;
     const t0 = performance.now();
+    const free = inking.job.mode === "free"; // the finale is never judged
     void (async () => {
-      const verdict = await requestJudgement(inking.job.id, inking.compositeJpegB64, inking.stencilJpegB64);
+      const verdict = free ? null : await requestJudgement(inking.job.id, inking.compositeJpegB64, inking.stencilJpegB64);
       const wait = MIN_SHOW_MS - (performance.now() - t0);
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-      const result = safeFinish(inking, verdict);
+      const result = verdict ? safeFinish(inking, verdict) : finishFree(inking);
       if (result) useGame.getState().finishInking(inking.job.id, result);
       else setFailed(true);
     })();
@@ -49,7 +50,9 @@ export default function InkingScreen() {
       />
       <div role="status" aria-live="polite" className="flex flex-col gap-2">
         <p className="text-2xl font-bold">The needle&apos;s working…</p>
-        <p className="text-muted">{inking.job.client.name} is watching every line.</p>
+        <p className="text-muted">
+          {inking.job.mode === "free" ? "Steady hand. It's your own skin." : `${inking.job.client.name} is watching every line.`}
+        </p>
       </div>
     </section>
   );

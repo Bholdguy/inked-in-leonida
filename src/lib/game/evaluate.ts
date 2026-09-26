@@ -110,3 +110,20 @@ export function finishJob(p: PreparedJob, vision: JudgeResponse = FALLBACK): Job
     offensive: scored.offensive,
   };
 }
+
+/** Pure: the finale is unscored. No judge call, no stars in the shop rating, no tip. */
+export function finishFree(p: PreparedJob): JobResult {
+  return {
+    stencil: p.stencil,
+    composite: p.composite,
+    placement: p.placement,
+    score: 0,
+    breakdown: {},
+    stars: 5,
+    mood: "thrilled",
+    reaction: "",
+    tip: 0,
+    source: "fallback",
+    offensive: false,
+  };
+}

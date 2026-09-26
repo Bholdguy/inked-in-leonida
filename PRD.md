@@ -471,7 +471,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 3.1 kaylee-1 job with shoulder placeholder
 - [x] 3.2 NIGHT_INTRO screens + Kaylee callback (9.3)
 - [x] 3.3 tino-2 cover-up: start image = tino-1 stencil, crop/resize off, concealment scoring
-- [ ] 3.4 FINALE_INTRO, SELF_SETUP, SELF_REVEAL
+- [x] 3.4 FINALE_INTRO, SELF_SETUP, SELF_REVEAL
 - [ ] 3.5 SHOP_WALL with localStorage persistence
 - [ ] 3.6 Themed labels (10.3) or legend fallback
 
@@ -645,6 +645,7 @@ export interface JobResult {
 - 3.0: `97ecfec` · 3.1 kaylee-1: no code needed beyond 3.0 (job data from 1.1, `advance()` routes tino-1 -> kaylee-1 ORDER, shoulder placeholder + "Left shoulder" zone from `bodies.ts`): commit "chore: verify kaylee-1 end to end"
 - 3.1: `86823fb` · 3.2 NIGHT_INTRO (`src/components/screens/NightIntroScreen.tsx`: whole card is one button, 2.5 s auto-advance or click, guarded so it advances once; night 2 shows `kayleeCallback(stars)`): commit "feat: add night intro cards with the Kaylee callback"
 - 3.2: `877a334` · 3.3 cover-up (`StudioScreen.tsx` opens the editor on `results["tino-1"].stencil` untouched, "Tino's old stencil is missing" + Restart shift guard instead of a blank editor; `PlacementScreen.tsx` defaults to tino-1's saved placement; ORDER shows "Returning client" + the night-1 composite; checklist tip "Tip: set your Script color before typing." on lettering jobs; `concealment()` outline rule (item 35) + 5 tests; route test for server-side oldLettering; dev-only `window.__editor` handle for verification): commit "feat: cover-up opens on the exact night-1 stencil and placement"
+- 3.3: `ad7ded2` · 3.4 finale (`FinaleIntroScreen.tsx` "Sit down"; `SelfSetupScreen.tsx` Forearm/Back + Light/Medium/Deep with a body preview, reads the latest body at click time; `SelfRevealScreen.tsx` "YOUR INK" + "Hang it on the wall"; pure `finishFree` in `evaluate.ts`; INKING never calls the judge in free mode; progress bar Your chair / Stencil / Placement / Inking / Reveal; STUDIO side panel "Free hand"): commit "feat: add the self-ink finale without the judge"
 
 ### Current task
 <!-- Agent: one task ID -->
@@ -755,6 +756,7 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 3.1 · browser (dev, key set): TITLE -> tino-1 (canvas-injected stencil via dev handle) 100/100 vision -> "Next client" -> kaylee-1 ORDER (Night 1, pink + orange, STAY LOUD) -> PLACEMENT on shoulder-light -> INKING -> VERDICT 75/100 vision (palette 25, size 15, placement 10, lettering 25, motif 0 for a crude palm), "Next client" shown
 - 2026-09-26 · 3.2 · typecheck pass · lint pass · browser (dev): kaylee-1 4 stars -> Next client -> "NIGHT 2 · 12:10 AM / Somebody's back. / Kaylee's post hit 40K likes. Your DMs are on fire." -> auto-advanced to tino-2 ORDER after 2.5 s
 - 2026-09-26 · 3.3 · typecheck pass · lint pass · test 194/194 (10 files; +5 concealment outline cases, +1 route: tino-2 prompt says "The old tattoo said \"CRYSTAL\"" even when the client sends oldLettering "HACKED", oldTextReadable false passed through) · browser (dev, real editor, synthetic pointer events): **JPEG path** tino-1 red strokes + black Heading text -> editor Save -> `image/jpeg` 1024x1024, placement 0.8x / 25° -> tino-2 editor rail Filter/Draw/Text/Shapes/Stickers (no Crop, no Resize), `getImage()` of the fresh cover-up editor vs stored stencil: 1024x1024 both, max pixel diff 0; whole stencil painted black -> Save -> PLACEMENT defaulted to 0.8x / 25° (tino-1's) -> concealment 40/40, old name 20/20, palette 15/15, 90/100 (judge timed out at 8 s -> fallback, "Crystal who? Never heard of her.") · **PNG path** tino-1 via our Transfer button -> `image/png` 1024x1024 -> cover-up editor max pixel diff 0; left half painted black -> Transfer button -> concealment 2.24/40 (~0.56 hidden), vision oldTextReadable false -> 20/20, 37/100
+- 2026-09-26 · 3.4 · typecheck pass · lint pass · test 195/195 (+finishFree) · browser (dev, real editor): tino-2 VERDICT -> Next client -> FINALE_INTRO -> Sit down -> SELF_SETUP Back + Light (two quick clicks both stick, after a stale-closure fix) -> STUDIO rail shows all 8 tools (Filter, Crop, Resize, Draw, Text, Shapes, Stickers, Frame) -> Draw strokes + editor Save -> PLACEMENT with no dashed zone -> Lock it in -> INKING -> SELF_REVEAL on back-light, 0 calls to /api/judge (fetch counted)
 
 ---
 
