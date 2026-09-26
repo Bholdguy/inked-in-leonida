@@ -111,7 +111,7 @@ export default function InkEditor({ job, startImage, onTransfer }: Props) {
         <p className="neon neon-flicker text-4xl tracking-[0.12em] [text-shadow:0_0_2px_#fff,0_0_10px_var(--sunset),0_0_26px_var(--sunset)] sm:text-5xl">
           POWER&apos;S OUT AT THE SHOP
         </p>
-        <p className="max-w-sm text-muted">The editor couldn&apos;t load from its CDN. Check your connection, then flip the breaker.</p>
+        <p className="max-w-sm text-muted">The stencil machine won&apos;t power up. Check your connection, then flip the breaker.</p>
         <button
           type="button"
           onClick={() => {

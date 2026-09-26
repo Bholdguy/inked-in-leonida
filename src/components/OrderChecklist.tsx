@@ -16,7 +16,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 // "panel" on the dark studio sidebar, "paper" on the ORDER work ticket.
 export default function OrderChecklist({ job, tone = "panel" }: { job: Job; tone?: "panel" | "paper" }) {
-  const labelTone = tone === "paper" ? "text-night/55" : "text-muted";
+  const labelTone = tone === "paper" ? "text-night/70" : "text-muted";
   const size = sizeLabel(job.coverage);
   const zone = zoneLabel(job);
   const rows: { label: string; value: React.ReactNode }[] = [

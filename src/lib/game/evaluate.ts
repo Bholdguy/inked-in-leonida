@@ -22,6 +22,7 @@ export interface PreparedJob {
   concealment: number | null; // cover-up only
   halo: string; // INKING: fresh-ink halo layer (PNG data URL, body size)
   inkBox: Rect | null; // INKING: where the needle sweeps
+  stencilAspect: number; // stencil height / width (the cover-up keeps tino-1's size)
 }
 
 export interface PrepareInput {
@@ -62,6 +63,7 @@ export async function prepareJob({ job, stencil, placement, previousStencil }: P
     concealment: hidden,
     halo,
     inkBox: box,
+    stencilAspect: raw.height / raw.width,
   };
 }
 

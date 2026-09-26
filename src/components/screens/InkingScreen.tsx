@@ -5,6 +5,7 @@ import { bodySrc } from "@/data/bodies";
 import { startNeedleBuzz } from "@/lib/audio";
 import { finishFree, safeFinish } from "@/lib/game/evaluate";
 import { requestJudgement } from "@/lib/game/judgeClient";
+import { placementBox, unionBox } from "@/lib/ink/bounds";
 import { useGame } from "@/store/game";
 
 // PRD 8.2: a 2.5 s reveal sweep with the needle leading the edge, then a 1 s fresh-ink halo.
@@ -21,6 +22,7 @@ const prefersReducedMotion = () =>
 export default function InkingScreen() {
   const inking = useGame((s) => s.inking);
   const oldWork = useGame((s) => s.results["tino-1"]?.composite);
+  const oldPlacement = useGame((s) => s.results["tino-1"]?.placement);
   const started = useRef(false); // survives the Strict Mode double effect
   const [failed, setFailed] = useState(false);
   const [reduced] = useState(prefersReducedMotion);
@@ -48,7 +50,9 @@ export default function InkingScreen() {
   // The sweep: clip the finished ink open left to right across its bounding box.
   useEffect(() => {
     if (!inking || phase !== "sweep") return;
-    const box = inking.inkBox ?? { x: 0, y: 0, w: 1, h: 1 };
+    // Cover-up: the needle also passes over the old CRYSTAL, even if the new ink was moved.
+    const oldBox = inking.job.startFrom === "tino-1" && oldPlacement ? placementBox(oldPlacement, inking.stencilAspect) : null;
+    const box = unionBox(inking.inkBox, oldBox) ?? { x: 0, y: 0, w: 1, h: 1 };
     const stopBuzz = useGame.getState().sound ? startNeedleBuzz() : () => {};
     const start = performance.now();
     let frame = 0;
@@ -73,7 +77,7 @@ export default function InkingScreen() {
       cancelAnimationFrame(frame);
       stopBuzz();
     };
-  }, [inking, phase]);
+  }, [inking, phase, oldPlacement]);
 
   useEffect(() => {
     if (phase !== "halo") return;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { whiteToAlpha } from "../alpha";
 import { classifyColor, colorShare } from "../color";
-import { alphaBounds } from "../bounds";
+import { alphaBounds, placementBox, unionBox } from "../bounds";
 import { changedShare, UNTOUCHED_SHARE } from "../change";
 import { concealment } from "../concealment";
 import { createImage } from "../image";
@@ -302,5 +302,33 @@ describe("alphaBounds (INKING sweep box)", () => {
     const img = createImage(4, 4, [0, 0, 0, 0]);
     setPixel(img, 1, 1, [255, 0, 0], 5);
     expect(alphaBounds(img)).toBeNull();
+  });
+});
+
+describe("placementBox / unionBox (cover-up sweep)", () => {
+  it("boxes a square stencil at scale 1, no rotation", () => {
+    const b = placementBox({ cx: 0.5, cy: 0.5, scale: 1, rotate: 0 }, 1);
+    expect(b.x).toBeCloseTo(0.3);
+    expect(b.w).toBeCloseTo(0.4);
+    expect(b.y).toBeCloseTo(0.5 - 0.2 / 1.25);
+    expect(b.h).toBeCloseTo(0.4 / 1.25);
+  });
+
+  it("grows with rotation and clamps to the image", () => {
+    const flat = placementBox({ cx: 0.5, cy: 0.5, scale: 1, rotate: 0 }, 1);
+    const turned = placementBox({ cx: 0.5, cy: 0.5, scale: 1, rotate: 45 }, 1);
+    expect(turned.w).toBeGreaterThan(flat.w);
+    const edge = placementBox({ cx: 0.05, cy: 0.5, scale: 1, rotate: 0 }, 1);
+    expect(edge.x).toBe(0);
+  });
+
+  it("unions two boxes and passes nulls through", () => {
+    const u = unionBox({ x: 0.1, y: 0.1, w: 0.2, h: 0.2 }, { x: 0.25, y: 0.05, w: 0.2, h: 0.1 })!;
+    expect(u.x).toBeCloseTo(0.1);
+    expect(u.y).toBeCloseTo(0.05);
+    expect(u.w).toBeCloseTo(0.35);
+    expect(u.h).toBeCloseTo(0.25);
+    expect(unionBox(null, { x: 0, y: 0, w: 1, h: 1 })).toEqual({ x: 0, y: 0, w: 1, h: 1 });
+    expect(unionBox(null, null)).toBeNull();
   });
 });

@@ -22,6 +22,7 @@ const prepared = (over: Partial<PreparedJob> = {}): PreparedJob => ({
   concealment: null,
   halo: "data:image/png;base64,HALO",
   inkBox: { x: 0.4, y: 0.4, w: 0.2, h: 0.2 },
+  stencilAspect: 1,
   ...over,
 });
 

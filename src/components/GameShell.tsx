@@ -151,7 +151,7 @@ export default function GameShell() {
             <span
               key={s.screen}
               aria-current={i === stepIndex ? "step" : undefined}
-              className={`rounded-full border px-3 py-1 transition-colors ${
+              className={`rounded-full border px-3 py-1 transition-colors motion-reduce:transition-none ${
                 i === stepIndex
                   ? "border-pink bg-pink/15 text-ink shadow-[0_0_16px_-4px_var(--pink)]"
                   : i < stepIndex

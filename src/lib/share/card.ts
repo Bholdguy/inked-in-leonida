@@ -18,6 +18,13 @@ function fontFamily(variable: string, fallback: string): string {
   return name ? `${name}, ${fallback}` : fallback;
 }
 
+// Rounded rectangle path; plain rectangle where roundRect is missing (older Safari/Firefox).
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+  ctx.beginPath();
+  if (typeof ctx.roundRect === "function") ctx.roundRect(x, y, w, h, r);
+  else ctx.rect(x, y, w, h);
+}
+
 export async function renderShareCard({ composite, handle, stars, caption }: CardInput): Promise<Blob> {
   await document.fonts?.ready;
   const display = fontFamily("--font-syne", "Arial, sans-serif");
@@ -47,8 +54,7 @@ export async function renderShareCard({ composite, handle, stars, caption }: Car
   const crop = Math.min(img.naturalWidth, img.naturalHeight);
   const sx = (img.naturalWidth - crop) / 2, sy = (img.naturalHeight - crop) / 2;
   ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(x, y, size, size, 28);
+  roundedRect(ctx, x, y, size, size, 28);
   ctx.clip();
   const bg = ctx.createRadialGradient(540, 300, 0, 540, 300, 700);
   bg.addColorStop(0, "#241838");
@@ -61,8 +67,7 @@ export async function renderShareCard({ composite, handle, stars, caption }: Car
   ctx.lineWidth = 3;
   ctx.shadowColor = "#ff3e9a";
   ctx.shadowBlur = 24;
-  ctx.beginPath();
-  ctx.roundRect(x, y, size, size, 28);
+  roundedRect(ctx, x, y, size, size, 28);
   ctx.stroke();
   ctx.shadowBlur = 0;
 
