@@ -489,6 +489,7 @@ Goal: tino-1 fully playable with placeholders and deterministic scoring only.
 - [x] 4.8 Title screen and footer disclaimer
 
 **GATE 4:** Owner plays a full run on desktop and on a phone with no broken states.
+**GATE 4 (automated): PASSED 2026-09-26** (checks + bundle scan + reviewer fixes + local production-build full run; 390 px pass in dev). The owner's own desktop + phone run is in the final checklist.
 
 ### Phase 5: Ship (Sun afternoon, ~2h, done by 20:00 UTC)
 - [ ] 5.1 README (Section 17)
@@ -794,6 +795,9 @@ Full details in `NOTES.md`. Highlights:
 - 2026-09-26 · 4.7 · typecheck pass · lint pass · browser (dev, 390x844): banner shown; TITLE, NIGHT_INTRO, ORDER, STUDIO (editor loads, rail Ink Age/Trim/Needle/Script..., ✓ save icon), PLACEMENT, VERDICT, INKGRAM, FINALE_INTRO, SELF_SETUP, SHOP_WALL: `scrollWidth == innerWidth` and no element past the right edge on every screen
 - 2026-09-26 · 4.8 · typecheck pass · lint pass · test 223/223
 - 2026-09-26 · GATE 4 run 1 · typecheck pass · lint pass · test 223/223 (13 files) · build pass (`/` 21.6 kB, 124 kB first load) · client bundle scan: 0 hits (GEMINI, Google key prefix, generativelanguage, x-goog-api-key, JUDGE_FORCE, `__game`, `__editor`, actual key value) · **local production build, full real-editor run, key set:** TITLE -> NIGHT 1 -> tino-1 (red + black Needle strokes, editor Transfer Stencil) -> sweep INKING -> VERDICT 50/100 vision, stamped ANGRY badge -> Post to InkGram (seeded likes) -> Next client -> kaylee-1 -> Next client -> NIGHT 2 card -> tino-2 editor on the old ink, black fill -> VERDICT 75/100 (Cover-up 40/40, Old name gone 20/20), "Close up shop" -> finale Back + Deep -> SELF_REVEAL with Download card + Share on X -> SHOP_WALL $410, 2.7★; 0 console errors, 0 /api/judge calls in the finale
+- 2026-09-26 · GATE 4 reviewer · subagent run 1 stopped on a usage-limit API error (no report); run 2: 7/7 owner items + all Section 12 rules PASS, 9 ranked items (2 should-fix, 7 nice-to-have) -> 8 fixed, 1 kept by design
+- 2026-09-26 · GATE 4 run 2 · typecheck pass · lint pass · test 226/226 · build pass · bundle scan 0 hits · production-build run: moving the cover-up 20% right carried the old ink with it and still scored 40/40 -> fixed by locking the cover-up placement (item 38)
+- 2026-09-26 · GATE 4 run 3 · typecheck pass · lint pass · test 226/226 (13 files) · build pass · bundle scan 0 hits · **local production build, full real-editor run:** tino-1 nudged left -> kaylee-1 -> NIGHT 2 -> tino-2 PLACEMENT "Line it up", sliders disabled, Shift+Right ignored, cover-up composited exactly over the night-1 spot -> 40/40 + 20/20, 90/100 (judge timed out on the solid black square -> "Client squinted at it.") -> finale Back + Light -> SELF_REVEAL with Download card + Share on X -> SHOP_WALL $560, 3.7★; 0 console errors, 0 /api/judge calls in the finale
 
 ---
 
